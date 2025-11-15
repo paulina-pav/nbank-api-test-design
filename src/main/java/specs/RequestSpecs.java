@@ -1,4 +1,4 @@
-package Specs;
+package specs;
 
 import Requests.UserLoginAuthRequester;
 import io.restassured.builder.RequestSpecBuilder;

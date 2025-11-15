@@ -1,13 +1,14 @@
-package Tests.positive;
+package middle.positive;
 
 import Requests.*;
-import Specs.RequestSpecs;
-import Specs.ResponseSpecs;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 import Tests.BaseTest;
 import generators.DataGenerator;
 import generators.MaxSumsForDepositAndTransactions;
 import generators.TransactionType;
 import generators.UserRole;
+import io.restassured.common.mapper.TypeRef;
 import models.*;
 import org.junit.jupiter.api.Test;
 
@@ -16,21 +17,22 @@ import java.util.List;
 public class UserMakesDepositTest extends BaseTest {
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
     @Test
-    public void getAccTrans(){
-        //создаем юзера
+    public void userMakesDeposit(){
+        //Предусловие шаг 1: создаем юзера
         NewUserRequest newUser = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
 
-          new CreateNewUserRequester(
+        NewUserResponse newUserResponse = new CreateNewUserRequester(
                 RequestSpecs.adminAuth(),
                 ResponseSpecs.entityWasCreated())
-                .post(newUser);
+                .post(newUser).extract().as(NewUserResponse.class);
 
 
-        //юзер создает акк. Запишем ответ, чтобы вытащить из него id счета в будущем
+        //Предусловие шаг 2: юзер создает акк.
+        // Запишем ответ, чтобы вытащить из него id счета в будущем
         CreateAnAccResponse createAnAccResponse = new CreateAccountRequester(    //в респонзе может вытащить баланс нового счета его id и транзакции (их нет тк счет новый)
                 RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -39,7 +41,8 @@ public class UserMakesDepositTest extends BaseTest {
         Integer id = createAnAccResponse.getId();
 
 
-       //пополним этот счет на максимальное значение для депозита
+       //Шаг 3: юзер делает депозит.
+        // Пополним этот счет на максимальное значение для депозита
         MakeDeposit deposit = new MakeDeposit
                 .Builder()
                 .setBalance(MaxSumsForDepositAndTransactions.DEPOSIT.getValue())
@@ -50,15 +53,13 @@ public class UserMakesDepositTest extends BaseTest {
                 (RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()), ResponseSpecs.isOk())
                 .post(deposit).extract().as(MakeDepositResponse.class);
 
-
-        //этот запрос -- ключевой в данном тесте. поэтому сделаем много ассертов
         //проверим: номер счета, баланс и что массив с транзакциями не пустой
         soflty.assertThat(makeDepositResponse.getId()).isEqualTo(id);
         soflty.assertThat(makeDepositResponse.getBalance()).isEqualTo(MaxSumsForDepositAndTransactions.DEPOSIT.getValue());
         soflty.assertThat(makeDepositResponse.getTransactions()).isNotEmpty();
 
 
-        //проверка 2: Затем транзакции: что сумма нужная, тип депозит и связанный счет нужный
+        //проверка 2, транзакции: что сумма нужная, тип депозит и связанный счет нужный
         //Для этого ищем нужный объект транзакции в массиве транзакций, подходящую под наши требования: сумма, тип транзакции и счет зачисления
         MakeDepositResponse.Transaction targetTransaction = makeDepositResponse.getTransactions().stream()
                 .filter(t -> t.getAmount() == deposit.getBalance()) //баланс такой же как мы положили
@@ -75,9 +76,15 @@ public class UserMakesDepositTest extends BaseTest {
 
 
         //запрашиваем транзакции по конкретному счету, чтобы еще раз проверить, что депозит действительно совершен на нужный счет и на нужную сумму
-        List<GetAccountTransactionsResponse> transactions = new GetAccountTransactionsRequester
+
+        List<GetAccountTransactionsResponse> transactionsResponse = new GetAccountTransactionsRequester
                 (RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),ResponseSpecs.isOk())
-                .get(new GetAccountTransactions(createAnAccResponse.getId())).extract().jsonPath().getList("", GetAccountTransactionsResponse.class);
+                .get(new GetAccountTransactions(createAnAccResponse.getId()))
+                .extract()
+                .as(new TypeRef<List<GetAccountTransactionsResponse>>() {});
+        //кладем их в лист
+        List<GetAccountTransactionsResponse> transactions = transactionsResponse.stream().toList();
+
 
         //проверим, что среди транзакций есть та, которая подходит под требования: нужный баланс, нужный тип транзакции и нужный id
         transactions.stream()
@@ -88,26 +95,29 @@ public class UserMakesDepositTest extends BaseTest {
                 .orElseThrow(() -> new AssertionError("Нужная транзакция не найдена"));
 
 
-        //Удаляем юзеров
-        //вернем айди всех и удалим всех
-        List<Integer> ids = new GetAllUsersRequester(
+        //Шаг 4: удаление юзера
+        String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                .delete(new DeleteByUserId(newUserResponse.getId()))
+                .extract().asString();
+
+        String expected = String.format("User with ID %d deleted successfully.", newUserResponse.getId());
+        soflty.assertThat(successMessage).isEqualTo(expected);
+
+        //Убедимся, что такого юзера нет. Админ вызывает getAllUsers, сразу положим в лист
+        List<GetAllUsersResponse> users = new GetAllUsersRequester(
                 RequestSpecs.adminAuth(),
                 ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        //вытащим их id в лист
+        List<Integer> userIds = users.stream()
+                .map(GetAllUsersResponse::getId)
+                .toList();
 
-        for (Integer userId : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(userId));
-
-        }
-
-
-
+        //проверим, что такого id нет
+        soflty.assertThat(userIds)
+                .as("удалённый id не должен быть среди пользователей")
+                .doesNotContain(newUserResponse.getId());
 
 
     }

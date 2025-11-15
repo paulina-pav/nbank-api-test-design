@@ -1,13 +1,15 @@
-package Tests.positive;
+package middle.positive;
 
 import Requests.*;
-import Specs.RequestSpecs;
-import Specs.ResponseSpecs;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 import Tests.BaseTest;
 import generators.*;
+import io.restassured.common.mapper.TypeRef;
 import models.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserTransferMoneyTest extends BaseTest {
@@ -21,27 +23,27 @@ public class UserTransferMoneyTest extends BaseTest {
     @Test
    // 1. Юзер успешно переводит деньги на существующий счет другого юзера
     public void userTransfersMoneyToUser() {
-        //cоздан юзер 1. Он будет дебетом
+        //Шаг 1: создаем юзеров
+        //юзер 1 - дебет
         NewUserRequest newUser1 = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
-
-        //юзер 2, будет кредитом
+        //юзер 2 - кредит
         NewUserRequest newUser2 = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser1);
+        NewUserResponse newUserResponse1 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser1).extract().as(NewUserResponse.class);
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser2);
+        NewUserResponse newUserResponse2 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser2).extract().as(NewUserResponse.class);
 
-//создаем счет юзеру 1 и записываем его в переменную
+//Предусловие шаг 2: создаем счет юзеру 1
         Integer accountDebetId = new CreateAccountRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -51,7 +53,7 @@ public class UserTransferMoneyTest extends BaseTest {
                 .path("id");
 
 
-//создаем счет юзеру 2. Вытащим из него баланс для дальнейших проверок и номер счета
+//Предусловие шаг 3: создаем счет юзеру 2
         CreateAnAccResponse createAnAccResponse2 = new CreateAccountRequester(
                 RequestSpecs.authAsUser(newUser2.getUsername(), newUser2.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -63,8 +65,9 @@ public class UserTransferMoneyTest extends BaseTest {
         float balanceCredit = createAnAccResponse2.getBalance();
 
 
-        //пополнение cчета у юзера 1. Через енум подтянули максимальную сумму для депозита.
+        //Предусловие шаг 4: пополнение cчета у юзера 1.
         //сделаем депозит дважды. Чтобы потом проверить перевод на максимальную сумму - 10 000
+
         float balanceDebet = 0.0F;//создадим переменную для записи баланса счета дебета, чтобы потом считать баланс после перевода
         for (int i = 1; i <= 2; i++) {
             MakeDepositResponse makeDepositResponse = new MakeDepositRequester
@@ -79,10 +82,7 @@ public class UserTransferMoneyTest extends BaseTest {
         }
 
 
-        //Выведем 2 переменные: счет дебета и баланс счета дебета
-
-
-        //перевод
+//Шаг 5: юзер 1 переводит юзеру 2
         TransferMoneyResponse transferMoneyResponse = new TransferMoneyRequester(RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
                 .post(new TransferMoney
@@ -106,12 +106,14 @@ public class UserTransferMoneyTest extends BaseTest {
         //у этого счета есть транзакция transfer out на сумму 5000
 
         //приходит массив счетов дебета
-        List<GetCustomerAccountResponse> accountsDebet = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsDebetResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+
+        List<GetCustomerAccountResponse> accountsDebet = accountsDebetResponse.stream().toList();
+
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetDebAcc = accountsDebet.stream()
@@ -133,12 +135,12 @@ public class UserTransferMoneyTest extends BaseTest {
 
         //ПРОВЕРКА 2: получатель
         //приходит массив счетов кредита
-        List<GetCustomerAccountResponse> accountsСredit = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsСreditResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser2.getUsername(), newUser2.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accountsСredit = accountsСreditResponse.stream().toList();
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetCredAcc = accountsСredit.stream()
@@ -158,43 +160,53 @@ public class UserTransferMoneyTest extends BaseTest {
                 .findAny()
                 .orElseThrow(() -> new AssertionError("Нужная транзакция не найдена"));
 
-        //Удаляем юзеров
-        //вернем айди всех и удалим всех
-        List<Integer> ids = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
 
-        //удалим всех
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
 
-        for (Integer id : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(id));
+        //Шаг 6: удалим только тех юзеров, что создали в тесте
+        //поместим в лист ответы на запросы о создании юзеров
+        List<NewUserResponse> createdUsers = new ArrayList<>(List.of(newUserResponse1,newUserResponse2));
 
+        //удалим их. И сразу же вызовем getAllUsers от админа, чтобы проверить, что id не существует
+        for(NewUserResponse user: createdUsers){
+            String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                    .delete(new DeleteByUserId(user.getId()))
+                    .extract().asString();
+            String expected = String.format("User with ID %d deleted successfully.", user.getId());
+            soflty.assertThat(successMessage).isEqualTo(expected);
+
+            //Убедимся, что удаленного юзера реально нет. Админ вызывает getAllUsers, сразу положим в лист
+            List<GetAllUsersResponse> users = new GetAllUsersRequester(
+                    RequestSpecs.adminAuth(),
+                    ResponseSpecs.isOk()
+            ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
+
+            //вытащим их id в лист
+            List<Integer> userIds = users.stream()
+                    .map(GetAllUsersResponse::getId)
+                    .toList();
+
+            //проверим, что удаленного юзера реально нет
+            soflty.assertThat(userIds)
+                    .as("удалённый id не должен быть среди пользователей")
+                    .doesNotContain(user.getId());
         }
-
 
     }
 
     //Тест 2: юзер переводит средства между своими счетами
     @Test
     public void userTransfersMoneyBetweenItsAccounts(){
-        //создаем юзера
+        //Предусловие шаг 1: создаем юзера
         NewUserRequest newUser1 = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser1);
+        NewUserResponse newUserResponse1 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser1).extract().as(NewUserResponse.class);
 
-
-        //создадим два счета. Этот счет будем дебетом и запишем его в переменную
+        //Предусловие шаг 2: создадим счет, который будет дебетом и запишем его в переменную
         Integer accountDebetId = new CreateAccountRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -203,7 +215,7 @@ public class UserTransferMoneyTest extends BaseTest {
                 .extract()
                 .path("id");
 
-        //создаем второй счет, который будет кредитом. Выпишем id счета и баланс для дальнейших сравнений
+        //Предусловие шаг 3: создаем второй счет, который будет кредитом. Выпишем id счета и баланс для дальнейших сравнений
         CreateAnAccResponse createAnAccDebetResponse = new CreateAccountRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -213,7 +225,7 @@ public class UserTransferMoneyTest extends BaseTest {
         Integer accountCreditId = createAnAccDebetResponse.getId();
         float balanceCredit = createAnAccDebetResponse.getBalance();
 
-        //пополненим баланс на счет-дебет. Через енум подтянули максимальную сумму для депозита.
+        //Предусловие шаг 4: пополненим баланс на счет-дебет.
         //сделаем депозит дважды. Чтобы потом проверить перевод на максимальную сумму - 10 000
         float balanceDebet = 0.0F;//создадим переменную для записи баланса счета дебета, чтобы потом считать баланс после перевода
         for (int i = 1; i <= 2; i++) {
@@ -229,7 +241,7 @@ public class UserTransferMoneyTest extends BaseTest {
         }
 
 
-        //перевод
+        //Шаг 5: перевод
         TransferMoneyResponse transferMoneyResponse = new TransferMoneyRequester(RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
                 .post(new TransferMoney
@@ -246,12 +258,12 @@ public class UserTransferMoneyTest extends BaseTest {
 
         //проверка через запрос GetCustomerAccounts
         //получим все счета пользователя
-        List<GetCustomerAccountResponse> accounts = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accounts = accountsResponse.stream().toList();
 
         //найдем среди всех счетов счёт-дебет и запишем его в переменную
         GetCustomerAccountResponse targetDebAcc = accounts.stream()
@@ -259,7 +271,7 @@ public class UserTransferMoneyTest extends BaseTest {
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Счёт не найден"));
 
-        // //проверки первого уровня. Убедимся, что текущий баланс = начальный баланс - 5000
+        //проверки первого уровня. Убедимся, что текущий баланс = начальный баланс - 5000
         soflty.assertThat(targetDebAcc.getBalance()).isEqualTo(balanceDebet - MaxSumsForDepositAndTransactions.TRANSACTION.getValue());
 
         //теперь смотрим транзакции этого счета. Ищем ту, где есть нужные совпадения по типу транзакции и сумме
@@ -286,23 +298,32 @@ public class UserTransferMoneyTest extends BaseTest {
                 .filter(t -> t.getRelatedAccountId().equals(accountDebetId)) //вставить сюда счет дебета откуда слали
                 .findAny()
                 .orElseThrow(() -> new AssertionError("Нужная транзакция не найдена"));
-        //Удаляем юзеров
-        //вернем айди всех и удалим всех
-        List<Integer> ids = new GetAllUsersRequester(
+
+
+        //шаг 6: удаляем юзера
+        //здесь создали только 1 юзера, его и удалим по id. Возьмем его из newUserResponse
+        String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                .delete(new DeleteByUserId(newUserResponse1.getId()))
+                .extract().asString();
+
+        String expected = String.format("User with ID %d deleted successfully.", newUserResponse1.getId());
+        soflty.assertThat(successMessage).isEqualTo(expected);
+
+        //Убедимся, что такого юзера нет. Админ вызывает getAllUsers, сразу положим в лист
+        List<GetAllUsersResponse> users = new GetAllUsersRequester(
                 RequestSpecs.adminAuth(),
                 ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        //вытащим их id в лист
+        List<Integer> userIds = users.stream()
+                .map(GetAllUsersResponse::getId)
+                .toList();
 
-        for (Integer id : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(id));
-
-        }
+        //проверим, что такого id нет
+        soflty.assertThat(userIds)
+                .as("удалённый id не должен быть среди пользователей")
+                .doesNotContain(newUserResponse1.getId());
 
     }
 

@@ -1,12 +1,13 @@
-package Tests.negatives;
+package middle.negatives;
 
 
 import Requests.*;
-import Specs.RequestSpecs;
-import Specs.ResponseSpecs;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 import Tests.BaseTest;
 import generators.DataGenerator;
 import generators.UserRole;
+import io.restassured.common.mapper.TypeRef;
 import models.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,20 +40,17 @@ public class UserMakesInvalidDepositNegativeTest extends BaseTest {
     //Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт на свой аккаунт
     public void userMakesInvalidDeposit(int invalidAmount, String expectedErrorMessage){
 
-        //создаем юзера
+        //Предусловие шаг 1: создаем юзера
         NewUserRequest newUser = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
 
-        new CreateNewUserRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.entityWasCreated())
-                .post(newUser);
+        NewUserResponse newUserResponse = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser).extract().as(NewUserResponse.class);
 
-
-        //юзер создает акк. Запишем ответ, чтобы вытащить из него id счета в будущем
+        //Предусловие шаг 2: юзер создает акк. Запишем ответ, чтобы вытащить из него id счета в будущем
         CreateAnAccResponse createAnAccResponse = new CreateAccountRequester(    //в респонзе может вытащить баланс нового счета его id и транзакции (их нет тк счет новый)
                 RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
                 ResponseSpecs.entityWasCreated()
@@ -60,7 +58,7 @@ public class UserMakesInvalidDepositNegativeTest extends BaseTest {
 
         Integer id = createAnAccResponse.getId();
 
-        //пополним этот счет на максимальное значение для депозита
+        //Шаг 3: пополним этот счет на максимальное значение для депозита
         MakeDeposit deposit = new MakeDeposit
                 .Builder()
                 .setBalance(invalidAmount)
@@ -73,31 +71,51 @@ public class UserMakesInvalidDepositNegativeTest extends BaseTest {
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //вернем все счета юзера
-        List<GetCustomerAccountResponse> accounts= new GetCustomerAccountsRequester(
+        //Проверка: вернем все счета юзера
+        List<GetCustomerAccountResponse> accountsResponse= new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accounts = accountsResponse.stream().toList();
 
-        //среди счетов найдем тот, куда делали депозит и проверим его баланс (на самом деле счет всего 1)
+
+        //среди счетов найдем тот, куда делали депозит и проверим его баланс
         GetCustomerAccountResponse targetDebAcc = accounts.stream()
                 .filter(a -> id.equals(a.getId()))//номер счета
                 .filter(a->a.getBalance() == 0.0F)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Счёт не найден"));
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
+        //проверим, что транзакций на счете нет
+
+
+
+        //Шаг 4: удалить юзера
+        // удалим только тех, что создали вначале теста
+        //здесь создали только 1 юзера, его и удалим по id. Возьмем его из newUserResponse
+        String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                .delete(new DeleteByUserId(newUserResponse.getId()))
+                .extract().asString();
+
+        String expected = String.format("User with ID %d deleted successfully.", newUserResponse.getId());
+        soflty.assertThat(successMessage).isEqualTo(expected);
+
+        //Убедимся, что такого юзера нет. Админ вызывает getAllUsers, сразу положим в лист
+        List<GetAllUsersResponse> users = new GetAllUsersRequester(
                 RequestSpecs.adminAuth(),
                 ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
 
-        for (Integer userId : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(userId));
+        //вытащим их id в лист
+        List<Integer> userIds = users.stream()
+                .map(GetAllUsersResponse::getId)
+                .toList();
 
-        }
+        //проверим, что такого id нет
+        soflty.assertThat(userIds)
+                .as("удалённый id не должен быть среди пользователей")
+                .doesNotContain(newUserResponse.getId());
     }
 
 }

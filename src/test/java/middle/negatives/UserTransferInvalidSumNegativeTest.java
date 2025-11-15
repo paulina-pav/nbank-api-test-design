@@ -1,15 +1,17 @@
-package Tests.negatives;
+package middle.negatives;
 
 import Requests.*;
-import Specs.RequestSpecs;
-import Specs.ResponseSpecs;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 import Tests.BaseTest;
 import generators.*;
+import io.restassured.common.mapper.TypeRef;
 import models.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -62,11 +64,11 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
                 .role(UserRole.USER.toString())
                 .build();
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser1);
+        NewUserResponse newUserResponse1 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser1).extract().as(NewUserResponse.class);
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser2);
+        NewUserResponse newUserResponse2 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser2).extract().as(NewUserResponse.class);
 
 //создаем счет юзеру 1 и записываем его в переменную.
         CreateAnAccResponse createAnAccResponse1 = new CreateAccountRequester(
@@ -121,12 +123,14 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
         //у этого счета НЕТ транзакций transfer out
 
         //приходит массив счетов дебета
-        List<GetCustomerAccountResponse> accountsDebet = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsDebetResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accountsDebet = accountsDebetResponse.stream().toList();
+
+
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetDebAcc = accountsDebet.stream()
@@ -148,12 +152,13 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
         //Проверка 2
         //Убедимся, что у кредита не изменился баланс
         //приходит массив счетов кредита
-        List<GetCustomerAccountResponse> accountsCredit = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsCreditResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser2.getUsername(), newUser2.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract()
+                .as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accountsCredit = accountsCreditResponse.stream().toList();
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetCredAcc = accountsCredit.stream()
@@ -167,17 +172,35 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
 //Проверим, что транзакций нет, т.к не было пополнения и не было перевода
         soflty.assertThat(targetCredAcc.getTransactions()).isEmpty();
 
+//удалим только тех юзеров, что создали в тесте
+        //поместим в лист ответы на запросы о создании юзеров
+        List<NewUserResponse> createdUsers = new ArrayList<>(List.of(newUserResponse1,newUserResponse2));
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        //удалим их. И сразу же вызовем getAllUsers от админа, чтобы проверить, что id не существует
+        for(NewUserResponse user: createdUsers){
+            String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                    .delete(new DeleteByUserId(user.getId()))
+                    .extract().asString();
+            String expected = String.format("User with ID %d deleted successfully.", user.getId());
+            soflty.assertThat(successMessage).isEqualTo(expected);
 
-        for (Integer userId : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(userId));
+            //Убедимся, что удаленного юзера реально нет. Админ вызывает getAllUsers, сразу положим в лист
+            List<GetAllUsersResponse> users = new GetAllUsersRequester(
+                    RequestSpecs.adminAuth(),
+                    ResponseSpecs.isOk()
+            ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
 
+            //вытащим их id в лист
+            List<Integer> userIds = users.stream()
+                    .map(GetAllUsersResponse::getId)
+                    .toList();
+
+            //проверим, что удаленного юзера реально нет
+            soflty.assertThat(userIds)
+                    .as("удалённый id не должен быть среди пользователей")
+                    .doesNotContain(user.getId());
         }
+
 
 
     }
@@ -207,11 +230,11 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
                 .role(UserRole.USER.toString())
                 .build();
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser1);
+        NewUserResponse newUserResponse1 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser1).extract().as(NewUserResponse.class);
 
-        new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
-                .post(newUser2);
+        NewUserResponse newUserResponse2 = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser2).extract().as(NewUserResponse.class);
 
 //создаем счет юзеру 1 и записываем его в переменную.
         CreateAnAccResponse createAnAccResponse1 = new CreateAccountRequester(
@@ -267,12 +290,15 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
         //у этого счета НЕТ транзакций transfer out
 
         //приходит массив счетов дебета
-        List<GetCustomerAccountResponse> accountsDebet = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsDebetResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser1.getUsername(), newUser1.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract()
+                .as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+
+        List<GetCustomerAccountResponse> accountsDebet = accountsDebetResponse.stream().toList();
+
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetDebAcc = accountsDebet.stream()
@@ -294,12 +320,13 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
         //Проверка 2
         //Убедимся, что у кредита не изменился баланс
         //приходит массив счетов кредита
-        List<GetCustomerAccountResponse> accountsCredit = new GetCustomerAccountsRequester(
+        List<GetCustomerAccountResponse> accountsCreditResponse = new GetCustomerAccountsRequester(
                 RequestSpecs.authAsUser(newUser2.getUsername(), newUser2.getPassword()),
                 ResponseSpecs.isOk())
-                .get().extract()
-                .jsonPath()
-                .getList("", GetCustomerAccountResponse.class);
+                .get()
+                .extract().as(new TypeRef<List<GetCustomerAccountResponse>>() {});
+        List<GetCustomerAccountResponse> accountsCredit = accountsCreditResponse.stream().toList();
+
 
         //среди счетов найдем тот, куда слали перевод и запишем его в переменную
         GetCustomerAccountResponse targetCredAcc = accountsCredit.stream()
@@ -314,15 +341,33 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
         soflty.assertThat(targetCredAcc.getTransactions()).isEmpty();
 
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        //удалим только тех юзеров, что создали в тесте
+        //поместим в лист ответы на запросы о создании юзеров
+        List<NewUserResponse> createdUsers = new ArrayList<>(List.of(newUserResponse1,newUserResponse2));
 
-        for (Integer userId : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(userId));
+        //удалим их. И сразу же вызовем getAllUsers от админа, чтобы проверить, что id не существует
+        for(NewUserResponse user: createdUsers){
+            String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                    .delete(new DeleteByUserId(user.getId()))
+                    .extract().asString();
+            String expected = String.format("User with ID %d deleted successfully.", user.getId());
+            soflty.assertThat(successMessage).isEqualTo(expected);
 
+            //Убедимся, что удаленного юзера реально нет. Админ вызывает getAllUsers, сразу положим в лист
+            List<GetAllUsersResponse> users = new GetAllUsersRequester(
+                    RequestSpecs.adminAuth(),
+                    ResponseSpecs.isOk()
+            ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
+
+            //вытащим их id в лист
+            List<Integer> userIds = users.stream()
+                    .map(GetAllUsersResponse::getId)
+                    .toList();
+
+            //проверим, что удаленного юзера реально нет
+            soflty.assertThat(userIds)
+                    .as("удалённый id не должен быть среди пользователей")
+                    .doesNotContain(user.getId());
         }
     }
 

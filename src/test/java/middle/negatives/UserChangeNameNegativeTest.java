@@ -1,15 +1,13 @@
-package Tests.negatives;
+package middle.negatives;
 
 import Requests.*;
-import Specs.RequestSpecs;
-import Specs.ResponseSpecs;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 import Tests.BaseTest;
 import generators.DataGenerator;
 import generators.UserRole;
-import models.DeleteByUserId;
-import models.GetCustomerProfileResponse;
-import models.NewUserRequest;
-import models.UserChangeName;
+import io.restassured.common.mapper.TypeRef;
+import models.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -46,17 +44,17 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("invalidNames")
     public void userChangeName(String invalidName, String expectedErrorMessage) {
+
+        //Предусловие шаг 1 - создать юзера
         NewUserRequest newUser = NewUserRequest.builder()
                 .username(DataGenerator.getUserName())
                 .password(DataGenerator.getUserPassword())
                 .role(UserRole.USER.toString())
                 .build();
-        new CreateNewUserRequester(
-                RequestSpecs.adminAuth(),
-                ResponseSpecs.entityWasCreated())
-                .post(newUser);
+        NewUserResponse newUserResponse = new CreateNewUserRequester(RequestSpecs.adminAuth(), ResponseSpecs.entityWasCreated())
+                .post(newUser).extract().as(NewUserResponse.class);
 
-//пытаемся сменить имя
+//Шаг 2: сменить имя
         String actualErrorMessage = new UserChangeNameRequester(
                 RequestSpecs.authAsUser(newUser.getUsername(),newUser.getPassword()), ResponseSpecs.BadRequest())
                 .put(new UserChangeName.Builder().setName(invalidName).build()).extract().asString();
@@ -80,16 +78,31 @@ public class UserChangeNameNegativeTest extends BaseTest {
 
 
 
-        //удалим всех
-        List<Integer> userIds = new GetAllUsersRequester(
+        //Шаг 3: удаление юзера
+        // удалим только тех, что создали вначале теста
+        //здесь создали только 1 юзера, его и удалим по id. Возьмем его из newUserResponse
+        String successMessage = new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk())
+                .delete(new DeleteByUserId(newUserResponse.getId()))
+                .extract().asString();
+
+        String expected = String.format("User with ID %d deleted successfully.", newUserResponse.getId());
+        soflty.assertThat(successMessage).isEqualTo(expected);
+
+        //Убедимся, что такого юзера нет. Админ вызывает getAllUsers, сразу положим в лист
+        List<GetAllUsersResponse> users = new GetAllUsersRequester(
                 RequestSpecs.adminAuth(),
                 ResponseSpecs.isOk()
-        ).get().extract().jsonPath().getList("id",  Integer.class);
+        ).get().extract().as(new TypeRef<List<GetAllUsersResponse>>() {});
 
-        for (Integer id : userIds){
-            new DeleteUserByIdRequester(RequestSpecs.adminAuth(), ResponseSpecs.isOk()).delete(new DeleteByUserId(id));
+        //вытащим их id в лист
+        List<Integer> userIds = users.stream()
+                .map(GetAllUsersResponse::getId)
+                .toList();
 
-        }
+        //проверим, что такого id нет
+        soflty.assertThat(userIds)
+                .as("удалённый id не должен быть среди пользователей")
+                .doesNotContain(newUserResponse.getId());
 
     }
 
