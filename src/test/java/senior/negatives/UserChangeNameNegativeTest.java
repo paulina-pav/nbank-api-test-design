@@ -1,24 +1,25 @@
 package senior.negatives;
 
 
-import api.requests.skelethon.Endpoint;
-import api.requests.skelethon.requesters.CrudRequester;
-import api.requests.steps.AdminSteps;
-import api.requests.steps.UserSteps;
-import api.specs.RequestSpecs;
-import api.specs.ResponseSpecs;
-import Tests.BaseTest;
-import api.models.NewUserRequest;
+import api.comparison.ModelAssertions;
 import api.models.GetCustomerProfileResponse;
 import api.models.UserChangeNameRequest;
+import api.requests.skelethon.Endpoint;
+import api.requests.skelethon.requesters.CrudRequester;
+import api.requests.steps.UserSteps;
+import api.requests.steps.result.CreatedUser;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import java.util.stream.Stream;
+
 import static api.generators.ErrorMessage.NAME_MUST_CONTAIN_TWO_WORDS_WITH_LETTERS_ONLY;
 
 
-public class UserChangeNameNegativeTest extends BaseTest {
+public class UserChangeNameNegativeTest extends senior.BaseTest {
 
 
    /* Тест-кейсы этого файла:
@@ -44,8 +45,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @MethodSource("invalidNames")
     public void userChangeName(String invalidName, String expectedErrorMessage) {
 
-        //Предусловие шаг 1 - создать юзера
-        NewUserRequest newUser = AdminSteps.createUser();
+        CreatedUser newUser = createUser();
 
         //неправильное имя
         UserChangeNameRequest invalidNameForUser = UserChangeNameRequest.builder()
@@ -53,22 +53,17 @@ public class UserChangeNameNegativeTest extends BaseTest {
                 .build();
 
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                RequestSpecs.authAsUser(newUser.getRequest().getUsername(), newUser.getRequest().getPassword()),
                 Endpoint.UPDATE_CUSTOMER_NAME,
                 ResponseSpecs.requestReturnsBadRequest()
         ).put(invalidNameForUser).extract().asString();
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
 
-//теперь проверим, что имя все еще null и не сменилось на неправильное
-        GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser);
+        //теперь проверим, что имя все еще null и не сменилось на неправильное
+        GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
+        ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
 
-        soflty.assertThat(getCustomerProfileAfter.getName()).isNull(); //имя все еще нулл тк не сменилось
-        soflty.assertThat(getCustomerProfileAfter.getUsername()).isEqualTo(newUser.getUsername()); //юзернейм такой же
-        soflty.assertThat(getCustomerProfileAfter.getPassword()).isNotNull();
-        soflty.assertThat(getCustomerProfileAfter.getRole()).isEqualTo(newUser.getRole());
-
-        //Удалить юзера
-        AdminSteps.deletesUser(newUser);
     }
 }
+

@@ -2,16 +2,20 @@ package api.requests.steps;
 
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.RandomModelGenerator;
+import api.generators.TransactionType;
 import api.models.*;
-import io.restassured.common.mapper.TypeRef;
+
 import api.models.*;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import io.restassured.common.mapper.TypeRef;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserSteps {
     public static GetCustomerProfileResponse getsProfile(NewUserRequest user) {
@@ -63,7 +67,7 @@ public class UserSteps {
 
     public static MakeDepositResponse makesDepositX2(Long accountId, NewUserRequest newUser) {
 
-       MakeDepositResponse makeDepositResponse = null;
+        MakeDepositResponse makeDepositResponse = null;
 
         for (int i = 0; i <= 1; i++) {
             MakeDepositRequest deposit = MakeDepositRequest.builder()
@@ -81,6 +85,25 @@ public class UserSteps {
         return makeDepositResponse;
     }
 
+    public static MakeDepositResponse makesDepositX3(Long accountId, NewUserRequest newUser) {
+
+        MakeDepositResponse makeDepositResponse = null;
+
+        for (int i = 0; i <= 2; i++) {
+            MakeDepositRequest deposit = MakeDepositRequest.builder()
+                    .id(accountId)
+                    .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                    .build();
+
+            makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
+                    RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                    Endpoint.DEPOSIT,
+                    ResponseSpecs.requestReturnsOK()
+            ).post(deposit);
+        }
+
+        return makeDepositResponse;
+    }
 
     public static List<GetCustomerAccountResponse> getsAccounts(NewUserRequest newUser) {
         List<GetCustomerAccountResponse> accounts = new CrudRequester(
@@ -105,6 +128,56 @@ public class UserSteps {
                 .extract().as(new TypeRef<List<GetAccountTransactionsResponse>>() {
                 });
         return transactionsByAcc;
+    }
+
+    public static Double getBalance(NewUserRequest user, Long accId) {
+
+        //Запросим информацию о счетах после пополнения, чтобы зафиксировать их балансы до транзакции
+        List<GetCustomerAccountResponse> allUserAccs = UserSteps.getsAccounts(user);
+
+        //найдем нужный счет
+        GetCustomerAccountResponse account = allUserAccs.stream()
+                .filter(a -> a.getId().equals(accId))
+                .findAny()
+                .orElseThrow(() -> new AssertionError("счета не существует"));
+
+        return account.getBalance();
+    }
+
+    public static boolean findTransactionBySumByTransactionTypeByAccId(Double sum, String type, Long currentAcc, Long relatedAcc, NewUserRequest user) {
+
+//запросили все транзакции по счету
+        List<GetAccountTransactionsResponse> transactionsByAcc = new CrudRequester(
+                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                Endpoint.GET_ACCOUNT_TRANSACTION,
+                ResponseSpecs.requestReturnsOK()
+        ).get(currentAcc)
+                .extract().as(new TypeRef<List<GetAccountTransactionsResponse>>() {
+                });
+
+        //Смотрим, что среди транзакций есть та, которая подходит под требования: нужный баланс, нужный тип транзакции и нужный id
+        Optional<GetAccountTransactionsResponse> foundTransaction = transactionsByAcc.stream()
+                .filter(t -> t.getAmount().equals(sum))
+                .filter(t -> t.getType().equals(type))
+                .filter(t -> t.getRelatedAccountId().equals(relatedAcc))
+                .findAny();
+
+        boolean flag = false;
+        if (foundTransaction.isPresent()) {
+            flag = true;
+        }
+        return flag;
+
+    }
+
+    public static List<CreateAnAccountResponse> createTwoAccounts(NewUserRequest user){
+        List<CreateAnAccountResponse> newAccounts = new ArrayList<>();
+        for (int i = 0; i <= 1; i++) {
+            CreateAnAccountResponse account = UserSteps.createsAccount(user);
+            newAccounts.add(account);
+        }
+
+        return newAccounts;
     }
 
 }

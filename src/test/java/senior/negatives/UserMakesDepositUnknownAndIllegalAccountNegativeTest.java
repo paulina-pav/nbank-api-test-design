@@ -1,24 +1,20 @@
 package senior.negatives;
 
 
-import api.requests.skelethon.Endpoint;
-import api.requests.skelethon.requesters.CrudRequester;
-import api.requests.steps.AdminSteps;
-import api.requests.steps.UserSteps;
-import api.specs.RequestSpecs;
-import api.specs.ResponseSpecs;
-import Tests.BaseTest;
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
-import api.models.NewUserRequest;
+import api.generators.TransactionType;
 import api.models.MakeDepositRequest;
-import api.models.GetCustomerAccountResponse;
+import api.requests.skelethon.Endpoint;
+import api.requests.skelethon.requesters.CrudRequester;
+import api.requests.steps.UserSteps;
+import api.requests.steps.result.CreatedUser;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 /*
@@ -27,111 +23,104 @@ import java.util.stream.Stream;
 ### Тест-кейс 5: Авторизованный юзер делает депозит на чужой аккаунт
  */
 
-public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends BaseTest {
+public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior.BaseTest {
 
-
-    public static Stream<Arguments> invalidAccounts() {
+    public static Stream<Arguments> invalidSum() {
         return Stream.of(
-                Arguments.of(100500L, ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT.getMessage()) //403 //несуществующий аккаунт
+                Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage())
         );
     }
-
     @ParameterizedTest
-    @MethodSource("invalidAccounts")
-    //Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт на свой аккаунт
-    public void userMakesInvalidDeposit(Long invalidAccount, String expectedMessage) {
+    @MethodSource("invalidSum")
+    //Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт
+    public void userMakesInvalidDeposit(Double invalidDepositSum, String expectedMessage) {
 
-        //Предусловие, шаг 1: создаем юзера
-        NewUserRequest newUser = AdminSteps.createUser();
+        CreatedUser newUser = createUser();
 
+        Long accountId = UserSteps.createsAccount(newUser.getRequest()).getId();
+        Double balanceBefore = UserSteps.getBalance(newUser.getRequest(), accountId);
 
-        //Шаг 3: сделать депозит
         MakeDepositRequest deposit = MakeDepositRequest.builder()
-                .id(invalidAccount)
-                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                .id(accountId)
+                .balance(invalidDepositSum)
                 .build();
 
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                RequestSpecs.authAsUser(newUser.getRequest().getUsername(), newUser.getRequest().getPassword()),
                 Endpoint.DEPOSIT,
-                ResponseSpecs.requestReturnsForbidden()
+                ResponseSpecs.requestReturnsBadRequest()
         ).post(deposit).extract().asString();
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedMessage);
 
 
         //Убедиться, что пополнения не произошло.
+        Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);
+        soflty.assertThat(balanceAfter).isEqualTo(balanceBefore);
+
+
         //проверим что транзакций нет
-        List<GetCustomerAccountResponse> accounts = UserSteps.getsAccounts(newUser);
+        boolean isTransaction = UserSteps.findTransactionBySumByTransactionTypeByAccId(invalidDepositSum,
+                TransactionType.DEPOSIT.getMessage(), accountId, accountId, newUser.getRequest());
+        soflty.assertThat(isTransaction).isFalse();
 
-        soflty.assertThat(accounts).isEmpty();
-
-        //Удалить юзера
-        AdminSteps.deletesUser(newUser);
     }
 
-    //### Тест-кейс 5: Авторизованный юзер делает депозит на чужой аккаунт
-    public static Stream<Arguments> errorMessage() {
+
+
+    public static Stream<Arguments> invalidAccounts() {
         return Stream.of(
                 Arguments.of(ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT.getMessage()) //403 //несуществующий аккаунт
         );
     }
 
     @ParameterizedTest
-    @MethodSource("errorMessage")
+    @MethodSource("invalidAccounts")
     public void userMakesDepositOnOtherUserAccount(String expectedErrorMessage) {
 
-        //cоздать 2 юзеров
-        List<NewUserRequest> users = new ArrayList<>();
-        for (int i = 0; i <= 1; i++) {
-            NewUserRequest newUser = AdminSteps.createUser();
-            users.add(newUser);
-        }
-        NewUserRequest user1 = users.get(0);
-        NewUserRequest user2 = users.get(1);
+        CreatedUser user1 = createUser();
+        CreatedUser user2 = createUser();
 
-        //создадим счета юзерам
-        Long user1Id = UserSteps.createsAccount(user1).getId();
-        Long user2Id = UserSteps.createsAccount(user2).getId();
+        //создать счета
+        Long user1Acc = UserSteps.createsAccount(user1.getRequest()).getId();
+        Long user2Acc = UserSteps.createsAccount(user2.getRequest()).getId();
 
+        Double user1AccBalanceBefore = UserSteps.getBalance(user1.getRequest(), user1Acc);
+        Double user2AccBalanceBefore = UserSteps.getBalance(user2.getRequest(), user2Acc);
 
         MakeDepositRequest deposit = MakeDepositRequest.builder()
-                .id(user1Id) //берем счет юзера 1
+                .id(user2Acc) //берем счет юзера 2
                 .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .build();
 
-        //юзер 1 пытается сделать депозит на счет юзера 2
+        //юзер 1 пытается сделать депозит на счет юзера 2, авторизуясь как юзер 1
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(user2.getUsername(),user2.getPassword()), //но авторизуемся как юзер 2
+                RequestSpecs.authAsUser(user1.getRequest().getUsername(),user1.getRequest().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden()
         ).post(deposit).extract().asString();
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //Проверки
 
-        //Проверка 1. Убедимся, что состояние счета юзера 1 не изменилось (хотя на него и не делали дебет)
-        //вернем все счета юзера
-        List<GetCustomerAccountResponse> accountUser1Response = UserSteps.getsAccounts(user1);
+        //Проверка 1. Убедимся, что балансы на обоих счетах не изменились
+        Double user2AccBalanceAfter = UserSteps.getBalance(user2.getRequest(), user2Acc);
+        Double user1AccBalanceAfter = UserSteps.getBalance(user1.getRequest(), user1Acc);
 
-        GetCustomerAccountResponse targetUser1Acc = accountUser1Response.stream()
-                .filter(a->a.getId().equals(user1Id))
-                .filter(a->a.getBalance() == 0L)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Счёт не найден"));
+        soflty.assertThat(user1AccBalanceAfter.equals(user1AccBalanceBefore));
+        soflty.assertThat(user2AccBalanceAfter.equals(user2AccBalanceBefore));
 
-        //Проверка 2. Убедимся, что состояние счета юзера 2 не изменилось
-        List<GetCustomerAccountResponse> accountUser2Response = UserSteps.getsAccounts(user2);
 
-        GetCustomerAccountResponse targetUser2Acc = accountUser2Response.stream()
-                .filter(a->a.getId().equals(user2Id))
-                .filter(a->a.getBalance() == 0L)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Счёт не найден"));
+        //Проверка 2. У юзера 1 нет транзакции депозит с упоминанием счета юзера 2
 
-        //Удаляю созданных юзеров
-        for (NewUserRequest u : users) {
-            AdminSteps.deletesUser(u);
-        }
+        boolean isDepositInUser1 = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
+                TransactionType.DEPOSIT.getMessage(), user1Acc, user2Acc, user1.getRequest()
+                );
+        soflty.assertThat(isDepositInUser1).isFalse();
+
+        boolean isDepositInUser2 = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
+                TransactionType.DEPOSIT.getMessage(), user2Acc, user2Acc, user2.getRequest()
+        );
+        soflty.assertThat(isDepositInUser2).isFalse();
+
     }
 }

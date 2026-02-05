@@ -2,26 +2,22 @@ package senior.negatives;
 
 
 import api.generators.ErrorMessage;
+import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.TransactionType;
+import api.models.TransferMoneyRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
-import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
+import api.requests.steps.result.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
-import Tests.BaseTest;
-import api.models.NewUserRequest;
-import api.models.GetCustomerAccountResponse;
-import api.models.TransferMoneyRequest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
-public class UserTransferInvalidSumNegativeTest extends BaseTest {
+public class UserTransferInvalidSumNegativeTest extends senior.BaseTest {
  /*
 
 Тест-кейсы этого файла:
@@ -54,96 +50,49 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
     @MethodSource("invalidSumToTransfer")
     public void userTransferInvalidSumToUser(Double invalidSum, String expectedErrorMessage) {
 
-        //cоздать 2 юзеров
-        List<NewUserRequest> users = new ArrayList<>();
-        for (int i = 0; i <= 1; i++) {
-            NewUserRequest newUser = AdminSteps.createUser();
-            users.add(newUser);
-        }
-        NewUserRequest user1 = users.get(0);
-        NewUserRequest user2 = users.get(1);
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
 
-        //создадим счета юзерам
-        Long user1Id = UserSteps.createsAccount(user1).getId();
-        Long user2Id = UserSteps.createsAccount(user2).getId();
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
 
-        //пополним счет юзеру1
-        UserSteps.makesDeposit(user1Id, user1);
+        UserSteps.makesDeposit(debetId, userDeb.getRequest());
 
-        //Запросим информацию о счетах после пополнения, чтобы зафиксировать их балансы до транзакции
-        List<GetCustomerAccountResponse> user1AllAccsBefore = UserSteps.getsAccounts(user1);
-        //найдем счет-дебет
-        GetCustomerAccountResponse user1Before = user1AllAccsBefore.stream()
-                .filter(a -> a.getId().equals(user1Id))
-                .findAny()
-                .orElseThrow(() -> new AssertionError("счета не существует"));
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
 
-        //зафиксируем его баланс до перевода
-        Double balanceUser1BeforeTransfer = user1Before.getBalance();
-
-        //найдем счет-кредит
-        List<GetCustomerAccountResponse> user2AllAccsBefore = UserSteps.getsAccounts(user2);
-        GetCustomerAccountResponse creditBefore = user2AllAccsBefore.stream()
-                .filter(a -> a.getId().equals(user2Id))
-                .findAny()
-                .orElseThrow(() -> new AssertionError("счета не существует"));
-        //зафиксируем его баланс до перевода
-        Double balanceUser2BeforeTransfer = creditBefore.getBalance();
-
-        //перевод
         TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
-                .senderAccountId(user1Id)
+                .senderAccountId(debetId)
                 .amount(invalidSum)
-                .receiverAccountId(user2Id)
+                .receiverAccountId(creditId)
                 .build();
 
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(user1.getUsername(), user1.getPassword()),
+                RequestSpecs.authAsUser(userDeb.getRequest().getUsername(), userDeb.getRequest().getPassword()),
                 Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest()
         ).post(transferMoney).extract().asString();
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //Проверка 1. У Юзера1 не списались деньги, баланс такой же и нет транзакции трансфер аут
-        List<GetCustomerAccountResponse> user1AllAccsAfter = UserSteps.getsAccounts(user1);
 
-        GetCustomerAccountResponse targetUser1Acc = user1AllAccsAfter.stream()
-                .filter(a -> a.getId().equals(user1Id)) //номер счета
-                .filter(a -> a.getBalance().equals(balanceUser1BeforeTransfer)) //баланс такой же
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Счёт отправителя не найден"));
+        //I. Балансы у обоих не изменились
+        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
 
-        //нет транзакции трансфер-аут
-        boolean hasNoTransferOut = targetUser1Acc.getTransactions().stream()
-                .noneMatch(t ->
-                        TransactionType.TRANSFER_OUT.getMessage().equals(t.getType())
-                );
-        soflty.assertThat(hasNoTransferOut)
-                .as("TRANSFER_OUT транзакций быть не должно")
-                .isTrue();
+        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
+        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
 
 
-        //Проверка 2. У Юзера 2 не появились деньги, баланс не изменился и транзакции трансфер ин нет
-        List<GetCustomerAccountResponse> user2AllAccsAfter = UserSteps.getsAccounts(user2);
-        GetCustomerAccountResponse targetUser2Acc = user2AllAccsAfter.stream()
-                .filter(a -> a.getId().equals(user2Id)) //номер счета
-                .filter(a -> a.getBalance().equals(balanceUser2BeforeTransfer)) //баланс как и был
-                .findAny()
-                .orElseThrow(() -> new AssertionError("Счёт получателя не найден"));
-        //нет транзакции трансфер-ин
-        boolean hasNoTransferIn = targetUser2Acc.getTransactions().stream()
-                .noneMatch(t ->
-                        TransactionType.TRANSFER_IN.getMessage().equals(t.getType())
-                );
-        soflty.assertThat(hasNoTransferIn)
-                .as("TRANSFER_IN транзакций быть не должно")
-                .isTrue();
+        //II. Проверка, что у каждого из счетов не было соответствующей
+        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
+        soflty.assertThat(isTransactionTransferOut).isFalse();
 
-        //удалить пользователей
-        for (NewUserRequest u : users) {
-            AdminSteps.deletesUser(u);
-        }
+
+        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
+        soflty.assertThat(isTransactionTransferIn).isFalse();
     }
 
 
@@ -157,99 +106,48 @@ public class UserTransferInvalidSumNegativeTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("insufficientSumToTransfer")
     public void userTransferInsufficientSumToUser(Double invalidSum, String expectedErrorMessage) {
-        //cоздать 2 юзеров
-        List<NewUserRequest> users = new ArrayList<>();
-        for (int i = 0; i <= 1; i++) {
-            NewUserRequest newUser = AdminSteps.createUser();
-            users.add(newUser);
-        }
-        NewUserRequest user1 = users.get(0);
-        NewUserRequest user2 = users.get(1);
 
-        //создадим счета юзерам
-        Long user1Id = UserSteps.createsAccount(user1).getId();
-        Long user2Id = UserSteps.createsAccount(user2).getId();
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
 
-        //пополним счет дважды, сумма 10 000
-        UserSteps.makesDepositX2(user1Id, user1);
-        //и еще на 5000
-        UserSteps.makesDeposit(user1Id, user1);
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
 
-        //Запросим информацию о счетах после пополнения, чтобы зафиксировать их балансы до транзакции
-        List<GetCustomerAccountResponse> user1AllAccsBefore = UserSteps.getsAccounts(user1);
-        //найдем счет-дебет
-        GetCustomerAccountResponse user1Before = user1AllAccsBefore.stream()
-                .filter(a -> a.getId().equals(user1Id))
-                .findAny()
-                .orElseThrow(() -> new AssertionError("счета не существует"));
+        UserSteps.makesDepositX3(debetId, userDeb.getRequest());
 
-        //зафиксируем его баланс до перевода
-        Double balanceUser1BeforeTransfer = user1Before.getBalance();
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
 
-        //найдем счет-кредит
-        List<GetCustomerAccountResponse> user2AllAccsBefore = UserSteps.getsAccounts(user2);
-        GetCustomerAccountResponse creditBefore = user2AllAccsBefore.stream()
-                .filter(a -> a.getId().equals(user2Id))
-                .findAny()
-                .orElseThrow(() -> new AssertionError("счета не существует"));
-        //зафиксируем его баланс до перевода
-        Double balanceUser2BeforeTransfer = creditBefore.getBalance();
-
-
-        //перевод
         TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
-                .senderAccountId(user1Id)
+                .senderAccountId(debetId)
                 .amount(invalidSum)
-                .receiverAccountId(user2Id)
+                .receiverAccountId(creditId)
                 .build();
 
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(user1.getUsername(), user1.getPassword()),
+                RequestSpecs.authAsUser(userDeb.getRequest().getUsername(), userDeb.getRequest().getPassword()),
                 Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest()
         ).post(transferMoney).extract().asString();
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //Проверка 1. У Юзера1 не списались деньги, баланс такой же и нет транзакции трансфер аут
-        List<GetCustomerAccountResponse> user1AllAccsAfter = UserSteps.getsAccounts(user1);
+        //I. Балансы у обоих не изменились
+        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
 
-        GetCustomerAccountResponse targetUser1Acc = user1AllAccsAfter.stream()
-                .filter(a -> a.getId().equals(user1Id)) //номер счета
-                .filter(a -> a.getBalance().equals(balanceUser1BeforeTransfer)) //баланс такой же
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Счёт отправителя не найден"));
+        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
+        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
 
-        //нет транзакции трансфер-аут
-        boolean hasNoTransferOut = targetUser1Acc.getTransactions().stream()
-                .noneMatch(t ->
-                        TransactionType.TRANSFER_OUT.getMessage().equals(t.getType())
-                );
-        soflty.assertThat(hasNoTransferOut)
-                .as("TRANSFER_OUT транзакций быть не должно")
-                .isTrue();
+        //II. у каждого из счетов не было соответствующей транзакции
+        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
+        soflty.assertThat(isTransactionTransferOut).isFalse();
 
 
-        //Проверка 2. У Юзера 2 не появились деньги, баланс не изменился и транзакции трансфер ин нет
-        List<GetCustomerAccountResponse> user2AllAccsAfter = UserSteps.getsAccounts(user2);
-        GetCustomerAccountResponse targetUser2Acc = user2AllAccsAfter.stream()
-                .filter(a -> a.getId().equals(user2Id)) //номер счета
-                .filter(a -> a.getBalance().equals(0.0)) //баланс ноль
-                .findAny()
-                .orElseThrow(() -> new AssertionError("Счёт получателя не найден"));
-        //нет транзакции трансфер-ин
-        boolean hasNoTransferIn = targetUser2Acc.getTransactions().stream()
-                .noneMatch(t ->
-                        TransactionType.TRANSFER_IN.getMessage().equals(t.getType())
-                );
-        soflty.assertThat(hasNoTransferIn)
-                .as("TRANSFER_IN транзакций быть не должно")
-                .isTrue();
-
-        //удалить пользователей
-        for (NewUserRequest u : users) {
-            AdminSteps.deletesUser(u);
-        }
+        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
+        soflty.assertThat(isTransactionTransferIn).isFalse();
     }
 }
 
