@@ -11,13 +11,14 @@ import api.requests.steps.UserSteps;
 import api.requests.steps.result.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-public class UserTransferInvalidSumNegativeTest extends senior.BaseTest {
+public class UserTransferNegativeTest extends senior.BaseTest {
  /*
 
 Тест-кейсы этого файла:
@@ -39,13 +40,8 @@ public class UserTransferInvalidSumNegativeTest extends senior.BaseTest {
                 Arguments.of(6000.0, ErrorMessage.INVALID_TRANSFER_INSUFFICIENT_FUNDS_OR_INVALID_ACCOUNT.getMessage())
         );
     }
-/*
-1. Юзер переводит 0 (при балансе 5000)
-2. Юзер переводит -1 (при балансе 5000)
-3. Юзер переводит 10 001 (при балансе 5000)
-4. Юзер переводит 6000 (при балансе в 5000)
- */
 
+    @DisplayName("Юзер не может переводить невалидную сумму при балансе 5000")
     @ParameterizedTest
     @MethodSource("invalidSumToTransfer")
     public void userTransferInvalidSumToUser(Double invalidSum, String expectedErrorMessage) {
@@ -103,6 +99,7 @@ public class UserTransferInvalidSumNegativeTest extends senior.BaseTest {
         );
     }
 
+    @DisplayName("Юзер не может переводить сумму больше 10 000 при балансе больше 10 000")
     @ParameterizedTest
     @MethodSource("insufficientSumToTransfer")
     public void userTransferInsufficientSumToUser(Double invalidSum, String expectedErrorMessage) {

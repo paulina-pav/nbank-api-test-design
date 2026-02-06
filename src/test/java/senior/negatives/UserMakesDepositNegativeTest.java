@@ -1,6 +1,5 @@
 package senior.negatives;
 
-
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.TransactionType;
@@ -11,6 +10,7 @@ import api.requests.steps.UserSteps;
 import api.requests.steps.result.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -18,22 +18,28 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 /*
-Тест-кейсы, которые тут есть:
-### Тест-кейс 4: Авторизованный юзер делает депозит на несуществующий аккаунт
-### Тест-кейс 5: Авторизованный юзер делает депозит на чужой аккаунт
- */
 
-public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior.BaseTest {
+### Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт на свой аккаунт
+### Тест-кейс 2: Авторизованный юзер делает депозит 0 на свой аккаунт
+### Тест-кейс 3: Авторизованный юзер делает депозит 5001 на свой аккаунт
+### Тест-кейс 4: Авторизованный юзер не может сделать депозит на чужой счет
 
+*/
+
+public class UserMakesDepositNegativeTest extends senior.BaseTest {
     public static Stream<Arguments> invalidSum() {
         return Stream.of(
-                Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage())
+                Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400
+                Arguments.of(0.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400
+                Arguments.of(5001.0, ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()) //400
         );
     }
+
+    @DisplayName("Юзер не может сделать депозит на невалидную сумму")
     @ParameterizedTest
     @MethodSource("invalidSum")
-    //Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт
-    public void userMakesInvalidDeposit(Double invalidDepositSum, String expectedMessage) {
+
+    public void userMakesInvalidDeposit(Double invalidAmount, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
 
@@ -42,7 +48,7 @@ public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior
 
         MakeDepositRequest deposit = MakeDepositRequest.builder()
                 .id(accountId)
-                .balance(invalidDepositSum)
+                .balance(invalidAmount)
                 .build();
 
         String actualErrorMessage = new CrudRequester(
@@ -50,29 +56,26 @@ public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsBadRequest()
         ).post(deposit).extract().asString();
-        soflty.assertThat(actualErrorMessage).isEqualTo(expectedMessage);
 
+        soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //Убедиться, что пополнения не произошло.
+        //Проверка: баланс не изменился
         Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);
         soflty.assertThat(balanceAfter).isEqualTo(balanceBefore);
 
-
-        //проверим что транзакций нет
-        boolean isTransaction = UserSteps.findTransactionBySumByTransactionTypeByAccId(invalidDepositSum,
+        //Проверка: на счете нет транзакций Deposit
+        boolean isTransaction = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
                 TransactionType.DEPOSIT.getMessage(), accountId, accountId, newUser.getRequest());
         soflty.assertThat(isTransaction).isFalse();
-
     }
-
-
 
     public static Stream<Arguments> invalidAccounts() {
         return Stream.of(
-                Arguments.of(ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT.getMessage()) //403 //несуществующий аккаунт
+                Arguments.of(ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT.getMessage()) //403
         );
     }
 
+    @DisplayName("Юзер не может сделать депозит на чужой счет")
     @ParameterizedTest
     @MethodSource("invalidAccounts")
     public void userMakesDepositOnOtherUserAccount(String expectedErrorMessage) {
@@ -94,7 +97,7 @@ public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior
 
         //юзер 1 пытается сделать депозит на счет юзера 2, авторизуясь как юзер 1
         String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authAsUser(user1.getRequest().getUsername(),user1.getRequest().getPassword()),
+                RequestSpecs.authAsUser(user1.getRequest().getUsername(), user1.getRequest().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden()
         ).post(deposit).extract().asString();
@@ -114,7 +117,7 @@ public class UserMakesDepositUnknownAndIllegalAccountNegativeTest extends senior
 
         boolean isDepositInUser1 = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
                 TransactionType.DEPOSIT.getMessage(), user1Acc, user2Acc, user1.getRequest()
-                );
+        );
         soflty.assertThat(isDepositInUser1).isFalse();
 
         boolean isDepositInUser2 = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),

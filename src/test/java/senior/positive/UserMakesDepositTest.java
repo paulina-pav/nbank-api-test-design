@@ -12,6 +12,7 @@ import api.requests.steps.UserSteps;
 import api.requests.steps.result.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -19,15 +20,16 @@ public class UserMakesDepositTest extends senior.BaseTest {
 
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
 
+    @DisplayName("Юзер делает депозит")
     @Test
-   public void authUserMakesDeposit() {
+    public void authUserMakesDeposit() {
 
         CreatedUser newUser = createUser();
 
         Long accountId = UserSteps.createsAccount(newUser.getRequest()).getId();
         Double balanceBefore = UserSteps.getBalance(newUser.getRequest(), accountId);
 
-       //Юзер делает депозит. Пополним этот счет на максимальное значение для депозита
+        //Юзер делает депозит. Пополним этот счет на максимальное значение для депозита
         MakeDepositRequest deposit = MakeDepositRequest.builder()
                 .id(accountId)
                 .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
@@ -40,10 +42,10 @@ public class UserMakesDepositTest extends senior.BaseTest {
         ).post(deposit);
 
         //проверка: номер счета, баланс и что массив с транзакциями не пустой
-        ModelAssertions.assertThatModels(deposit,makeDepositResponse).match();
+        ModelAssertions.assertThatModels(deposit, makeDepositResponse).match();
 
         //проверка 2: в ответе из запроса MakeDeposit есть транзакция с нужной суммой и др параметры
-        ModelAssertions.assertThatModels(makeDepositResponse,makeDepositResponse.getTransactions().get(0)).match();
+        ModelAssertions.assertThatModels(makeDepositResponse, makeDepositResponse.getTransactions().get(0)).match();
 
         //Проверка 3: баланс счета изменился
         Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);

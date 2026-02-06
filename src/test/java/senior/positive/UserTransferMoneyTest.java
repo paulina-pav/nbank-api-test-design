@@ -14,6 +14,7 @@ import api.requests.steps.UserSteps;
 import api.requests.steps.result.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class UserTransferMoneyTest extends senior.BaseTest {
 //1. Юзер успешно переводит деньги на существующий счет другого юзера
 //2. Юзер успешно переводит деньги с одного своего счета на другой
 
+    @DisplayName("Юзер переводит деньги с одного своего аккаунта на другой")
     @Test
     public void userTransferMoneyFromOneAccToAnotherAcc() {
         CreatedUser newUser = createUser();
@@ -75,6 +77,7 @@ public class UserTransferMoneyTest extends senior.BaseTest {
         soflty.assertThat(isTransactionTransferIn).isTrue();
     }
 
+    @DisplayName("Юзер успешно переводит деньги на существующий аккаунт другого юзера")
     @Test
     // Юзер успешно переводит деньги на существующий счет другого юзера
     public void userTransfersMoneyToUser() {
