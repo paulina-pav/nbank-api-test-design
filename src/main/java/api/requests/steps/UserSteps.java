@@ -45,6 +45,19 @@ public class UserSteps {
         });
     }
 
+    public static UserChangeNameRequest changesNameReturnRequest(NewUserRequest user) {
+
+        UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
+
+        UserChangeNameResponse userChangeNameResponse = new ValidatedCrudRequester<UserChangeNameResponse>(
+                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                Endpoint.UPDATE_CUSTOMER_NAME,
+                ResponseSpecs.requestReturnsOK()
+        ).put(changedName);
+
+        return changedName;
+    }
+
     public static CreateAnAccountResponse createsAccount(NewUserRequest user) {
 
         return StepLogger.log("User " + user.getUsername() + " creates a new account ", () -> {
@@ -218,5 +231,41 @@ public class UserSteps {
             }
             return newAccounts;
         });
+    }
+    public static TransferMoneyResponse transferMoney(Long senderAcc, Long receiverAcc, Double sum, NewUserRequest user) {
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(senderAcc)
+                .amount(sum)
+                .receiverAccountId(receiverAcc)
+                .build();
+
+        TransferMoneyResponse transferMoneyResponse = new ValidatedCrudRequester<TransferMoneyResponse>(
+                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsOK()
+        ).post(transferMoney);
+
+        return transferMoneyResponse;
+
+    }
+    public static MakeDepositResponse makesDepositX4(Long accountId, NewUserRequest newUser) {
+
+        MakeDepositResponse makeDepositResponse = null;
+
+        for (int i = 0; i <= 3; i++) {
+            MakeDepositRequest deposit = MakeDepositRequest.builder()
+                    .id(accountId)
+                    .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                    .build();
+
+            makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
+                    RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                    Endpoint.DEPOSIT,
+                    ResponseSpecs.requestReturnsOK()
+            ).post(deposit);
+        }
+
+        return makeDepositResponse;
     }
 }

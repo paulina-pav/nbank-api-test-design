@@ -13,4 +13,9 @@ public class UserChangeNameRequest extends BaseModel{
     @GeneratingRule(regex = "^[A-Z]{3}[ ]{1}[a-z]{4}$")
     private String name;
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }
