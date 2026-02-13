@@ -16,7 +16,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = "http://localhost:3000";
         Configuration.browser = "firefox";
         Configuration.browserSize = "1400x900"; //"1920x1080";
-       // Configuration.holdBrowserOpen = true;
+       Configuration.holdBrowserOpen = true;
     }
 
     public void authAsUserUi(NewUserRequest user) {
