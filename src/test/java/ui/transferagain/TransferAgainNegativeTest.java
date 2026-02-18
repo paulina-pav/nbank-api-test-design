@@ -7,7 +7,9 @@ import api.models.MakeDepositResponse;
 import api.models.TransferMoneyResponse;
 import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.TransferAgainPage;
@@ -18,6 +20,7 @@ public class TransferAgainNegativeTest extends BaseUiTest {
 
 
     @Test
+    @UserSession(value = 2)
     public void userCantTransferOutAgainIfAmountMoreThanBalance() {
         /*
 ### Тест: Юзер не может выбрать трансфер аут транзакцию и отправить ее с той же суммой, что и была, если баланс меньше
@@ -31,11 +34,11 @@ public class TransferAgainNegativeTest extends BaseUiTest {
 Результат: ❌ Transfer failed: Please try again.
 
          */
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX3(accountResponse1.getId(), user1.getRequest());
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
 
@@ -45,7 +48,6 @@ public class TransferAgainNegativeTest extends BaseUiTest {
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
 
-        authAsUserUi(user1.getRequest());
         new TransferAgainPage()
                 .open()
                 .findAndClickTransaction(TransactionType.TRANSFER_OUT.getMessage(), transferMoneyResponse.getAmount())
@@ -67,6 +69,7 @@ public class TransferAgainNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userMustNotRepeatTransferInTransaction() {
         /*
 
@@ -80,11 +83,11 @@ public class TransferAgainNegativeTest extends BaseUiTest {
 Ошибка: перевод самому себе
          */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX4(accountResponse1.getId(), user1.getRequest());
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(1);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
 
@@ -95,13 +98,6 @@ public class TransferAgainNegativeTest extends BaseUiTest {
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
-
-        String accountNumberWithoutChars= AlertsHelpMethods.getNumbersFromAccountNumber(accountResponse2.getAccountNumber());
-
-
-
-        authAsUserUi(user2.getRequest());
-
         new TransferAgainPage()
                 .open()
                 .findAndClickTransaction(TransactionType.TRANSFER_IN.getMessage(), transferMoneyResponse.getAmount())
@@ -111,14 +107,14 @@ public class TransferAgainNegativeTest extends BaseUiTest {
                 .confirm()
                 .sendTransfer()
                 .checkAlertMessageAndAccept(AlertsHelpMethods.formTransferAgainSuccessfulAlert(transferMoneyResponse.getAmount(),
-                        accountResponse1.getAccountNumber(), accountResponse2.getAccountNumber()));
+                        accountResponse2.getAccountNumber(), accountResponse2.getAccountNumber()));
 
 
         //✅ Transfer of $10000 successful from Account 39 to 39! аккаунты владельца изначальной transfer in
 
 
         //проверка балансов: не должны были измениться
-        Double user1BalanceAfter = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
+       Double user1BalanceAfter = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
         Double user2BalanceAfter = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
         soflty.assertThat(user1BalanceBefore).isEqualTo(user1BalanceAfter);

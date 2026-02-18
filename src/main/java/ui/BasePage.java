@@ -1,8 +1,11 @@
 package ui;
 
+import api.models.CreatedUser;
+import api.specs.RequestSpecs;
 import com.codeborne.selenide.Selenide;
 import org.openqa.selenium.Alert;
 
+import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static com.codeborne.selenide.Selenide.switchTo;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -31,5 +34,15 @@ public abstract class BasePage<T extends BasePage> {
         assertThat(alert.getText()).contains(bankAlert);
         alert.accept();
         return (T) this;
+    }
+
+    public static void authAsUser(String username, String password) {
+        Selenide.open("/");
+        String userAuthHeader = RequestSpecs.getUserAuthHeader(username, password);
+        executeJavaScript("localStorage.setItem('authToken', arguments[0]);", userAuthHeader);
+    }
+
+    public static void authAsUser(CreatedUser user) {
+        authAsUser(user.getRequest().getUsername(), user.getRequest().getPassword());
     }
 }

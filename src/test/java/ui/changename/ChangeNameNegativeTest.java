@@ -1,30 +1,27 @@
 package ui.changename;
 
-import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.EditPage;
 import ui.alerts.ChangeNameAlerts;
 
 public class ChangeNameNegativeTest extends BaseUiTest {
+    @UserSession
     @Test
     public void userCantSaveEmptyChangeNameField() {
-        CreatedUser user = createUser();
 
-        authAsUserUi(user.getRequest());
         new EditPage()
                 .open()
                 .clickSaveChangesButton()
                 .checkAlertMessageAndAccept(ChangeNameAlerts.ENTER_VALID_NAME.getMessage());
     }
+
+    @UserSession
     @Test
     public void userCantInputInvalidName() {
-
-        CreatedUser user = AdminSteps.createUser();
-
-        authAsUserUi(user.getRequest());
 
         new EditPage()
                 .open()
@@ -32,7 +29,7 @@ public class ChangeNameNegativeTest extends BaseUiTest {
                 .checkAlertMessageAndAccept(ChangeNameAlerts.NAME_CONTAINS_TWO_WORDS.getMessage());
 
         //проверим, что имя все еще null
-        String actualName = UserSteps.getsProfile(user.getRequest()).getName();
+        String actualName = UserSteps.getsProfile(SessionStorage.getUser().getRequest()).getName();
         soflty.assertThat(actualName).isNull();
     }
 }

@@ -7,7 +7,9 @@ import api.models.MakeDepositResponse;
 import api.models.TransferMoneyResponse;
 import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.TransferAgainPage;
@@ -15,10 +17,8 @@ import ui.alerts.AlertsHelpMethods;
 
 public class TransferAgainPositiveTest extends BaseUiTest {
     @Test
+    @UserSession
     public void transferAgainCheckPage() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new TransferAgainPage()
                 .open()
@@ -27,35 +27,38 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCanSeeTransferInTransaction() {
 
-        CreatedUser user1 = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
+        CreatedUser userCredit = SessionStorage.getUser(1);
+        CreateAnAccountResponse accountResponseCredit = UserSteps.createsAccount(userCredit.getRequest());
 
-        UserSteps.makesDepositX2(accountResponse.getId(), user1.getRequest());
-        CreatedUser user2 = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
-        TransferMoneyResponse transferMoneyResponse = UserSteps.transferMoney(accountResponse.getId(), accountResponse2.getId(),
-                MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), user1.getRequest());
+        CreatedUser userDebet = SessionStorage.getUser(2);
+        CreateAnAccountResponse accountResponseDebet = UserSteps.createsAccount(userDebet.getRequest());
+        UserSteps.makesDepositX2(accountResponseDebet.getId(), userDebet.getRequest());
 
-        authAsUserUi(user2.getRequest());
+        TransferMoneyResponse transferMoneyResponse = UserSteps.transferMoney(accountResponseDebet.getId(), accountResponseCredit.getId(),
+                MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), userDebet.getRequest());
 
         new TransferAgainPage()
                 .open()
                 .findAndClickTransaction(TransactionType.TRANSFER_IN.getMessage(), transferMoneyResponse.getAmount());
+
     }
+
     @Test
+    @UserSession(value = 2)
     public void userCanSeeTransferOutTransaction() {
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         UserSteps.makesDepositX2(accountResponse.getId(), user1.getRequest());
-        CreatedUser user2 = AdminSteps.createUser();
+
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
+
         TransferMoneyResponse transferMoneyResponse = UserSteps.transferMoney(accountResponse.getId(), accountResponse2.getId(), MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), user1.getRequest());
 
-
-        authAsUserUi(user1.getRequest());
         new TransferAgainPage()
                 .open()
                 .findAndClickTransaction(TransactionType.TRANSFER_OUT.getMessage(), transferMoneyResponse.getAmount());
@@ -63,13 +66,14 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanSeeDepositTransaction() {
 
-        CreatedUser user1 = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
-        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
-        authAsUserUi(user1.getRequest());
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), SessionStorage.getUser().getRequest());
+
+
         new TransferAgainPage()
                 .open()
                 .findAndClickTransaction(TransactionType.DEPOSIT.getMessage(), makeDepositResponse.getBalance());
@@ -77,6 +81,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCanSearchTransactionByRecipientName() {
         /*
 ### Тест: Юзер-отправитель может найти транзакцию по имени получателя в в разделе Transfer Again
@@ -85,19 +90,16 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 Потенциальная проблема: запрос не динамический, если ты в другом окне сделал перевод, то в этом он не появится, потому что страница не обновляется в процессе
          */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         UserSteps.makesDepositX2(accountResponse.getId(), user1.getRequest());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         String user2Name = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
 
         UserSteps.transferMoney(accountResponse.getId(), accountResponse2.getId(), MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), user1.getRequest());
-
-
-        authAsUserUi(user1.getRequest());
 
         new TransferAgainPage()
                 .open()
@@ -109,6 +111,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCanSearchTransactionBySenderUsername() {
 
     /*
@@ -117,15 +120,15 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 Ошибка! при поиске находится транзакция трансфер аут -- я вижу транзакции от лица своего отправителя!
      */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         UserSteps.makesDepositX2(accountResponse.getId(), user1.getRequest());
         String user1Name = UserSteps.changesNameReturnRequest(user1.getRequest()).getName();
-        CreatedUser user2 = AdminSteps.createUser();
+
+
+        CreatedUser user2 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         UserSteps.transferMoney(accountResponse.getId(), accountResponse2.getId(), MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), user1.getRequest());
-
-        authAsUserUi(user2.getRequest());
 
         new TransferAgainPage()
                 .open()
@@ -134,11 +137,10 @@ public class TransferAgainPositiveTest extends BaseUiTest {
         //Ошибка:транзакция должна быть трансфер ин, тк мы смотрим у юзера-получателя
 
     }
-    @Test
-    public void userCanGoFromTransferAgainToNewTransfer() {
 
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
+    @Test
+    @UserSession
+    public void userCanGoFromTransferAgainToNewTransfer() {
 
         new TransferAgainPage()
                 .open()
@@ -148,24 +150,21 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 
 
     @Test
+    @UserSession
     public void userCanGoFromTransferAgainToDashboard() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new TransferAgainPage()
                 .open()
                 .clickHomeButton()
                 .elementsAreVisible();
     }
+
     @Test
-    public void transferAgainModalCheck(){
+    @UserSession
+    public void transferAgainModalCheck() {
 
-        CreatedUser user1 = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
-        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
-
-        authAsUserUi(user1.getRequest());
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), SessionStorage.getUser().getRequest());
 
         new TransferAgainPage()
                 .open()
@@ -173,6 +172,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCanTransferOutAgain() {
         /*
 
@@ -184,11 +184,11 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 
          */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX4(accountResponse1.getId(), user1.getRequest());
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
 
@@ -196,9 +196,6 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
-
-
-        authAsUserUi(user1.getRequest());
 
 
         new TransferAgainPage()
@@ -223,6 +220,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanMakeDepositInTransferAgain() {
         /*
 ### Тест: Повторить депозит через Transfer Again
@@ -231,17 +229,16 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 Шаг: юзер 1 логинится и жмет кнопку Make a Transfer, а затем Transfer Again. Имеется транзакция депозит. Нажать Repeat Transfer. Выбрать счет и сумму.
 Результат: ошибка, под капотом запрос /transfer, а не /deposit. + появляются 2 транзакции in/out в списке, баланс не увеличился
          */
-        CreatedUser user1 = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
-        MakeDepositResponse depositResponse1 = UserSteps.makesDeposit(accountResponse1.getId(), user1.getRequest());
 
-        Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
+        CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse depositResponse1 = UserSteps.makesDeposit(accountResponse1.getId(), SessionStorage.getUser().getRequest());
 
-        authAsUserUi(user1.getRequest());
+        Double user1BalanceBefore = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
+
 
         new TransferAgainPage()
                 .open()
-                .findAndClickTransaction(TransactionType.DEPOSIT.getMessage(),depositResponse1.getBalance())
+                .findAndClickTransaction(TransactionType.DEPOSIT.getMessage(), depositResponse1.getBalance())
                 .selectYourAccount(accountResponse1.getAccountNumber())
                 .findConfirmtionTextTransferToAccount(accountResponse1.getId())
                 .insertAmount(depositResponse1.getBalance())
@@ -251,18 +248,11 @@ public class TransferAgainPositiveTest extends BaseUiTest {
                         accountResponse1.getAccountNumber())
                 );
 
-        Double user1BalanceAfter = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
+        Double user1BalanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
 
         //ошибка: появляются 2 транзакции трансфер ин и трансфер аут, баланс в итоге не меняется
         soflty.assertThat(user1BalanceBefore).isEqualTo(user1BalanceAfter);
 
     }
-
-
-
-
-
-
-
 
 }

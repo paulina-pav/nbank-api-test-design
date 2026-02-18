@@ -4,11 +4,14 @@ import api.models.NewUserRequest;
 import api.specs.RequestSpecs;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import common.extensions.UserSessionExtension;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import senior.BaseTest;
 
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 
+@ExtendWith(UserSessionExtension.class)
 public class BaseUiTest extends BaseTest {
 
     @BeforeAll
@@ -16,7 +19,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = "http://localhost:3000";
         Configuration.browser = "firefox";
         Configuration.browserSize = "1400x900"; //"1920x1080";
-       Configuration.holdBrowserOpen = true;
+       //Configuration.holdBrowserOpen = true;
     }
 
     public void authAsUserUi(NewUserRequest user) {

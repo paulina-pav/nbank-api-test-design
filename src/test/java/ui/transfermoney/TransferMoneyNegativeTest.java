@@ -7,7 +7,9 @@ import api.models.MakeDepositResponse;
 import api.models.UserChangeNameRequest;
 import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.TransferMoneyPage;
@@ -16,6 +18,7 @@ import ui.alerts.TransferAlerts;
 
 public class TransferMoneyNegativeTest extends BaseUiTest {
     @Test
+    @UserSession(value = 2)
     public void userCantTransferWithoutSenderAcc() {
 /*
 ##Тест: юзер не может отправить трансфер без счета отправителя
@@ -23,16 +26,14 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Валидация на уровне UI, запрос не уходит
 */
 
-        CreatedUser user1 = createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
 
-        CreatedUser user2 = createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         String user2Name = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -44,6 +45,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
                 .checkAlertMessageAndAccept(TransferAlerts.FILL_ALL_FIELDS.getMessage());
     }
     @Test
+    @UserSession
     public void userCantTransferMoneyWithoutRecipientAccNumberAndName() {
 
 /*
@@ -51,11 +53,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Результат: ❌ Please fill all fields and confirm. (ошибка от фронта, запрос не уходит)
  */
 
-        CreatedUser user = createUser();
-
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user.getRequest());
-
-        authAsUserUi(user.getRequest());
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
 
 
         //select your acc
@@ -69,6 +67,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCantTransferMoneyWithoutSum() {
         /*
         ### Тест: юзер не может отправить перевод без суммы
@@ -76,17 +75,14 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Запрос не уходит, валидация на UI
          */
 
-        CreatedUser user1 = createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
 
-        CreatedUser user2 = createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         String user2Name = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
-
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -97,23 +93,23 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
                 .clickTransferMoneyButton()
                 .checkAlertMessageAndAccept(TransferAlerts.FILL_ALL_FIELDS.getMessage());
     }
+
     @Test
+    @UserSession(value = 2)
     public void userCantTransferWithoutCheckbox() {
         /*
         ### Тест: юзер не может сделать трансфер без чекбокса
 Результат: ❌ Please fill all fields and confirm. Проверка на уровне UI
          */
 
-        CreatedUser user1 = createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
 
-        CreatedUser user2 = createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         String user2Name = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -127,18 +123,16 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCantMakeTransferToItsAccId() {
         /*
         ### Тест: юзер не может сделать трансфер на свой id счета
 Результат: ❌ You cannot transfer money to the same account. Запрос не ушел
          */
 
-        CreatedUser user1 = createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
-        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
-        authAsUserUi(user1.getRequest());
-
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), SessionStorage.getUser().getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -151,6 +145,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCantTransferMoneyByAccId() {
         /*
 ### Тест: юзер отправляет деньги на существующий id счета
@@ -158,18 +153,16 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Результат: ❌ No user found with this account number.
 Проверка через апи баланса получателя, нет списаний
          */
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(), user1.getRequest());
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -191,6 +184,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCantTransferMoneyToUnknownAcc() {
         /*
 
@@ -198,13 +192,11 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Результат: ❌ No user found with this account number. Запрос не ушел
          */
 
-        CreatedUser user1 = createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
-        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
+
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), SessionStorage.getUser().getRequest());
 
         String unknownAcc = RandomModelGenerator.generate(UserChangeNameRequest.class).getName(); //сделала имя произвольной строкой
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -216,19 +208,20 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
                 .checkAlertMessageAndAccept(TransferAlerts.NO_USER_WITH_THIS_ACCOUNT_NUMBER.getMessage());
     }
     @Test
+    @UserSession(value = 2)
     public void userCantTransferMoneyMoreThanHas() {
        /*
 ### Тест: юзер не может отправить денег больше, чем есть на балансе
 ❌ Error: Invalid transfer: insufficient funds or invalid accounts
         */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDeposit(accountResponse1.getId(), user1.getRequest()); //пополнили на 5000 а переводим 10
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
@@ -256,6 +249,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCantTransferMoneyWithoutNameIfRecipientNameIsExisted() {
         /*
 ### Тест: Юзер-получатель имеет имя, но имя не указано при создании платежа
@@ -263,13 +257,13 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 Результат:❌ The recipient name does not match the registered name.
          */
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(), user1.getRequest());
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
@@ -296,6 +290,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCantTransferMoneyToItsAcc() {
         /*
 
@@ -304,12 +299,10 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 
          */
 
-        CreatedUser user = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user.getRequest());
-        MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(), user.getRequest());
-        Double userBalanceBefore = UserSteps.getBalance(user.getRequest(), accountResponse1.getId());
 
-        authAsUserUi(user.getRequest());
+        CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+        MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(),SessionStorage.getUser().getRequest());
+        Double userBalanceBefore = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
 
         new TransferMoneyPage()
                 .open()
@@ -323,7 +316,7 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 
         //ошибка, отправили сами себе
         //получим баланс после
-        Double userBalanceAfter = UserSteps.getBalance(user.getRequest(), accountResponse1.getId());
+        Double userBalanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
         //баланс не изменился
         soflty.assertThat(userBalanceAfter).isEqualTo(userBalanceBefore);
 

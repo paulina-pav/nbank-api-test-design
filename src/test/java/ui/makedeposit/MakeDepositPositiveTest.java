@@ -4,7 +4,9 @@ import api.generators.MaxSumsForDepositAndTransactions;
 import api.models.CreateAnAccountResponse;
 import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.MakeDeposit;
@@ -13,10 +15,8 @@ import ui.alerts.AlertsHelpMethods;
 
 public class MakeDepositPositiveTest extends BaseUiTest {
     @Test
+    @UserSession
     public void depositMoneyPageCheck() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new MakeDeposit()
                 .open()
@@ -24,10 +24,8 @@ public class MakeDepositPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanGoFromDashboardToDepositMoneyPage() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new UserDashboard()
                 .open()
@@ -36,14 +34,13 @@ public class MakeDepositPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanMakeDeposit() {
-        CreatedUser user = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user.getRequest());
+
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
 
         //зафиксируем баланс ДО
-        Double balanceBefore = UserSteps.getBalance(user.getRequest(), accountResponse.getId());
-
-        authAsUserUi(user.getRequest());
+        Double balanceBefore = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse.getId());
 
         new MakeDeposit()
                 .open()
@@ -54,7 +51,7 @@ public class MakeDepositPositiveTest extends BaseUiTest {
                         accountResponse.getAccountNumber()));
 
         //баланс на уровне апи ПОСЛЕ
-        Double balanceAfter = UserSteps.getBalance(user.getRequest(), accountResponse.getId());
+        Double balanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse.getId());
 
         //сверим, что баланс на уровне апи = сумме на которую делали депозит на UI
         soflty.assertThat(balanceAfter).isEqualTo(MaxSumsForDepositAndTransactions.DEPOSIT.getMax());

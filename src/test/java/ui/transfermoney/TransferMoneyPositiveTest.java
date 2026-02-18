@@ -5,7 +5,9 @@ import api.models.CreateAnAccountResponse;
 import api.models.MakeDepositResponse;
 import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.TransferMoneyPage;
@@ -14,10 +16,8 @@ import ui.alerts.AlertsHelpMethods;
 
 public class TransferMoneyPositiveTest extends BaseUiTest {
     @Test
+    @UserSession
     public void MakeTransferPageCheck() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -26,10 +26,8 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanGoFromMakeTransferToDashboard() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -38,9 +36,8 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCanGoToTransferAgainClickingButton(){
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -48,10 +45,9 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
                 .elementsAreVisible();
     }
     @Test
+    @UserSession
     public void userCanGoFromDashboardToMakeTransfer() {
 
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new UserDashboard()
                 .open()
@@ -60,9 +56,8 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
     }
 
 
-
-
     @Test
+    @UserSession(value = 2)
     public void userSeesChangedBalanceAfterTransferInAcc() {
         /*
 
@@ -72,12 +67,12 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
          */
 
 
-        CreatedUser user1 = createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse makeDepositResponse = UserSteps.makesDeposit(accountResponse.getId(), user1.getRequest());
 
 
-        CreatedUser user2 = createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         String user2Name = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
 
@@ -100,21 +95,22 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession(value = 2)
     public void userCanTransferMoneyToUserWithRecipientName() {
 
-        CreatedUser user1 = AdminSteps.createUser();
+
+        CreatedUser user1 = SessionStorage.getUser(1);
+
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(), user1.getRequest());
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         String recipientName = UserSteps.changesNameReturnRequest(user2.getRequest()).getName();
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
-
-        authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
                 .open()
@@ -137,20 +133,19 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
 
     }
     @Test
+    @UserSession(value = 2)
     public void userCanTransferMoneyToUserIfRecipientDoesntHaveName() {
 
-        CreatedUser user1 = AdminSteps.createUser();
+        CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse1 = UserSteps.createsAccount(user1.getRequest());
         MakeDepositResponse depositResponse1 = UserSteps.makesDepositX2(accountResponse1.getId(), user1.getRequest());
         Double user1BalanceBefore = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
 
 
-        CreatedUser user2 = AdminSteps.createUser();
+        CreatedUser user2 = SessionStorage.getUser(2);
         CreateAnAccountResponse accountResponse2 = UserSteps.createsAccount(user2.getRequest());
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
-
-        authAsUserUi(user1.getRequest());
         new TransferMoneyPage()
                 .open()
                 .selectSenderAccount(accountResponse1.getAccountNumber())

@@ -2,7 +2,7 @@ package ui.makedeposit;
 
 import api.models.CreateAnAccountResponse;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.MakeDeposit;
