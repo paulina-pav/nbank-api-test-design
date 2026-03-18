@@ -1,4 +1,4 @@
-package senior.positive;
+package api.positive;
 
 import api.comparison.ModelAssertions;
 import api.generators.RandomModelGenerator;
@@ -14,7 +14,7 @@ import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import senior.BaseTest;
+import api.BaseTest;
 
 public class UserChangesNameTest extends BaseTest {
 

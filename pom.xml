@@ -80,7 +80,7 @@
             <version>2.29.1</version>
         </dependency>
 
-        <!-- Для UI тестов с Selenide -->
+        <!-- Для ui тестов с Selenide -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-selenide</artifactId>

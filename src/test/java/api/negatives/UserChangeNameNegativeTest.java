@@ -1,4 +1,4 @@
-package senior.negatives;
+package api.negatives;
 
 
 import api.comparison.ModelAssertions;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 import static api.generators.ErrorMessage.NAME_MUST_CONTAIN_TWO_WORDS_WITH_LETTERS_ONLY;
 
 
-public class UserChangeNameNegativeTest extends senior.BaseTest {
+public class UserChangeNameNegativeTest extends api.BaseTest {
 
 
    /* Тест-кейсы этого файла:

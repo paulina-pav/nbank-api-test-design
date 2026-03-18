@@ -3,10 +3,8 @@ package api.requests.steps;
 import api.common.helpers.StepLogger;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.RandomModelGenerator;
-import api.generators.TransactionType;
 import api.models.*;
 
-import api.models.*;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
@@ -19,20 +17,21 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserSteps {
+
+
     public static GetCustomerProfileResponse getsProfile(NewUserRequest user) {
 
         return StepLogger.log("User" + user.getUsername() + " gets profile ", () -> {
 
-            GetCustomerProfileResponse customerProfile = new ValidatedCrudRequester<GetCustomerProfileResponse>(
+            return new ValidatedCrudRequester<GetCustomerProfileResponse>(
                     RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                     Endpoint.CUSTOMER_PROFILE,
                     ResponseSpecs.requestReturnsOK()
             ).get();
-            return customerProfile;
         });
     }
 
-    public static UserChangeNameResponse сhangesName(NewUserRequest user) {
+    public static UserChangeNameResponse сhangesNameReturnsResponse(NewUserRequest user) {
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
 
         return StepLogger.log("User " + user.getUsername() + "changes name " + changedName, () -> {
@@ -96,14 +95,12 @@ public class UserSteps {
 
             MakeDepositResponse makeDepositResponse = null;
 
-            double balance = 0.0;
 
             for (int i = 0; i <= 1; i++) {
                 MakeDepositRequest deposit = MakeDepositRequest.builder()
                         .id(accountId)
                         .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                         .build();
-                balance = balance + MaxSumsForDepositAndTransactions.DEPOSIT.getMax();
 
                 makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
                         RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
@@ -112,7 +109,7 @@ public class UserSteps {
                 ).post(deposit);
 
             }
-            return makeDepositResponse;
+            return makeDepositResponse; //отсюда возьмем итоговый баланс после нескольких пополнений
         });
     }
 
@@ -138,6 +135,32 @@ public class UserSteps {
             return makeDepositResponse;
         });
     }
+
+
+    public static MakeDepositResponse makesDepositBySum(Long accountId, NewUserRequest newUser, Double sum) {
+
+        return StepLogger.log("User " + newUser.getUsername() + " makes " + "$" + sum + " deposit " + " on " + accountId, () -> {
+
+            MakeDepositResponse makeDepositResponse = null;
+
+                MakeDepositRequest deposit = MakeDepositRequest.builder()
+                        .id(accountId)
+                        .balance(sum)
+                        .build();
+
+                makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
+                        RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                        Endpoint.DEPOSIT,
+                        ResponseSpecs.requestReturnsOK()
+                ).post(deposit);
+
+
+            return makeDepositResponse;
+        });
+    }
+
+
+
 
     public static List<GetCustomerAccountResponse> getsAccounts(NewUserRequest newUser) {
 
@@ -232,6 +255,7 @@ public class UserSteps {
             return newAccounts;
         });
     }
+
     public static TransferMoneyResponse transferMoney(Long senderAcc, Long receiverAcc, Double sum, NewUserRequest user) {
 
         TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
@@ -249,6 +273,7 @@ public class UserSteps {
         return transferMoneyResponse;
 
     }
+
     public static MakeDepositResponse makesDepositX4(Long accountId, NewUserRequest newUser) {
 
         MakeDepositResponse makeDepositResponse = null;

@@ -1,4 +1,4 @@
-package ui;
+package ui.pages;
 
 import api.models.NewUserRequest;
 import com.codeborne.selenide.Condition;
@@ -68,5 +68,4 @@ public class UserDashboard extends BasePage<UserDashboard> {
         depositMoneyButton.click();
         return Selenide.page(MakeDeposit.class);
     }
-
 }

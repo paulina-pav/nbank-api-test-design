@@ -1,4 +1,4 @@
-package senior.positive;
+package api.positive;
 
 
 import api.comparison.ModelAssertions;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-public class UserTransferMoneyTest extends senior.BaseTest {
+public class UserTransferMoneyTest extends api.BaseTest {
 
 //Тест-кейсы этого файла:
 //1. Юзер успешно переводит деньги на существующий счет другого юзера

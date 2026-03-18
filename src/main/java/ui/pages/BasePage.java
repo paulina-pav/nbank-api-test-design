@@ -1,4 +1,4 @@
-package ui;
+package ui.pages;
 
 import api.models.CreatedUser;
 import api.specs.RequestSpecs;
@@ -10,13 +10,6 @@ import static com.codeborne.selenide.Selenide.switchTo;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public abstract class BasePage<T extends BasePage> {
-
-
-    //header
-      /*  SelenideElement noName = $(Selectors.byText("Noname")).shouldBe(visible);
-        SelenideElement username = $(Selectors.byText(user.getRequest().getUsername())).shouldBe(visible);
-        SelenideElement logoutButton = $(Selectors.byText("\uD83D\uDEAA Logout")).shouldBe(visible);
-        //SelenideElement brandNameInHeader = $(Selectors.byText("NoBugs Bank")).shouldBe(visible);*/
 
 
     public abstract String url();

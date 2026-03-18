@@ -2,23 +2,28 @@ package api.requests.steps;
 
 import api.common.helpers.StepLogger;
 import api.generators.RandomModelGenerator;
-import api.requests.steps.result.CreatedUser;
-import api.models.DeleteByUserIdResponse;
-import api.models.NewUserRequest;
-import api.models.NewUserResponse;
-import api.models.User;
+import api.models.*;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import io.restassured.common.mapper.TypeRef;
-import io.qameta.allure.Step;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminSteps {
+
+    public static List<NewUserResponse> getAllUsers() {
+
+
+        return new ValidatedCrudRequester<NewUserResponse>(
+                RequestSpecs.adminSpec(),
+                Endpoint.ADMIN_USER,
+                ResponseSpecs.requestReturnsOK()).getAll(NewUserResponse[].class);
+    }
+
 
     public static CreatedUser createUser() {
         NewUserRequest userRequest =

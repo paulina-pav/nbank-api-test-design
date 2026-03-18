@@ -1,7 +1,6 @@
 package common.storage;
 
 import api.models.CreatedUser;
-import api.models.NewUserRequest;
 import api.requests.steps.UserSteps;
 
 import java.util.ArrayList;
@@ -40,6 +39,10 @@ public class SessionStorage {
 
     public static UserSteps getSteps() {
         return getSteps(1);
+    }
+
+    public static List<CreatedUser> getAllUsers() {
+        return new ArrayList<>(INSTANCE.userStepsMap.keySet());
     }
 
     public static void clear() {

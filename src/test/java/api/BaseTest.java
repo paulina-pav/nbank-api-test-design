@@ -1,4 +1,4 @@
-package senior;
+package api;
 
 import api.requests.steps.AdminSteps;
 import api.models.CreatedUser;
@@ -27,12 +27,24 @@ public abstract class BaseTest {
 
     @AfterEach
     public void afterTest() {
+        System.out.println("Users to delete: " + users.size());
 
         for (CreatedUser user : users) {
+            System.out.println("Deleting user: " + user.getRequest().getUsername());
             AdminSteps.deletesUser(user.getRequest());
         }
 
         soflty.assertAll();
     }
+
+
+   /* @AfterEach
+    public void afterTest() {
+
+        for (CreatedUser user : users) {
+            AdminSteps.deletesUser(user.getRequest());
+        }
+        soflty.assertAll();
+    }*/
 
 }

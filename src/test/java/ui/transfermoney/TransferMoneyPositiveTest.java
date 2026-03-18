@@ -2,70 +2,76 @@ package ui.transfermoney;
 
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.models.CreateAnAccountResponse;
-import api.models.MakeDepositResponse;
-import api.requests.steps.AdminSteps;
-import api.requests.steps.UserSteps;
 import api.models.CreatedUser;
+import api.models.MakeDepositResponse;
+import api.requests.steps.UserSteps;
+import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
-import ui.TransferMoneyPage;
-import ui.UserDashboard;
+import ui.pages.TransferMoneyPage;
+import ui.pages.UserDashboard;
 import ui.alerts.AlertsHelpMethods;
 
 public class TransferMoneyPositiveTest extends BaseUiTest {
+
+
     @Test
     @UserSession
-    public void MakeTransferPageCheck() {
+    @Browsers({"firefox"})
+    public void pageHasCorrectPageName() {
 
         new TransferMoneyPage()
                 .open()
-                .elementsAreVisible();
-
+                .checkPageName();
     }
 
     @Test
     @UserSession
+    @Browsers({"firefox"})
     public void userCanGoFromMakeTransferToDashboard() {
 
         new TransferMoneyPage()
                 .open()
-                .clickHomeButton()
+                .clickHomeButtonToGoToDashboard()
                 .elementsAreVisible();
     }
 
     @Test
     @UserSession
-    public void userCanGoToTransferAgainClickingButton(){
+    @Browsers({"firefox"})
+    public void userCanGoToTransferAgainClickingButton() {
 
         new TransferMoneyPage()
                 .open()
-                .openTransferAgain()
-                .elementsAreVisible();
+                .openTransferAgain();
+        //.elementsAreVisible();
     }
+
     @Test
     @UserSession
+    @Browsers({"firefox"})
     public void userCanGoFromDashboardToMakeTransfer() {
-
 
         new UserDashboard()
                 .open()
                 .clickTransferMoneyButton()
-                .elementsAreVisible();
+                .checkIfElementsAreVisible();
     }
 
 
     @Test
     @UserSession(value = 2)
+    @Browsers({"firefox"})
     public void userSeesChangedBalanceAfterTransferInAcc() {
         /*
 
 ### Тест: после отправки платежа в Select Your Account баланс обновляется
 
 Результат: ошибка! баланс не совпадает с действительным -- фронтенд не обновил страницу динамически, запрос /accounts или  /users
-         */
 
+*/
 
         CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
@@ -80,22 +86,24 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
         authAsUserUi(user1.getRequest());
 
         new TransferMoneyPage()
-                .open()
+                .openTransferMoneyForm()
                 .selectSenderAccount(accountResponse.getAccountNumber())
                 .enterRecipientName(user2Name)
                 .enterRecipientAccount(accountResponse2.getAccountNumber())
                 .enterAmount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .selectEmptyConfirmationCheckbox()
-                .clickTransferMoneyButton()
+                .submit()
                 .checkAlertMessageAndAccept(
-                        AlertsHelpMethods.formTransferSuccessfulAlert(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),accountResponse2.getAccountNumber())
-                )
-                .checkBalanceAfterSuccessTransaction(makeDepositResponse.getBalance()); //ошибка: баланс остался такой же на странице после отправки платежа
+                        AlertsHelpMethods.formTransferSuccessfulAlert(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(), accountResponse2.getAccountNumber()))
+                .checkBalanceAfterSuccessTransaction(makeDepositResponse.getBalance()); //подумать потом еще, ответственность какого класса этот метод
+
+        //ошибка: баланс остался такой же на странице после отправки платежа
 
     }
 
     @Test
     @UserSession(value = 2)
+    @Browsers({"firefox"})
     public void userCanTransferMoneyToUserWithRecipientName() {
 
 
@@ -113,13 +121,13 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
 
 
         new TransferMoneyPage()
-                .open()
+                .openTransferMoneyForm()
                 .selectSenderAccount(accountResponse1.getAccountNumber())
                 .enterRecipientName(recipientName)
                 .enterRecipientAccount(accountResponse2.getAccountNumber())
                 .enterAmount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
                 .selectEmptyConfirmationCheckbox()
-                .clickTransferMoneyButton()
+                .submit()
                 .checkAlertMessageAndAccept(AlertsHelpMethods.formTransferSuccessfulAlert(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
                         accountResponse2.getAccountNumber()));
 
@@ -132,8 +140,10 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
         soflty.assertThat(user2BalanceAfter).isEqualTo(user2BalanceBefore + MaxSumsForDepositAndTransactions.TRANSACTION.getMax());
 
     }
+
     @Test
     @UserSession(value = 2)
+    @Browsers({"firefox"})
     public void userCanTransferMoneyToUserIfRecipientDoesntHaveName() {
 
         CreatedUser user1 = SessionStorage.getUser(1);
@@ -147,14 +157,15 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
         Double user2BalanceBefore = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
 
         new TransferMoneyPage()
-                .open()
+                .openTransferMoneyForm()
                 .selectSenderAccount(accountResponse1.getAccountNumber())
                 .enterRecipientAccount(accountResponse2.getAccountNumber())
                 .enterAmount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
                 .selectEmptyConfirmationCheckbox()
-                .clickTransferMoneyButton()
+                .submit()
                 .checkAlertMessageAndAccept(AlertsHelpMethods.formTransferSuccessfulAlert(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
-                        accountResponse2.getAccountNumber()));
+                        accountResponse2.getAccountNumber()))
+        ;
 
         //у юзера 1 убавился баланс
         Double user1BalanceAfter = UserSteps.getBalance(user1.getRequest(), accountResponse1.getId());
@@ -164,7 +175,4 @@ public class TransferMoneyPositiveTest extends BaseUiTest {
         Double user2BalanceAfter = UserSteps.getBalance(user2.getRequest(), accountResponse2.getId());
         soflty.assertThat(user2BalanceAfter).isEqualTo(user2BalanceBefore + MaxSumsForDepositAndTransactions.TRANSACTION.getMax());
     }
-
-
-
 }

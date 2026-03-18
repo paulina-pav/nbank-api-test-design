@@ -1,4 +1,4 @@
-package senior.negatives;
+package api.negatives;
 
 
 import api.generators.ErrorMessage;
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-public class UserTransferNegativeTest extends senior.BaseTest {
+public class UserTransferNegativeTest extends api.BaseTest {
  /*
 
 Тест-кейсы этого файла:

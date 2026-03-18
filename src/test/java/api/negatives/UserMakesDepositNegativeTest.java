@@ -1,4 +1,4 @@
-package senior.negatives;
+package api.negatives;
 
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 */
 
-public class UserMakesDepositNegativeTest extends senior.BaseTest {
+public class UserMakesDepositNegativeTest extends api.BaseTest {
     public static Stream<Arguments> invalidSum() {
         return Stream.of(
                 Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400

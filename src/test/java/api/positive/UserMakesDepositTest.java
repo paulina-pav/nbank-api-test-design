@@ -1,4 +1,4 @@
-package senior.positive;
+package api.positive;
 
 
 import api.comparison.ModelAssertions;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
-public class UserMakesDepositTest extends senior.BaseTest {
+public class UserMakesDepositTest extends api.BaseTest {
 
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
 
