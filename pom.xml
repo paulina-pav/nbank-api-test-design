@@ -9,8 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -57,10 +56,15 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
+            <version>1.18.38</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.7</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>selenide</artifactId>
@@ -107,7 +111,7 @@
                         <version>3.2.5</version>
                         <configuration>
                             <includes>
-                                <include>**/api/**/*Test.java</include>
+                                <include>**/apisenior/**/*Test.java</include>
                             </includes>
                         </configuration>
                     </plugin>
@@ -125,7 +129,7 @@
                         <version>3.2.5</version>
                         <configuration>
                             <includes>
-                                <include>**/ui/**/*Test.java</include>
+                                <include>**/uisenior/**/*Test.java</include>
                             </includes>
                         </configuration>
                     </plugin>

@@ -1,6 +1,7 @@
 package api.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 @Data
@@ -8,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Transaction extends BaseModel{
     Long id;
     Double amount;
