@@ -14,7 +14,7 @@ public abstract class BaseTest {
     protected List<CreatedUser> users;
 
     @BeforeEach
-    public void setupTest(){
+    public void setupTest() {
         this.soflty = new SoftAssertions();
         users = new ArrayList<>();
     }
@@ -26,7 +26,7 @@ public abstract class BaseTest {
     }
 
     @AfterEach
-    public void afterTest(){
+    public void afterTest() {
 
         for (CreatedUser user : users) {
             AdminSteps.deletesUser(user.getRequest());
