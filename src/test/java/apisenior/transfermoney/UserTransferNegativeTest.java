@@ -97,7 +97,6 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(isTransactionTransferIn).isFalse();
 
 
-        //транзакции не было
         TransactionDao transaction = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("transactions")
@@ -105,7 +104,6 @@ public class UserTransferNegativeTest extends BaseTest {
                 .extractAs(TransactionDao.class);
         soflty.assertThat(transaction).isNull();
 
-      //проверки на счет: у дебета не убыло
         AccountDao accountDaoDebet = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("accounts")
@@ -114,8 +112,6 @@ public class UserTransferNegativeTest extends BaseTest {
 
         soflty.assertThat(accountDaoDebet.getBalance()).isEqualTo(balanceDebetBeforeTransfer);
 
-
-      //проверки на счет: у кредита не прибыло
         AccountDao accountDaoCredit = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("accounts")
@@ -123,9 +119,7 @@ public class UserTransferNegativeTest extends BaseTest {
                 .extractAs(AccountDao.class);
 
         soflty.assertThat(accountDaoCredit.getBalance()).isEqualTo(balanceCreditBeforeTransfer);
-
     }
-
 
 
     // 5. Юзер переводит сумму 10 001 при балансе больше 10 001
@@ -165,14 +159,13 @@ public class UserTransferNegativeTest extends BaseTest {
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //I. Балансы у обоих не изменились
+
         Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
         Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
 
         soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
         soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
 
-        //II. у каждого из счетов не было соответствующей транзакции
         boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
                 TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
         soflty.assertThat(isTransactionTransferOut).isFalse();
@@ -183,8 +176,6 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(isTransactionTransferIn).isFalse();
 
 
-
-        //транзакции не было
         TransactionDao transaction = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("transactions")
@@ -193,7 +184,6 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(transaction).isNull();
 
 
-        //проверки на счет: у дебета не убыло
         AccountDao accountDaoDebet = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("accounts")
@@ -203,7 +193,6 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(accountDaoDebet.getBalance()).isEqualTo(balanceDebetBeforeTransfer);
 
 
-        //проверки на счет: у кредита не прибыло
         AccountDao accountDaoCredit = RequestSkeleton.builder()
                 .requestType(RequestType.SELECT)
                 .table("accounts")

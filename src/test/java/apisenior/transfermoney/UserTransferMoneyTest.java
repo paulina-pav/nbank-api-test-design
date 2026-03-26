@@ -70,7 +70,6 @@ public class UserTransferMoneyTest extends BaseTest {
         boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
                 TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, newUser.getRequest());
 
-
         soflty.assertThat(isTransactionTransferOut).isTrue();
 
 
@@ -85,19 +84,16 @@ public class UserTransferMoneyTest extends BaseTest {
         DaoAndModelAssertions.assertThat(transferMoneyResponse, transactionDao);
 
 
-
         GetCustomerAccountResponse accountsUser1 = UserSteps.getAccount(newUser.getRequest(), debetId);
         AccountDao accountDaoUser1 = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), debetAccBalanceBefore
                 - MaxSumsForDepositAndTransactions.TRANSACTION.getMax() );
         DaoAndModelAssertions.assertThat(accountsUser1, accountDaoUser1);
 
 
-
         GetCustomerAccountResponse accountsUser2 = UserSteps.getAccount(newUser.getRequest(), creditId);
         AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), creditAccBalanceBefore
                 + MaxSumsForDepositAndTransactions.TRANSACTION.getMax());
         DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
-
 
     }
 
@@ -157,12 +153,10 @@ public class UserTransferMoneyTest extends BaseTest {
         DaoAndModelAssertions.assertThat(transferMoneyResponse, transactionDao);
 
 
-
         GetCustomerAccountResponse accountsUser1 = UserSteps.getAccount(userDeb.getRequest(), debetId);
         AccountDao accountDaoUser1 = DBSteps.getAccountByUserIdAndBalance(userDeb.getResponse().getId(), balanceDebetBeforeTransfer
                 - MaxSumsForDepositAndTransactions.TRANSACTION.getMax() );
         DaoAndModelAssertions.assertThat(accountsUser1, accountDaoUser1);
-
 
 
         GetCustomerAccountResponse accountsUser2 = UserSteps.getAccount(userCred.getRequest(), creditId);

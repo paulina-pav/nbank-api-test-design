@@ -35,11 +35,11 @@ public class UserChangesNameTest extends BaseTest {
 
         CreatedUser newUser = createUser();
 
-        //как юзер выглядит ДО переименования: id, username, name и роль
+
         GetCustomerProfileResponse getCustomerProfileBefore = UserSteps.getsProfile(newUser.getRequest());
 
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileBefore).match();
-        soflty.assertThat(getCustomerProfileBefore.getName()).isNull(); //имя нулл
+        soflty.assertThat(getCustomerProfileBefore.getName()).isNull();
 
 
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
@@ -55,14 +55,13 @@ public class UserChangesNameTest extends BaseTest {
         soflty.assertThat(userChangeNameResponse.getMessage()).isEqualTo(ServiceMessages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
 
 
-        //как юзер выглядит после переименования: id, username, name и роль
+
         GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
 
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
-        soflty.assertThat(getCustomerProfileAfter.getName()).isEqualTo(changedName.getName()); //имя новое
+        soflty.assertThat(getCustomerProfileAfter.getName()).isEqualTo(changedName.getName());
 
 
-        //проверка БД
         UserDao user =  DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), changedName.getName());
         DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
 

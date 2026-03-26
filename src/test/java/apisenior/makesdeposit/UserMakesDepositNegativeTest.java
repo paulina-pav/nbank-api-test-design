@@ -65,7 +65,7 @@ public class UserMakesDepositNegativeTest extends BaseTest {
 
         soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
 
-        //Проверка: баланс не изменился
+
         Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);
         soflty.assertThat(balanceAfter).isEqualTo(balanceBefore);
 
@@ -102,7 +102,6 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         CreatedUser user1 = createUser();
         CreatedUser user2 = createUser();
 
-        //создать счета
         Long user1Acc = UserSteps.createsAccount(user1.getRequest()).getId();
         Long user2Acc = UserSteps.createsAccount(user2.getRequest()).getId();
 
@@ -133,7 +132,6 @@ public class UserMakesDepositNegativeTest extends BaseTest {
 
 
         //Проверка 2. У юзера 1 нет транзакции депозит с упоминанием счета юзера 2
-
         boolean isDepositInUser1 = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
                 TransactionType.DEPOSIT.getMessage(), user1Acc, user2Acc, user1.getRequest()
         );
@@ -153,6 +151,5 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         GetCustomerAccountResponse accountsUser2 = UserSteps.getAccount(user2.getRequest(), user2Acc);
         AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(user2.getResponse().getId(), user2AccBalanceBefore);
         DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
-
     }
 }
