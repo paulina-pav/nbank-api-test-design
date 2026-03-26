@@ -1,0 +1,363 @@
+### Негативные тест кейсы. Часть 1. Депозит денег пользователем
+
+### Тест-кейсы в этом файле:
+
+### Тест-кейс 1: Авторизованный юзер делает депозит -1 на свой аккаунт на свой аккаунт
+### Тест-кейс 2: Авторизованный юзер делает депозит 0 на свой аккаунт
+### Тест-кейс 3: Авторизованный юзер делает депозит 5001 на свой аккаунт
+### Тест-кейс 4: Авторизованный юзер делает депозит на чужой аккаунт
+### Тест-кейс 5: Авторизованный юзер делает депозит на несуществующий аккаунт
+
+
+##################################### Тест-кейс 1: Авторизованный юзер делает депозит на свой аккаунт на -1
+### Предусловие. Админ создает юзера. Юзер авторизуется. Юзер создает счет. Юзер делает депозит -1
+### Ожидаемый результат: ошибка
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Юзер создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGU
+
+### Проверяем, что счет создался выписываем его id
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Действие: Юзер делает депозит на свой счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 4,
+  "balance": -1
+}
+
+### Ожидаемый результат: Deposit amount must be at least 0.01, 400 bad request
+
+### Проверка: текущий баланс 0
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/5
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+####################################### Тест-кейс 2: Авторизованный юзер делает депозит 0 на свой аккаунт
+### Предусловие. Админ создает юзера. Юзер авторизуется. Юзер создает счет.
+### Действие: Юзер делает депозит 0
+### Ожидаемый результат: ошибка
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Юзер создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGU
+
+
+### Проверяем, что счет создался выписываем его id
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+
+### Действие: Юзер делает депозит 0 на свой счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 4,
+  "balance": 0
+}
+
+### Результат: Deposit amount must be at least 0.01, 400 bad request
+
+### Проверка: текущий баланс 0
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/5
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+######################### Тест-кейс 3: Авторизованный юзер делает депозит 5001
+### Предусловие. Админ создает юзера. Юзер авторизуется. Юзер создает счет.
+### Действие: Юзер делает депозит 5001
+### Ожидаемый результат: ошибка
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Юзер создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGU
+
+
+### Проверяем, что счет создался выписываем его id
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+
+### Действие: Юзер делает депозит на свой счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 4,
+  "balance": 5001
+}
+
+### Ожидаемый результат: 400, Deposit amount exceeds the 5000 limit
+
+### Проверка: текущий баланс 0
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/5
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+################################################## Тест-кейс 4: Авторизованный юзер делает депозит на чужой аккаунт
+### Предусловия: Админ создает 2 юзера. Оба юзера авторизуются и создают себе по 1 аккаунту каждый.
+### Действие: юзер 1 делает депозит на счет юзера 2.
+### Ожидаемый результат: ошибка
+
+### Админ создает юзера 1
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+
+### Админ создает юзера 2
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "polina",
+  "password": "15101996Polina!",
+  "role": "USER"
+}
+
+### Юзер 1 авторизовывается. Вытаскиваем токен.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Юзер 1 создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+
+### Проверяем, что счет создался и записываем его ID чтобы потом подставить
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Юзер 2 авторизуется. Вытаскиваем токен
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "polina",
+  "password": "15101996Polina!"
+}
+
+### Юзер 2 создает счет
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+
+### Проверяем, что счет создался и записываем его ID чтобы потом подставить
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+
+### Действие: Юзер 1 делает депозит на счет юзера 2
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 2,
+  "balance": 100
+}
+
+### Результат: 403 forbidden Unauthorized access to account
+
+### Проверка: у юзера 1 не уменьшился баланс на сумму из предыдущего шага и не появилась транзакция transfer_out с нужной суммой
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Проверка 2: у юзера 2 баланс не увеличился на нужную сумму и нет транзации transfer_in
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера 1
+DELETE http://localhost:5000/api/v1/admin/users/2
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера 2
+DELETE http://localhost:5000/api/v1/admin/users/3
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+################### Тест-кейс 5: Авторизованный юзер делает депозит на несуществующий аккаунт
+### Предусловие: Админ создает юзера. Юзер 1 авторизовывается и создает счет. Админ собирает getAllUsers чтобы посмотреть, какие счета созданы.
+###Юзер 1 пополяет счет +1 от уже существующих.
+
+### Действие: Юзер 1 делает депозит на несуществующий счет
+### Ожидаемый результат: ошибка
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Админ получает id аккаунтов всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+### Действие: Юзер делает депозит на несуществующий счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 100500,
+  "balance": 5
+}
+
+### Ожидаемый результат: 403 forbidden Unauthorized access to account
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/2
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/3
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
