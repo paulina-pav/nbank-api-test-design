@@ -1,0 +1,234 @@
+# Позитивные кейсы для итерации 2
+# 1. Депозит денег пользователем
+# 2. Перевод денег с одного аккаунта на другой
+# 3. Изменение имени пользователя
+
+
+### Тест-кейсы в этом файле:
+### Тест-кейс 1: Авторизованный юзер делает депозит на свой счет
+### Тест-кейс 2: Авторизованный юзер 1 переводит деньги юзеру 2
+### Тест-кейс 3: Авторизованный юзер изменяет свое имя
+
+
+########################################### Тест-кейс 1: Авторизованный юзер делает депозит на свой счет
+### Предусловие: Админ создает юзера. Юзер авторизовывается. Юзер создает счет.
+### Действие: Юзер делает депозит.
+### Ожидаемый результат: На счету у юзера имеется транзакция соответствующая заявленной сумме.
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Юзер создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGU
+
+### Проверяем, что счет создался
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Юзер делает депозит на свой счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 1,
+  "balance": 5000
+}
+
+### Проверяем, что депозит 5000 появился на счете "1"
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/1
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+##############################Тест-кейс 2: Авторизованный юзер 1 переводит деньги юзеру 2
+###Предусловия: Админ создает 2 юзера. Оба юзера авторизовываются и создают счета. Юзер 1 делает депозит на счет 5000.
+### Действие: Юзер 1 делает перевод Юзеру 2 на 5000.
+### Ожидаемый результат: в аккаунте у Юзера 1 ушла нужная сумма и эта же сумма прибавилась в аккаунт к Юзеру 2
+
+###Админ создает юзера 1
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+###Админ создает юзера 2
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "polina",
+  "password": "15101996Polina!",
+  "role": "USER"
+}
+
+### Юзер 1 авторизовывается. Вытаскиваем токен.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Юзер 1 создает счет.
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Проверяем, что счет создался
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Действие: Юзер 1 делает депозит на свой счет
+POST http://localhost:5000/api/v1/accounts/deposit
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+Content-Type: application/json
+
+{
+  "id": 1,
+  "balance": 5000
+}
+
+### Проверяем, что депозит 100 появился на счете "1"
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+
+### Юзер 2 авторизуется. Вытаскиваем токен
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "polina",
+  "password": "15101996Polina!"
+}
+
+### Юзер 2 создает счет
+POST http://localhost:5000/api/v1/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+### Проверяем, что счет создался и записываем его ID чтобы потом подставить
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+### Действие: юзер 1 делает перевод на счет юзера 2.
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "senderAccountId": 3,
+  "receiverAccountId": 2,
+  "amount": 5000
+}
+
+### Проверка: у юзера 1 уменьшился баланс на сумму из предыдущего шага и появилась транзакция transfer_out с нужной суммой
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Authorization: Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+### Проверка 2: у юзера 2 баланс увеличился на нужную сумму и есть транзация transfer_in, в ней нужная сумма и id отправителя
+GET http://localhost:5000/api/v1/customer/accounts
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/2
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/3
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+#################################Тест-кейс 3: Авторизованный юзер изменяет свое имя
+###Предусловие: Админ создает юзера. Юзер авторизуется.
+### Действие: Юзер меняет себе имя
+### Ожидаемый результат: имя сменилось
+
+### Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "polina",
+  "password": "15101996Polina!",
+  "role": "USER"
+}
+
+### Юзер авторизуется. Выписываем токен
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "polina",
+  "password": "15101996Polina!"
+}
+
+### Действие: юзер изменяет имя
+PUT http://localhost:5000/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+{
+  "name": "Polina Polina"
+}
+
+### Проверка: имя в поле name изменилось, а в поле username -- нет
+GET http://localhost:5000/api/v1/customer/profile
+Authorization Basic cG9saW5hOjE1MTAxOTk2UG9saW5hIQ==
+
+### Удаляем данные: Админ получает id всех юзеров
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: Админ по id удаляет юзера
+DELETE http://localhost:5000/api/v1/admin/users/4
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
