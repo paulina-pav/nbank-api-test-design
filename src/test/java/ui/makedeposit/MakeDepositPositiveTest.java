@@ -2,61 +2,63 @@ package ui.makedeposit;
 
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.models.CreateAnAccountResponse;
-import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import common.annotation.Browsers;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
-import ui.MakeDeposit;
-import ui.UserDashboard;
+import ui.pages.MakeDeposit;
+import ui.pages.UserDashboard;
 import ui.alerts.AlertsHelpMethods;
 
 public class MakeDepositPositiveTest extends BaseUiTest {
-    @Test
-    public void depositMoneyPageCheck() {
 
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
-
-        new MakeDeposit()
-                .open()
-                .elementsAreVisible();
-    }
 
     @Test
+    @UserSession
+    @Browsers({"firefox"})
     public void userCanGoFromDashboardToDepositMoneyPage() {
-
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new UserDashboard()
                 .open()
                 .clickMakeDepositButton()
-                .elementsAreVisible();
+                .checkIfTitleIsCorrect();
     }
 
     @Test
-    public void userCanMakeDeposit() {
-        CreatedUser user = AdminSteps.createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user.getRequest());
-
-        //зафиксируем баланс ДО
-        Double balanceBefore = UserSteps.getBalance(user.getRequest(), accountResponse.getId());
-
-        authAsUserUi(user.getRequest());
-
+    @Browsers({"firefox"})
+    @UserSession
+    public void userCanClickHomeButtonGoToDashboard() {
         new MakeDeposit()
                 .open()
+                .clickHomeButton();
+    }
+
+    @Test
+    @UserSession
+    @Browsers({"firefox"})
+    public void userCanMakeDeposit() {
+
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
+
+        //зафиксируем баланс ДО
+        Double balanceBefore = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse.getId());
+
+        new MakeDeposit()
+                .openDepositSection()
                 .selectAccount(accountResponse.getAccountNumber())
                 .enterAmount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .clickTheDepositButton()
-                .checkAlertMessageAndAccept(AlertsHelpMethods.formDepositSuccessfulAlert(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
-                        accountResponse.getAccountNumber()));
+                .checkAlertMessageAndAcceptAndGoToUserDashboard(AlertsHelpMethods.formDepositSuccessfulAlert(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
+                        accountResponse.getAccountNumber()))
+
+        ;
 
         //баланс на уровне апи ПОСЛЕ
-        Double balanceAfter = UserSteps.getBalance(user.getRequest(), accountResponse.getId());
+        Double balanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse.getId());
 
         //сверим, что баланс на уровне апи = сумме на которую делали депозит на UI
-        soflty.assertThat(balanceAfter).isEqualTo(MaxSumsForDepositAndTransactions.DEPOSIT.getMax());
+        soflty.assertThat(balanceAfter).isEqualTo(balanceBefore + MaxSumsForDepositAndTransactions.DEPOSIT.getMax());
     }
 }

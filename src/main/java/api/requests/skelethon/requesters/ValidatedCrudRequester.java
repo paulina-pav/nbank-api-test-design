@@ -1,13 +1,13 @@
 package api.requests.skelethon.requesters;
 
-import io.restassured.specification.RequestSpecification;
-import io.restassured.specification.ResponseSpecification;
 import api.models.BaseModel;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.HttpRequest;
 import api.requests.skelethon.interfaces.CrudEndpointInterface;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 
-public class ValidatedCrudRequester <T extends BaseModel> extends HttpRequest implements CrudEndpointInterface {
+public class ValidatedCrudRequester<T extends BaseModel> extends HttpRequest implements CrudEndpointInterface {
 
     private CrudRequester crudRequester;
 
@@ -30,6 +30,7 @@ public class ValidatedCrudRequester <T extends BaseModel> extends HttpRequest im
     public T put(BaseModel model) {
         return (T) crudRequester.put(model).extract().as(endpoint.getResponseModel());
     }
+
     @Override
     public String delete(long id) {
         return crudRequester.delete(id).extract().asString();
@@ -41,16 +42,9 @@ public class ValidatedCrudRequester <T extends BaseModel> extends HttpRequest im
     }
 
 
-
-
     @Override
     public Object update(long id, BaseModel model) {
         return null;
     }
-
-
-
-
-
 
 }

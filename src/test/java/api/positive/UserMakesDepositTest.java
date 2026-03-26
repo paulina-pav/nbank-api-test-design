@@ -1,4 +1,4 @@
-package senior.positive;
+package api.positive;
 
 
 import api.comparison.ModelAssertions;
@@ -9,14 +9,14 @@ import api.models.MakeDepositResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
-public class UserMakesDepositTest extends senior.BaseTest {
+public class UserMakesDepositTest extends api.BaseTest {
 
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
 

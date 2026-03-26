@@ -2,69 +2,65 @@ package ui.makedeposit;
 
 import api.models.CreateAnAccountResponse;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import common.annotation.Browsers;
+import common.annotation.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import ui.BaseUiTest;
-import ui.MakeDeposit;
+import ui.pages.MakeDeposit;
 import ui.alerts.DepositAlerts;
+
+import java.util.stream.Stream;
 
 public class MakeDepositNegativeTest extends BaseUiTest {
     @Test
+    @UserSession
+    @Browsers({"firefox"})
     public void userCantMakeDepositIfDoesntChooseAcc() {
         /*
 ### Тест: При невыбранном счете появляется ошибка
-
 Результат: ❌ Please select an account. (Запроса к апи нет, проверка на фронте)
          */
-        CreatedUser user = createUser();
-        authAsUserUi(user.getRequest());
 
         new MakeDeposit()
-                .open()
+                .openDepositSection()
                 .clickTheDepositButton()
                 .checkAlertMessageAndAccept(DepositAlerts.SELECT_ACCOUNT.getMessage());
     }
 
-    @Test
-    public void userCantMakeDepositWithInvalidSum() {
-        /*
-        ### Тест: При сумме 5001 ошибка
-
-Результат: ❌ Please deposit less or equal to 5000$.(Запроса к апи нет, проверка на фронте)
-         */
-
-        CreatedUser user = createUser();
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user.getRequest());
-
-        authAsUserUi(user.getRequest());
-
-        new MakeDeposit()
-                .open()
-                .selectAccount(accountResponse.getAccountNumber())
-                .enterAmount(5001.0)
-                .clickTheDepositButton()
-                .checkAlertMessageAndAccept(DepositAlerts.DEPOSIT_LESS_THAN_5001.getMessage());
+    public static Stream<Arguments> invalidSums(){
+        return Stream.of(
+                Arguments.of(5001.0, DepositAlerts.DEPOSIT_LESS_THAN_5001.getMessage()),
+                Arguments.of(0.0, DepositAlerts.ENTER_VALID_AMOUNT.getMessage())
+        );
     }
 
-    @Test
-    public void userCantMakeDepositWitZero() {
 
+    @UserSession
+    @ParameterizedTest
+    @Browsers({"firefox"})
+    @MethodSource("invalidSums")
+    public void userCantMakeDepositWithInvalidSum(Double sum, String alterMessage) {
         /*
+        ### Тест: При сумме 5001 ошибка
+Результат: ❌ Please deposit less or equal to 5000$.(Запроса к апи нет, проверка на фронте)
+
+
 ### Тест: При сумме 0 появляется ошибка
 Результат: ❌ Please enter a valid amount. (Запроса к апи нет, проверка на фронте)
          */
 
-        CreatedUser user = createUser();
 
-        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user.getRequest());
-
-        authAsUserUi(user.getRequest());
+        CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
 
         new MakeDeposit()
-                .open()
+                .openDepositSection()
                 .selectAccount(accountResponse.getAccountNumber())
-                .enterAmount(0.0)
+                .enterAmount(sum)
                 .clickTheDepositButton()
-                .checkAlertMessageAndAccept(DepositAlerts.ENTER_VALID_AMOUNT.getMessage());
+                .checkAlertMessageAndAccept(alterMessage);
     }
 }

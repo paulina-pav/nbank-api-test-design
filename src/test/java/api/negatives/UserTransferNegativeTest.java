@@ -1,4 +1,4 @@
-package senior.negatives;
+package api.negatives;
 
 
 import api.generators.ErrorMessage;
@@ -8,7 +8,7 @@ import api.models.TransferMoneyRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-public class UserTransferNegativeTest extends senior.BaseTest {
+public class UserTransferNegativeTest extends api.BaseTest {
  /*
 
 Тест-кейсы этого файла:

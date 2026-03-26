@@ -4,11 +4,16 @@ import api.models.NewUserRequest;
 import api.specs.RequestSpecs;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import common.extensions.BrowserMatchExtension;
+import common.extensions.UserSessionExtension;
 import org.junit.jupiter.api.BeforeAll;
-import senior.BaseTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import api.BaseTest;
 
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 
+@ExtendWith(UserSessionExtension.class)
+@ExtendWith(BrowserMatchExtension.class)
 public class BaseUiTest extends BaseTest {
 
     @BeforeAll
@@ -16,7 +21,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = "http://localhost:3000";
         Configuration.browser = "firefox";
         Configuration.browserSize = "1400x900"; //"1920x1080";
-       Configuration.holdBrowserOpen = true;
+        Configuration.holdBrowserOpen = true;
     }
 
     public void authAsUserUi(NewUserRequest user) {
@@ -26,7 +31,11 @@ public class BaseUiTest extends BaseTest {
     }
 
 }
-/*  public static void setupSelenoid() {
+/*
+
+ конфигурация для запуска в докере:
+
+ public static void setupSelenoid() {
         Configuration.remote = "http://localhost:4444/wd/hub";
         Configuration.baseUrl = "http://192.168.0.105:3000"; //т.к. селеноид это докер, то для него локал хост другое значение. правая часть -- порт от обычной ссылки
         Configuration.browser = "firefox";

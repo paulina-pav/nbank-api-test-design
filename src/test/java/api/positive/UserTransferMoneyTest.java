@@ -1,4 +1,4 @@
-package senior.positive;
+package api.positive;
 
 
 import api.comparison.ModelAssertions;
@@ -11,7 +11,7 @@ import api.models.TransferMoneyResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-public class UserTransferMoneyTest extends senior.BaseTest {
+public class UserTransferMoneyTest extends api.BaseTest {
 
 //Тест-кейсы этого файла:
 //1. Юзер успешно переводит деньги на существующий счет другого юзера

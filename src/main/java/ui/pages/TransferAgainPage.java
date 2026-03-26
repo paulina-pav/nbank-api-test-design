@@ -1,22 +1,24 @@
-package ui;
+package ui.pages;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
+import ui.elements.FoundTransactionList;
 
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class TransferAgainPage extends BasePage<TransferAgainPage> {
     private SelenideElement searchText = $(Selectors.byText("Search by Username or Name:"));
     private SelenideElement enterNameToFindPlaceholder = $(Selectors.byAttribute("placeholder", "Enter name to find transactions"));
-
     private SelenideElement searchTransactionsButton = $(Selectors.byText("\uD83D\uDD0D Search Transactions"));
     private SelenideElement matchingTransactionHeader = $(Selectors.byText("Matching Transactions"));
-
     private SelenideElement homeButton = $(Selectors.byText("\uD83C\uDFE0 Home"));
-
-    private ElementsCollection matchingTransaction = $(Selectors.byClassName("list-group")).findAll("li");
     private SelenideElement transferAgainButton = $(Selectors.byText("\uD83D\uDD01 Transfer Again"));
+
+
+    private final SelenideElement foundTransactionsList = $(Selectors.byClassName("list-group"));
 
 
     @Override
@@ -32,22 +34,32 @@ public class TransferAgainPage extends BasePage<TransferAgainPage> {
         return this;
     }
 
-    public TransferAgainPage elementsAreVisible() {
-        searchText.shouldBe(visible);
-        enterNameToFindPlaceholder.shouldBe(visible);
-        searchTransactionsButton.shouldBe(visible);
-        matchingTransactionHeader.shouldBe(visible);
-        homeButton.shouldBe(visible);
+    public TransferAgainPage insertUsername(String username) {
+        enterNameToFindPlaceholder.shouldBe(visible).setValue(username);
         return this;
     }
 
-    public TransferAgainPage findTransactionByName(String name) {
-        enterNameToFindPlaceholder.sendKeys(name);
-        searchTransactionsButton.click();
-
-        matchingTransaction.findBy(Condition.text("\uD83D\uDD0D Found under: " + "\n" + name));
-
+    public TransferAgainPage insertName(String name) {
+        enterNameToFindPlaceholder.shouldBe(visible).setValue(name);
         return this;
+    }
+
+
+    //способ попасть в контейнер с транзакциями: напрямую
+    public FoundTransactionList getTransactionSection() {
+        foundTransactionsList.shouldBe(visible);
+        return new FoundTransactionList(foundTransactionsList, this);
+    }
+
+    //способ попасть в контейнер с транзакциями: сначала найти по юзернейму если нет имени или только по имени.
+    public FoundTransactionList clickSearchButton() {
+        for (int i = 0; i < 5; i++) { //нажать несколько раз
+            searchTransactionsButton
+                    .scrollIntoView(true)
+                    .shouldBe(visible, Condition.enabled)
+                    .click();
+        }
+        return new FoundTransactionList(foundTransactionsList, this);
     }
 
     public TransferMoneyPage clickNewTransferButton() {
@@ -59,16 +71,5 @@ public class TransferAgainPage extends BasePage<TransferAgainPage> {
     public UserDashboard clickHomeButton() {
         homeButton.click();
         return Selenide.page(UserDashboard.class);
-    }
-
-    public TransferAgainModal findAndClickTransaction(String type, Double sum) {
-        SelenideElement item = matchingTransaction
-                .findBy(text(
-                        type + " - $" + sum
-                ));
-
-        item.$("button").click();
-
-        return Selenide.page(TransferAgainModal.class);
     }
 }

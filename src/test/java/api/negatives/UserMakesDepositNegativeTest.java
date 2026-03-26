@@ -1,4 +1,4 @@
-package senior.negatives;
+package api.negatives;
 
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
@@ -7,7 +7,7 @@ import api.models.MakeDepositRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.steps.UserSteps;
-import api.requests.steps.result.CreatedUser;
+import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 */
 
-public class UserMakesDepositNegativeTest extends senior.BaseTest {
+public class UserMakesDepositNegativeTest extends api.BaseTest {
     public static Stream<Arguments> invalidSum() {
         return Stream.of(
                 Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400

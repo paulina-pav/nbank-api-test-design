@@ -1,7 +1,5 @@
 package ui.alerts;
 
-import api.generators.MaxSumsForDepositAndTransactions;
-
 public class AlertsHelpMethods {
 
     public static String  getNumbersFromAccountNumber(String accountNumber){
