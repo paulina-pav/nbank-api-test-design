@@ -16,7 +16,9 @@ public class SessionStorage {
 
     public static void addUsers(List<CreatedUser> users) {
         for (CreatedUser user: users) {
-            INSTANCE.userStepsMap.put(user, new UserSteps()); //убрала поля и конструктор из UserSteps, оставив методы статическими, потому что это влияет на api тесты
+            INSTANCE.userStepsMap.put(user, new UserSteps());
+            //убрала поля и конструктор из UserSteps,
+            // оставив методы статическими, потому что это влияет на api тесты
         }
     }
 
@@ -26,7 +28,7 @@ public class SessionStorage {
      * @return Объект CreateUserRequest, соответствующий указанному порядковому номеру.
      */
     public static CreatedUser getUser(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.keySet()).get(number-1);
+        return new ArrayList<>(INSTANCE.userStepsMap.keySet()).get(number - 1);
     }
 
     public static CreatedUser getUser() {
@@ -34,7 +36,7 @@ public class SessionStorage {
     }
 
     public static UserSteps getSteps(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.values()).get(number-1);
+        return new ArrayList<>(INSTANCE.userStepsMap.values()).get(number - 1);
     }
 
     public static UserSteps getSteps() {

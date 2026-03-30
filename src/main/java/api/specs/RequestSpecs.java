@@ -24,7 +24,7 @@ public class RequestSpecs {
         return new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
-                .addFilters( List.of(new RequestLoggingFilter(),
+                .addFilters(List.of(new RequestLoggingFilter(),
                         new ResponseLoggingFilter(), new AllureRestAssured()))
                 .setBaseUri(Config.getProperty("server") + Config.getProperty("apiVersion"));
     }
