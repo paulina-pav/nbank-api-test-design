@@ -8,16 +8,20 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.util.Arrays;
 
-public class BrowserMatchExtension implements ExecutionCondition {//расширение для пропуска или не пропуска тестов
+public final class BrowserMatchExtension
+        implements ExecutionCondition {
 
     @Override
-    public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext extensionContext) {
+    public ConditionEvaluationResult evaluateExecutionCondition(
+            final ExtensionContext extensionContext) {
         Browsers annotation = extensionContext.getElement()
-                .map(el -> el.getAnnotation(Browsers.class))
+                .map(element -> element.getAnnotation(Browsers.class))
                 .orElse(null);
 
         if (annotation == null) {
-            return ConditionEvaluationResult.enabled("Нет ограничений к браузеру");
+            return ConditionEvaluationResult.enabled(
+                    "Нет ограничений к браузеру"
+            );
         }
 
         String currentBrowser = Configuration.browser;
@@ -25,10 +29,16 @@ public class BrowserMatchExtension implements ExecutionCondition {//расшир
                 .anyMatch(browser -> browser.equals(currentBrowser));
 
         if (matches) {
-            return ConditionEvaluationResult.enabled("Текущий браузер удовлетворяет условию: "+ currentBrowser);
-        } {
-            return ConditionEvaluationResult.disabled("Тест пропущен, так как текущий браузер не находится в списке допустимых браузеров для теста: "
-                    + Arrays.toString(annotation.value()));
+            return ConditionEvaluationResult.enabled(
+                    "Текущий браузер удовлетворяет условию: "
+                            + currentBrowser
+            );
+        } else {
+            return ConditionEvaluationResult.disabled(
+                    "Тест пропущен, так как текущий браузер не находится "
+                            + "в списке допустимых браузеров для теста: "
+                            + Arrays.toString(annotation.value())
+            );
         }
     }
 }
