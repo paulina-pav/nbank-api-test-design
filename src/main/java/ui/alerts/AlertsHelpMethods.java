@@ -2,7 +2,7 @@ package ui.alerts;
 
 public class AlertsHelpMethods {
 
-    public static String  getNumbersFromAccountNumber(String accountNumber){
+    private static String  getNumbersFromAccountNumber(String accountNumber){
       return accountNumber.substring(3);
     }
 

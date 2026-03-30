@@ -45,7 +45,7 @@ public class UserSessionExtension implements BeforeEachCallback, AfterEachCallba
 
             for (CreatedUser user : SessionStorage.getAllUsers()) {
                 System.out.println("Deleting session user: " + user.getRequest().getUsername());
-                AdminSteps.deletesUser(user.getRequest());
+                AdminSteps.deletesUser(user);
             }
 
             SessionStorage.clear();

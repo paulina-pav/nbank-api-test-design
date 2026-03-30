@@ -15,13 +15,18 @@ import java.util.List;
 
 public class AdminSteps {
 
-    public static List<NewUserResponse> getAllUsers() {
 
-
-        return new ValidatedCrudRequester<NewUserResponse>(
+    public static List<User> getAllUsers(){
+        List<User> users = new CrudRequester(
                 RequestSpecs.adminSpec(),
-                Endpoint.ADMIN_USER,
-                ResponseSpecs.requestReturnsOK()).getAll(NewUserResponse[].class);
+                Endpoint.GET_ALL_USER,
+                ResponseSpecs.requestReturnsOK()
+        ).get()
+                .extract()
+                .as(new TypeRef<List<User>>() {
+                });
+
+        return users;
     }
 
 
@@ -42,31 +47,19 @@ public class AdminSteps {
         );
     }
 
-    public static String deletesUser(NewUserRequest userRequest) {
+    public static String deletesUser(CreatedUser user) {
 
-        List<User> users = new CrudRequester(
-                RequestSpecs.adminSpec(),
-                Endpoint.GET_ALL_USER,
-                ResponseSpecs.requestReturnsOK()
-        ).get()
-                .extract()
-                .as(new TypeRef<List<User>>() {
-                });
+            return StepLogger.log("Admin deletes user " + user.getRequest().getUsername(), () -> {
 
-        User user = users.stream()
-                .filter(u -> u.getUsername().equals(userRequest.getUsername()))
-                .findAny().get();
+                String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                        RequestSpecs.adminSpec(),
+                        Endpoint.DELETE_USER_BY_ID,
+                        ResponseSpecs.requestReturnsOK()
+                ).delete(user.getResponse().getId());
 
-        return StepLogger.log("Admin deletes user " + userRequest.getUsername(), () -> {
+                return successMessage;
+            });
 
-            String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
-                    RequestSpecs.adminSpec(),
-                    Endpoint.DELETE_USER_BY_ID,
-                    ResponseSpecs.requestReturnsOK()
-            ).delete(user.getId());
-
-            return successMessage;
-        });
     }
 
     public static List<CreatedUser> createsTwoUsers() {
@@ -87,15 +80,7 @@ public class AdminSteps {
 
     public static void deleteTwoUsersByIds(Integer firstId, Integer secondId) {
 
-        //получили массив юзеров
-        List<User> users = new CrudRequester(
-                RequestSpecs.adminSpec(),
-                Endpoint.GET_ALL_USER,
-                ResponseSpecs.requestReturnsOK()
-        ).get()
-                .extract()
-                .as(new TypeRef<List<User>>() {
-                });
+        List<User> users = getAllUsers();
 
         List<Integer> ids = new ArrayList<>();
         ids.add(firstId);
@@ -115,8 +100,24 @@ public class AdminSteps {
                         ResponseSpecs.requestReturnsOK()
                 ).delete(user.getId());
             });
+        }
+    }
 
+    public static void deleteAllUsers(){
+        List<User> users = getAllUsers();
+        List<Integer> ids = new ArrayList<>();
+
+        for(User user : users){
+            ids.add(user.getId());
         }
 
+        for(Integer id: ids){
+            String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                    RequestSpecs.adminSpec(),
+                    Endpoint.DELETE_USER_BY_ID,
+                    ResponseSpecs.requestReturnsOK()
+            ).delete(id);
+            System.out.println("successMessage");
+        }
     }
 }

@@ -143,23 +143,21 @@ public class UserSteps {
 
             MakeDepositResponse makeDepositResponse = null;
 
-                MakeDepositRequest deposit = MakeDepositRequest.builder()
-                        .id(accountId)
-                        .balance(sum)
-                        .build();
+            MakeDepositRequest deposit = MakeDepositRequest.builder()
+                    .id(accountId)
+                    .balance(sum)
+                    .build();
 
-                makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
-                        RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
-                        Endpoint.DEPOSIT,
-                        ResponseSpecs.requestReturnsOK()
-                ).post(deposit);
+            makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
+                    RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                    Endpoint.DEPOSIT,
+                    ResponseSpecs.requestReturnsOK()
+            ).post(deposit);
 
 
             return makeDepositResponse;
         });
     }
-
-
 
 
     public static List<GetCustomerAccountResponse> getsAccounts(NewUserRequest newUser) {
@@ -258,39 +256,60 @@ public class UserSteps {
 
     public static TransferMoneyResponse transferMoney(Long senderAcc, Long receiverAcc, Double sum, NewUserRequest user) {
 
-        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
-                .senderAccountId(senderAcc)
-                .amount(sum)
-                .receiverAccountId(receiverAcc)
-                .build();
+        return StepLogger.log("User " + user.getUsername() + " with account " + senderAcc + " makes a transfer to " + receiverAcc +
+                " by sum " + sum, () -> {
+            TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                    .senderAccountId(senderAcc)
+                    .amount(sum)
+                    .receiverAccountId(receiverAcc)
+                    .build();
 
-        TransferMoneyResponse transferMoneyResponse = new ValidatedCrudRequester<TransferMoneyResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.TRANSFER,
-                ResponseSpecs.requestReturnsOK()
-        ).post(transferMoney);
+            TransferMoneyResponse transferMoneyResponse = new ValidatedCrudRequester<TransferMoneyResponse>(
+                    RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                    Endpoint.TRANSFER,
+                    ResponseSpecs.requestReturnsOK()
+            ).post(transferMoney);
 
-        return transferMoneyResponse;
+            return transferMoneyResponse;
+        });
 
     }
 
     public static MakeDepositResponse makesDepositX4(Long accountId, NewUserRequest newUser) {
 
-        MakeDepositResponse makeDepositResponse = null;
 
-        for (int i = 0; i <= 3; i++) {
-            MakeDepositRequest deposit = MakeDepositRequest.builder()
-                    .id(accountId)
-                    .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
-                    .build();
+        return StepLogger.log("User " + newUser.getUsername() + " makes deposit on" + accountId + " x4", () -> {
+            MakeDepositResponse makeDepositResponse = null;
 
-            makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
-                    RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
-                    Endpoint.DEPOSIT,
-                    ResponseSpecs.requestReturnsOK()
-            ).post(deposit);
-        }
+            for (int i = 0; i <= 3; i++) {
+                MakeDepositRequest deposit = MakeDepositRequest.builder()
+                        .id(accountId)
+                        .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                        .build();
 
-        return makeDepositResponse;
+                makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
+                        RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
+                        Endpoint.DEPOSIT,
+                        ResponseSpecs.requestReturnsOK()
+                ).post(deposit);
+            }
+
+            return makeDepositResponse;
+        });
+
+    }
+
+
+    public static GetCustomerAccountResponse getAccount(NewUserRequest user, Long account) {
+
+        return StepLogger.log("User " + user.getUsername() + " get info about account: " + account, () -> {
+            List<GetCustomerAccountResponse> accountsUser = UserSteps.getsAccounts(user);
+            GetCustomerAccountResponse currentAccount = accountsUser.stream()
+                    .filter(a -> a.getId().equals(account))
+                    .findAny()
+                    .get();
+
+            return currentAccount;
+        });
     }
 }
