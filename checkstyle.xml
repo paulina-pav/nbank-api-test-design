@@ -28,7 +28,6 @@
 
         <module name="OneStatementPerLine"/>
         <module name="MultipleVariableDeclarations"/>
-        <module name="EmptyLineSeparator"/>
 
         <module name="MethodParamPad"/>
         <module name="ParenPad"/>
