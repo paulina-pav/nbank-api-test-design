@@ -12,13 +12,17 @@ import ui.pages.BasePage;
 import java.util.LinkedList;
 import java.util.List;
 
-public class UserSessionExtension implements BeforeEachCallback, AfterEachCallback {
-    @Override
-    public void beforeEach(ExtensionContext extensionContext) throws Exception {
-        // Шаг 1: проверка, что у теста есть аннотация UserSession
-        UserSession annotation = extensionContext.getRequiredTestMethod().getAnnotation(UserSession.class);
-        if (annotation != null) {
+public final class UserSessionExtension
+        implements BeforeEachCallback, AfterEachCallback {
 
+    @Override
+    public void beforeEach(final ExtensionContext extensionContext)
+            throws Exception {
+        UserSession annotation = extensionContext
+                .getRequiredTestMethod()
+                .getAnnotation(UserSession.class);
+
+        if (annotation != null) {
             int userCount = annotation.value();
 
             SessionStorage.clear();
@@ -37,14 +41,24 @@ public class UserSessionExtension implements BeforeEachCallback, AfterEachCallba
             BasePage.authAsUser(SessionStorage.getUser(authAsUser));
         }
     }
+
     @Override
-    public void afterEach(ExtensionContext extensionContext) {
-        UserSession annotation = extensionContext.getRequiredTestMethod().getAnnotation(UserSession.class);
+    public void afterEach(final ExtensionContext extensionContext) {
+        UserSession annotation = extensionContext
+                .getRequiredTestMethod()
+                .getAnnotation(UserSession.class);
+
         if (annotation != null) {
-            System.out.println("Session users to delete: " + SessionStorage.getAllUsers().size());
+            System.out.println(
+                    "Session users to delete: "
+                            + SessionStorage.getAllUsers().size()
+            );
 
             for (CreatedUser user : SessionStorage.getAllUsers()) {
-                System.out.println("Deleting session user: " + user.getRequest().getUsername());
+                System.out.println(
+                        "Deleting session user: "
+                                + user.getRequest().getUsername()
+                );
                 AdminSteps.deletesUser(user);
             }
 
