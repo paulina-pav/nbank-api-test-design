@@ -2,7 +2,6 @@ package api.models;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,4 @@ import lombok.NoArgsConstructor;
 
 public class DeleteByUserIdResponse extends BaseModel {
     private String successMessage;
-
-
-
 }
