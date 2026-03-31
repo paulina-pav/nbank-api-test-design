@@ -13,9 +13,6 @@ import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
-import db.models.UserDao;
-import db.models.comparison.DaoAndModelAssertions;
-import db.steps.DBSteps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -51,6 +48,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @DisplayName("Юзер не может сменить имя, используя невалидное имя")
     @ParameterizedTest
     @MethodSource("invalidNames")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userChangeName(String invalidName, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
