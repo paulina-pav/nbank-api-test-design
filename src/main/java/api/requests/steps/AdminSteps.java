@@ -2,7 +2,12 @@ package api.requests.steps;
 
 import api.common.helpers.StepLogger;
 import api.generators.RandomModelGenerator;
-import api.models.*;
+
+import api.models.NewUserRequest;
+import api.models.User;
+import api.models.CreatedUser;
+import api.models.NewUserResponse;
+import api.models.DeleteByUserIdResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
@@ -16,7 +21,7 @@ import java.util.List;
 public class AdminSteps {
 
 
-    public static List<User> getAllUsers(){
+    public static List<User> getAllUsers() {
         List<User> users = new CrudRequester(
                 RequestSpecs.adminSpec(),
                 Endpoint.GET_ALL_USER,
@@ -103,7 +108,7 @@ public class AdminSteps {
         }
     }
 
-    public static void deleteAllUsers(){
+    public static void deleteAllUsers() {
         List<User> users = getAllUsers();
         List<Integer> ids = new ArrayList<>();
 

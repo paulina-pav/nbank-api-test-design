@@ -11,7 +11,8 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class TransferAgainPage extends BasePage<TransferAgainPage> {
     private SelenideElement searchText = $(Selectors.byText("Search by Username or Name:"));
-    private SelenideElement enterNameToFindPlaceholder = $(Selectors.byAttribute("placeholder", "Enter name to find transactions"));
+    private SelenideElement enterNameToFindPlaceholder = $(Selectors
+            .byAttribute("placeholder", "Enter name to find transactions"));
     private SelenideElement searchTransactionsButton = $(Selectors.byText("\uD83D\uDD0D Search Transactions"));
     private SelenideElement matchingTransactionHeader = $(Selectors.byText("Matching Transactions"));
     private SelenideElement homeButton = $(Selectors.byText("\uD83C\uDFE0 Home"));

@@ -12,7 +12,9 @@ public class SessionStorage {
 
     private final LinkedHashMap<CreatedUser, UserSteps> userStepsMap = new LinkedHashMap<>();
 
-    private SessionStorage() {}
+    private SessionStorage() {
+
+    }
 
     public static void addUsers(List<CreatedUser> users) {
         for (CreatedUser user: users) {

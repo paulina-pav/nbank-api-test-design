@@ -2,7 +2,13 @@ package db.models.comparison;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Arrays;
+import java.util.List;
+
+//import java.util.*;
 
 public class DaoComparisonConfigLoader {
     private final Map<String, DaoComparisonRule> rules = new HashMap<>();
@@ -16,7 +22,9 @@ public class DaoComparisonConfigLoader {
             props.load(input);
             for (String key : props.stringPropertyNames()) {
                 String[] target = props.getProperty(key).split(":");
-                if (target.length != 2) continue;
+                if (target.length != 2) {
+                    continue;
+                }
 
                 String daoClassName = target[0].trim();
                 List<String> fields = Arrays.asList(target[1].split(","));

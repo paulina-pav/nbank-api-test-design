@@ -1,12 +1,14 @@
 package api.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-@Getter
 public class DeleteByUserIdRequest extends BaseModel{
     private Integer id;
 

@@ -5,7 +5,13 @@ import com.github.curiousoddman.rgxgen.RgxGen;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Collections;
 
 public class RandomModelGenerator {
 

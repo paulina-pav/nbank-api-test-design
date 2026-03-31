@@ -41,7 +41,9 @@ public class DBSteps {
         });
     }
 
-    public static TransactionDao findTransactionByTypeBySumByAccountIdByRelatedAccountId(String type, Double amount, Long senderAccount, Long receiverAccount) {
+    public static TransactionDao
+    findTransactionByTypeBySumByAccountIdByRelatedAccountId(String type, Double amount,
+                                                            Long senderAccount, Long receiverAccount) {
 
         return StepLogger.log("find transaction by type  " + type + ", by sum " + amount + ", by sender account " + senderAccount + ", by receiver account " +
                 receiverAccount, () -> {

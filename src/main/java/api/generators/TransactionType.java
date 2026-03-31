@@ -6,9 +6,12 @@ public enum TransactionType {
     DEPOSIT("DEPOSIT");
 
 
-    private final String type ;
+    private final String type;
 
-    TransactionType(String type) { this.type = type; }
+    TransactionType(String type) {
+        this.type = type;
+    }
+
     public String getMessage() {
         return type;
     }

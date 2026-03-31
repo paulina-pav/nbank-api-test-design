@@ -27,12 +27,12 @@ public class UserDashboard extends BasePage<UserDashboard> {
         return "/dashboard";
     }
 
-    public TransferMoneyPage clickTransferMoneyButton(){
+    public TransferMoneyPage clickTransferMoneyButton() {
         makeTransferMenuButton.click();
         return Selenide.page(TransferMoneyPage.class);
     }
 
-    public UserDashboard elementsAreVisible(){
+    public UserDashboard elementsAreVisible() {
         title.shouldBe(visible);
         welcomeText.shouldBe(visible);
         createNewAccount.shouldBe(visible);

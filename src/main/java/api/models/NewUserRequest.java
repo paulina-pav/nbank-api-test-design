@@ -2,15 +2,17 @@ package api.models;
 
 
 import api.generators.GeneratingRule;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-
 public class NewUserRequest extends BaseModel {
 
     @GeneratingRule(regex = "^[A-Za-z0-9]{3,15}$")
