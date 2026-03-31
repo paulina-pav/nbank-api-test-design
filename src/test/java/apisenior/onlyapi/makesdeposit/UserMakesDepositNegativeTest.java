@@ -4,7 +4,6 @@ import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.TransactionType;
 import api.models.CreatedUser;
-import api.models.GetCustomerAccountResponse;
 import api.models.MakeDepositRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
@@ -12,10 +11,8 @@ import api.requests.steps.UserSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.models.AccountDao;
-import db.models.TransactionDao;
-import db.models.comparison.DaoAndModelAssertions;
-import db.steps.DBSteps;
+import common.annotation.EnabledForBackend;
+import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -44,6 +41,7 @@ public class UserMakesDepositNegativeTest extends BaseTest {
     @DisplayName("Юзер не может сделать депозит на невалидную сумму")
     @ParameterizedTest
     @MethodSource("invalidSum")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userMakesInvalidDeposit(Double invalidAmount, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
@@ -83,6 +81,7 @@ public class UserMakesDepositNegativeTest extends BaseTest {
     @DisplayName("Юзер не может сделать депозит на чужой счет")
     @ParameterizedTest
     @MethodSource("invalidAccounts")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userMakesDepositOnOtherUserAccount(String expectedErrorMessage) {
 
         CreatedUser user1 = createUser();
