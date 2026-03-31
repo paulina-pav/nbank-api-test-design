@@ -1,22 +1,22 @@
-package apisenior.makesdeposit;
+package apisenior.onlyapi.makesdeposit;
 
 
 import api.comparison.ModelAssertions;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.TransactionType;
+import api.models.CreatedUser;
 import api.models.MakeDepositRequest;
 import api.models.MakeDepositResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.requests.steps.UserSteps;
-import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.steps.DBSteps;
 import db.models.AccountDao;
 import db.models.TransactionDao;
 import db.models.comparison.DaoAndModelAssertions;
+import db.steps.DBSteps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -61,13 +61,5 @@ public class UserMakesDepositTest extends BaseTest {
                 TransactionType.DEPOSIT.getMessage(), accountId, accountId, newUser.getRequest());
         soflty.assertThat(isTransaction).isTrue();
 
-
-        TransactionDao transactionDao = DBSteps.findTransactionByTypeBySumByAccountIdByRelatedAccountId(TransactionType.TRANSFER_OUT.getMessage(),
-                MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), accountId, accountId
-        );
-        DaoAndModelAssertions.assertThat(makeDepositResponse, transactionDao);
-
-        AccountDao accountDao = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), MaxSumsForDepositAndTransactions.DEPOSIT.getMax());
-        DaoAndModelAssertions.assertThat(makeDepositResponse, accountDao);
     }
 }

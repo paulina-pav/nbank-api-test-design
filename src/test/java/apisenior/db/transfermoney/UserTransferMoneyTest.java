@@ -1,4 +1,4 @@
-package apisenior.transfermoney;
+package apisenior.db.transfermoney;
 
 
 import api.comparison.ModelAssertions;
@@ -12,10 +12,12 @@ import api.requests.steps.UserSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.steps.DBSteps;
+import common.annotation.EnabledForBackend;
+import common.backendprofiles.BackendProfile;
 import db.models.AccountDao;
 import db.models.TransactionDao;
 import db.models.comparison.DaoAndModelAssertions;
+import db.steps.DBSteps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,7 @@ public class UserTransferMoneyTest extends BaseTest {
 
     @DisplayName("Юзер переводит деньги с одного своего аккаунта на другой")
     @Test
+    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     public void userTransferMoneyFromOneAccToAnotherAcc() {
         CreatedUser newUser = createUser();
 
@@ -99,7 +102,7 @@ public class UserTransferMoneyTest extends BaseTest {
 
     @DisplayName("Юзер успешно переводит деньги на существующий аккаунт другого юзера")
     @Test
-    // Юзер успешно переводит деньги на существующий счет другого юзера
+    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     public void userTransfersMoneyToUser() {
 
         CreatedUser userDeb = createUser();
@@ -163,6 +166,5 @@ public class UserTransferMoneyTest extends BaseTest {
         AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(userCred.getResponse().getId(), balanceCreditBeforeTransfer
                 + MaxSumsForDepositAndTransactions.TRANSACTION.getMax());
         DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
-
     }
 }

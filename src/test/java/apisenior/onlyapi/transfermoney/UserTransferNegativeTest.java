@@ -1,4 +1,4 @@
-package apisenior.transfermoney;
+package apisenior.onlyapi.transfermoney;
 
 
 import api.generators.ErrorMessage;
@@ -95,30 +95,6 @@ public class UserTransferNegativeTest extends BaseTest {
         boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
                 TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
         soflty.assertThat(isTransactionTransferIn).isFalse();
-
-
-        TransactionDao transaction = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("transactions")
-                .where(Condition.equalTo("amount", transferMoney.getAmount()))
-                .extractAs(TransactionDao.class);
-        soflty.assertThat(transaction).isNull();
-
-        AccountDao accountDaoDebet = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("accounts")
-                .where(Condition.equalTo("customer_id", userDeb.getResponse().getId()))
-                .extractAs(AccountDao.class);
-
-        soflty.assertThat(accountDaoDebet.getBalance()).isEqualTo(balanceDebetBeforeTransfer);
-
-        AccountDao accountDaoCredit = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("accounts")
-                .where(Condition.equalTo("customer_id", userCred.getResponse().getId()))
-                .extractAs(AccountDao.class);
-
-        soflty.assertThat(accountDaoCredit.getBalance()).isEqualTo(balanceCreditBeforeTransfer);
     }
 
 
@@ -175,31 +151,6 @@ public class UserTransferNegativeTest extends BaseTest {
                 TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
         soflty.assertThat(isTransactionTransferIn).isFalse();
 
-
-        TransactionDao transaction = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("transactions")
-                .where(Condition.equalTo("amount", transferMoney.getAmount()))
-                .extractAs(TransactionDao.class);
-        soflty.assertThat(transaction).isNull();
-
-
-        AccountDao accountDaoDebet = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("accounts")
-                .where(Condition.equalTo("customer_id", userDeb.getResponse().getId()))
-                .extractAs(AccountDao.class);
-
-        soflty.assertThat(accountDaoDebet.getBalance()).isEqualTo(balanceDebetBeforeTransfer);
-
-
-        AccountDao accountDaoCredit = RequestSkeleton.builder()
-                .requestType(RequestType.SELECT)
-                .table("accounts")
-                .where(Condition.equalTo("customer_id", userCred.getResponse().getId()))
-                .extractAs(AccountDao.class);
-
-        soflty.assertThat(accountDaoCredit.getBalance()).isEqualTo(balanceCreditBeforeTransfer);
     }
 }
 

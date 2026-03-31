@@ -1,4 +1,4 @@
-package apisenior.changename;
+package apisenior.onlyapi.changename;
 
 import api.comparison.ModelAssertions;
 import api.generators.RandomModelGenerator;
@@ -29,7 +29,6 @@ public class UserChangesNameTest extends BaseTest {
 //Тест-кейс: авторизованный юзер меняет имя
 
     @Test
-    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     @DisplayName("Юзер может сменить имя")
     public void authUserChangeNameTest() {
 
@@ -55,16 +54,10 @@ public class UserChangesNameTest extends BaseTest {
         soflty.assertThat(userChangeNameResponse.getMessage()).isEqualTo(ServiceMessages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
 
 
-
         GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
 
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
         soflty.assertThat(getCustomerProfileAfter.getName()).isEqualTo(changedName.getName());
-
-
-        UserDao user =  DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), changedName.getName());
-        DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
-
     }
 }
 

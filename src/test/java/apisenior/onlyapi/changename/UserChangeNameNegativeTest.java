@@ -1,4 +1,4 @@
-package apisenior.changename;
+package apisenior.onlyapi.changename;
 
 
 import api.comparison.ModelAssertions;
@@ -51,7 +51,6 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @DisplayName("Юзер не может сменить имя, используя невалидное имя")
     @ParameterizedTest
     @MethodSource("invalidNames")
-    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     public void userChangeName(String invalidName, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
@@ -71,9 +70,6 @@ public class UserChangeNameNegativeTest extends BaseTest {
 
         GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
-
-        UserDao user =  DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), getCustomerProfileAfter.getName());
-        DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
     }
 }
 

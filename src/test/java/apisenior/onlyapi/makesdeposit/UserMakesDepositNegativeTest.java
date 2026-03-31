@@ -1,21 +1,21 @@
-package apisenior.makesdeposit;
+package apisenior.onlyapi.makesdeposit;
 
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.TransactionType;
+import api.models.CreatedUser;
 import api.models.GetCustomerAccountResponse;
 import api.models.MakeDepositRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.steps.UserSteps;
-import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.steps.DBSteps;
 import db.models.AccountDao;
 import db.models.TransactionDao;
 import db.models.comparison.DaoAndModelAssertions;
+import db.steps.DBSteps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -44,7 +44,6 @@ public class UserMakesDepositNegativeTest extends BaseTest {
     @DisplayName("Юзер не может сделать депозит на невалидную сумму")
     @ParameterizedTest
     @MethodSource("invalidSum")
-
     public void userMakesInvalidDeposit(Double invalidAmount, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
@@ -73,19 +72,6 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         boolean isTransaction = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
                 TransactionType.DEPOSIT.getMessage(), accountId, accountId, newUser.getRequest());
         soflty.assertThat(isTransaction).isFalse();
-
-
-        GetCustomerAccountResponse currentAccount = UserSteps.getAccount(newUser.getRequest(), accountId);
-        AccountDao accountDao = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), balanceBefore);
-        DaoAndModelAssertions.assertThat(currentAccount, accountDao);
-
-
-        TransactionDao transactionDao = DBSteps.findTransactionByTypeBySumByAccountIdByRelatedAccountId(TransactionType.TRANSFER_OUT.getMessage(),
-                MaxSumsForDepositAndTransactions.TRANSACTION.getMax(), accountId, accountId
-        );
-
-        soflty.assertThat(transactionDao).isNull();
-
     }
 
     public static Stream<Arguments> invalidAccounts() {
@@ -141,15 +127,5 @@ public class UserMakesDepositNegativeTest extends BaseTest {
                 TransactionType.DEPOSIT.getMessage(), user2Acc, user2Acc, user2.getRequest()
         );
         soflty.assertThat(isDepositInUser2).isFalse();
-
-
-        GetCustomerAccountResponse accountsUser1 = UserSteps.getAccount(user1.getRequest(), user1Acc);
-        AccountDao accountDaoUser1 = DBSteps.getAccountByUserIdAndBalance(user1.getResponse().getId(), user1AccBalanceBefore);
-        DaoAndModelAssertions.assertThat(accountsUser1, accountDaoUser1);
-
-
-        GetCustomerAccountResponse accountsUser2 = UserSteps.getAccount(user2.getRequest(), user2Acc);
-        AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(user2.getResponse().getId(), user2AccBalanceBefore);
-        DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
     }
 }
