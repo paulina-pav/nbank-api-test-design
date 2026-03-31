@@ -1,0 +1,237 @@
+## Часть 3: изменение имени пользователем
+### Тест-кейсы в этом файле:
+
+### Тест-кейс 1: Юзер использует в качестве имени два слова, состоящие из букв, разделенные 2 пробелами
+### Тест-кейс 2: Юзер использует в качестве имени одно слово из букв без пробела
+### Тест-кейс 3: Юзер использует в качестве имени только 1 пробел
+### Тест-кейс 4: Юзер использует в качестве имени не-буквы (цифры, спец.символы)
+### Тест-кейс 4: Юзер использует в качестве имени 3 пробела
+
+################### Тест-кейс 1: Юзер использует в качестве имени два слова, состоящие из букв, разделенные 2 пробелами
+### Предусловия:админ создал юзера. Юзер авторизовался.
+### Действие: Юзер отправляет  качестве имени два слова, состоящие из букв, разделенные 2 пробелами
+### Ожидаемый результат: ошибка
+
+###Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Юзер использует 2 слова и 2 пробела между ними. Ожидаемый результат: 400, Name must contain two words with letters only
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization:  Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "name": "Kate  Kate"
+}
+
+### Проверка: Админ получает данные по юзерам и смотрит их имена. Изменений нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/1
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+
+#########Тест-кейс 2: Юзер использует в качестве имени одно слово из букв без пробела
+### Предусловия: админ создал юзера. Юзер авторизовался.
+### Действие: Юзер отправляет  качестве имени одно слово из букв без пробела
+### Ожидаемый результат: ошибка
+
+
+###Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Юзер использует 1 слово без пробелов. Ожидаемый результат: 400, Name must contain two words with letters only
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization:  Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "name": "Kate"
+}
+
+### Проверка: Админ получает данные по юзерам и смотрит их имена. Изменений нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/1
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+######## Тест-кейс 3: Юзер использует в качестве имени только 1 пробел
+### Предусловия: админ создал юзера. Юзер авторизовался.
+### Действие: Юзер отправляет  качестве имени только 1 пробел
+### Ожидаемый результат: ошибка
+
+
+###Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Юзер создает имя из 1 пробела. Ожидаемый результат: 400, Name must contain two words with letters only
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization:  Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "name": " "
+}
+
+### Проверка: Админ получает данные по юзерам и смотрит их имена. Изменений нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/1
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+####################Тест-кейс 4:  Юзер использует в качестве имени не-буквы (цифры, спец.символы)
+###Предусловия: админ создал юзера. Юзер авторизовался.
+### Действие: Юзер отправляет  качестве имени не-буквы (цифры, спец.символы)
+### Ожидаемый результат: ошибка
+
+
+###Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+### Юзер создает имя без букв и со спец символами. Ожидаемый результат: 400, Name must contain two words with letters only
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization:  Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "name": "5 6?"
+}
+
+
+#################################### Тест-кейс 4: Юзер использует в качестве имени 3 пробела
+### Предусловия: админ создал юзера. Юзер авторизовался.
+### Действие: Юзер отправляет  качестве имени 3 пробела
+### Ожидаемый результат: ошибка
+
+
+###Админ создает юзера.
+POST http://localhost:5000/api/v1/admin/users
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "kate",
+  "password": "15101996Kate!",
+  "role": "USER"
+}
+
+### Юзер авторизовывается.
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kate",
+  "password": "15101996Kate!"
+}
+
+
+### Ожидаемый результат: 400, Name must contain two words with letters only
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization:  Basic a2F0ZToxNTEwMTk5NkthdGUh
+
+{
+  "name": "   "
+}
+
+### Проверка: Админ получает данные по юзерам и смотрит их имена. Изменений нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Удаляем данные: по id удаляем юзера
+DELETE http://localhost:5000/api/v1/admin/users/1
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Проверяем, что пользователей нет
+GET http://localhost:5000/api/v1/admin/users
+Authorization: Basic YWRtaW46YWRtaW4=
