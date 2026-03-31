@@ -12,11 +12,8 @@ import api.models.CreatedUser;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.requester.Condition;
-import db.requester.RequestSkeleton;
-import db.requester.RequestType;
-import db.models.AccountDao;
-import db.models.TransactionDao;
+import common.annotation.EnabledForBackend;
+import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -50,6 +47,7 @@ public class UserTransferNegativeTest extends BaseTest {
     @DisplayName("Юзер не может переводить невалидную сумму при балансе 5000")
     @ParameterizedTest
     @MethodSource("invalidSumToTransfer")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userTransferInvalidSumToUser(Double invalidSum, String expectedErrorMessage) {
 
         CreatedUser userDeb = createUser();
@@ -108,6 +106,7 @@ public class UserTransferNegativeTest extends BaseTest {
     @DisplayName("Юзер не может переводить сумму больше 10 000 при балансе больше 10 000")
     @ParameterizedTest
     @MethodSource("insufficientSumToTransfer")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userTransferInsufficientSumToUser(Double invalidSum, String expectedErrorMessage) {
 
         CreatedUser userDeb = createUser();

@@ -14,9 +14,6 @@ import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
-import db.steps.DBSteps;
-import db.models.UserDao;
-import db.models.comparison.DaoAndModelAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import apisenior.BaseTest;
@@ -30,6 +27,7 @@ public class UserChangesNameTest extends BaseTest {
 
     @Test
     @DisplayName("Юзер может сменить имя")
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void authUserChangeNameTest() {
 
         CreatedUser newUser = createUser();

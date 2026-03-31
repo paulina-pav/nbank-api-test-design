@@ -12,10 +12,8 @@ import api.requests.steps.UserSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
-import db.steps.DBSteps;
-import db.models.AccountDao;
-import db.models.TransactionDao;
-import db.models.comparison.DaoAndModelAssertions;
+import common.annotation.EnabledForBackend;
+import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +28,7 @@ public class UserTransferMoneyTest extends BaseTest {
 
     @DisplayName("Юзер переводит деньги с одного своего аккаунта на другой")
     @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void userTransferMoneyFromOneAccToAnotherAcc() {
         CreatedUser newUser = createUser();
 
