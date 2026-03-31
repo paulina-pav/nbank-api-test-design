@@ -7,7 +7,7 @@ import ui.pages.EditPage;
 import static com.codeborne.selenide.Condition.visible;
 
 
-public class EditNameSection extends BaseElement{
+public class EditNameSection extends BaseElement {
 
     private final EditPage page;
 
@@ -27,7 +27,7 @@ public class EditNameSection extends BaseElement{
         return page;
     }
 
-    public EditNameSection alreadyAddedNameIsVisibleInPlaceholder(String name){
+    public EditNameSection alreadyAddedNameIsVisibleInPlaceholder(String name) {
         find((Selectors.byAttribute("placeholder", "Enter new name")))
                 .shouldBe(visible)
                 .shouldHave(Condition.attribute("value", name));

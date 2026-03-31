@@ -1,6 +1,8 @@
 package ui.pages;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.Alert;
 import ui.elements.DepositSection;
 
@@ -22,7 +24,7 @@ public class MakeDeposit extends BasePage<MakeDeposit> {
     private final SelenideElement depositSection = $("div.container.mt-4.text-center");
 
 
-    public DepositSection openDepositSection(){
+    public DepositSection openDepositSection() {
         open();
         depositSection.shouldBe(visible);
         return new DepositSection(depositSection, this);
@@ -34,7 +36,7 @@ public class MakeDeposit extends BasePage<MakeDeposit> {
         return this;
     }
 
-    public UserDashboard clickHomeButton(){
+    public UserDashboard clickHomeButton() {
         homeButton.click();
         return Selenide.page(UserDashboard.class);
     }

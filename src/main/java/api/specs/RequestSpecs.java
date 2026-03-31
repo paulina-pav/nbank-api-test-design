@@ -16,15 +16,18 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestSpecs {
-    private static Map<String, String> authHeaders = new HashMap<>(Map.of("admin", "Basic YWRtaW46YWRtaW4=" )); //"Basic YWRtaW46YWRtaW4="
+    private static Map<String, String> authHeaders =
+            new HashMap<>(Map.of("admin", "Basic YWRtaW46YWRtaW4=")); //"Basic YWRtaW46YWRtaW4="
 
-    private RequestSpecs(){}
+    private RequestSpecs() {
+
+    }
 
     private static RequestSpecBuilder defaultRequestBuilder() {
         return new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
-                .addFilters( List.of(new RequestLoggingFilter(),
+                .addFilters(List.of(new RequestLoggingFilter(),
                         new ResponseLoggingFilter(), new AllureRestAssured()))
                 .setBaseUri(Config.getProperty("server") + Config.getProperty("apiVersion"));
     }

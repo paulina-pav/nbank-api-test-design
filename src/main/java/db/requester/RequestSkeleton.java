@@ -1,6 +1,11 @@
 package db.requester;
 
-import lombok.*;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +13,8 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 
-@Setter
-@Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class RequestSkeleton {
 

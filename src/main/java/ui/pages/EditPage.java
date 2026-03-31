@@ -26,13 +26,13 @@ public class EditPage extends BasePage<EditPage> {
     }
 
 
-    public EditNameSection openEditNameSection(){
+    public EditNameSection openEditNameSection() {
         open();
         editPageSection.shouldBe(visible);
         return new EditNameSection(editPageSection, this);
     }
 
-    public EditPage elementsAreVisible(){
+    public EditPage elementsAreVisible() {
         headerEditProfile.shouldBe(visible);
         homeButton.shouldBe(visible);
         nameInHeader.shouldBe(visible);

@@ -2,15 +2,17 @@ package api.models;
 
 
 import api.generators.GeneratingRule;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-
 public class NewUserRequest extends BaseModel {
 
     @GeneratingRule(regex = "^[A-Za-z0-9]{3,15}$")
@@ -25,9 +27,12 @@ public class NewUserRequest extends BaseModel {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         NewUserRequest that = (NewUserRequest) o;
-        return Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(role, that.role);
+        return Objects.equals(username, that.username) && Objects.equals(password, that.password)
+                && Objects.equals(role, that.role);
     }
 
     @Override

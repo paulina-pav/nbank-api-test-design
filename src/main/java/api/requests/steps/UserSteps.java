@@ -3,7 +3,20 @@ package api.requests.steps;
 import api.common.helpers.StepLogger;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.RandomModelGenerator;
-import api.models.*;
+
+
+import api.models.GetCustomerProfileResponse;
+import api.models.NewUserRequest;
+import api.models.UserChangeNameResponse;
+import api.models.UserChangeNameRequest;
+import api.models.CreateAnAccountResponse;
+import api.models.MakeDepositResponse;
+import api.models.MakeDepositRequest;
+import api.models.GetCustomerAccountResponse;
+import api.models.GetAccountTransactionsResponse;
+import api.models.TransferMoneyResponse;
+import api.models.TransferMoneyRequest;
+
 
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
@@ -31,7 +44,7 @@ public class UserSteps {
         });
     }
 
-    public static UserChangeNameResponse сhangesNameReturnsResponse(NewUserRequest user) {
+    public static UserChangeNameResponse changesNameReturnsResponse(NewUserRequest user) {
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
 
         return StepLogger.log("User " + user.getUsername() + "changes name " + changedName, () -> {
@@ -76,7 +89,8 @@ public class UserSteps {
                 .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .build();
 
-        return StepLogger.log("User " + newUser.getUsername() + " makes deposit " + deposit.getBalance() + " on " + accountId, () -> {
+        return StepLogger.log("User " + newUser.getUsername() + " makes deposit "
+                + deposit.getBalance() + " on " + accountId, () -> {
             MakeDepositResponse makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
                     RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
                     Endpoint.DEPOSIT,
@@ -139,7 +153,8 @@ public class UserSteps {
 
     public static MakeDepositResponse makesDepositBySum(Long accountId, NewUserRequest newUser, Double sum) {
 
-        return StepLogger.log("User " + newUser.getUsername() + " makes " + "$" + sum + " deposit " + " on " + accountId, () -> {
+        return StepLogger.log("User " + newUser.getUsername() + " makes " + "$" + sum
+                + " deposit " + " on " + accountId, () -> {
 
             MakeDepositResponse makeDepositResponse = null;
 
@@ -212,9 +227,12 @@ public class UserSteps {
         });
     }
 
-    public static boolean findTransactionBySumByTransactionTypeByAccId(Double sum, String type, Long currentAcc, Long relatedAcc, NewUserRequest user) {
+    public static boolean
+    findTransactionBySumByTransactionTypeByAccId(Double sum, String type, Long currentAcc,
+                                                 Long relatedAcc, NewUserRequest user) {
 
-        return StepLogger.log("User " + user.getUsername() + " finds a transaction by sum " + sum + ",  transaction type " + type + ", accountId " + currentAcc
+        return StepLogger.log("User " + user.getUsername() + " finds a transaction by sum "
+                + sum + ",  transaction type " + type + ", accountId " + currentAcc
                 + ", related account " + relatedAcc, () -> {
 
             //запросили все транзакции по счету
@@ -226,7 +244,8 @@ public class UserSteps {
                     .extract().as(new TypeRef<List<GetAccountTransactionsResponse>>() {
                     });
 
-            //Смотрим, что среди транзакций есть та, которая подходит под требования: нужный баланс, нужный тип транзакции и нужный id
+            //Смотрим, что среди транзакций есть та, которая подходит под требования:
+            // нужный баланс, нужный тип транзакции и нужный id
             Optional<GetAccountTransactionsResponse> foundTransaction = transactionsByAcc.stream()
                     .filter(t -> t.getAmount().equals(sum))
                     .filter(t -> t.getType().equals(type))
@@ -254,9 +273,11 @@ public class UserSteps {
         });
     }
 
-    public static TransferMoneyResponse transferMoney(Long senderAcc, Long receiverAcc, Double sum, NewUserRequest user) {
+    public static TransferMoneyResponse transferMoney(Long senderAcc, Long receiverAcc,
+                                                      Double sum, NewUserRequest user) {
 
-        return StepLogger.log("User " + user.getUsername() + " with account " + senderAcc + " makes a transfer to " + receiverAcc +
+        return StepLogger.log("User " + user.getUsername()
+                + " with account " + senderAcc + " makes a transfer to " + receiverAcc +
                 " by sum " + sum, () -> {
             TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
                     .senderAccountId(senderAcc)

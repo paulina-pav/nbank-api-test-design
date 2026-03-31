@@ -1,6 +1,8 @@
 package ui.elements;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.SelenideElement;
 import lombok.Getter;
 import ui.pages.TransferMoneyPage;
 
@@ -48,7 +50,7 @@ public class TransferMoneyForm extends BaseElement {
         return this;
     }
 
-    public TransferMoneyPage submit(){
+    public TransferMoneyPage submit() {
         find(Selectors.byText("\uD83D\uDE80 Send Transfer")).shouldBe(visible).click();
         return page;
     }

@@ -2,15 +2,17 @@ package api.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Transaction extends BaseModel{
+public class Transaction extends BaseModel {
     Long id;
     Double amount;
     String type;

@@ -10,7 +10,7 @@ import static com.codeborne.selenide.Condition.enabled;
 import static com.codeborne.selenide.Condition.visible;
 
 @Getter
-public class FoundTransaction extends BaseElement{
+public class FoundTransaction extends BaseElement {
 
     private String transactionType;
     private Double sum;

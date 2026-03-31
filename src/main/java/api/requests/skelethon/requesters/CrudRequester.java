@@ -13,7 +13,8 @@ import static io.restassured.RestAssured.given;
 
 public class CrudRequester extends HttpRequest implements CrudEndpointInterface {
 
-    public CrudRequester(RequestSpecification requestSpecification, Endpoint endpoint, ResponseSpecification responseSpecification) {
+    public CrudRequester(RequestSpecification requestSpecification, Endpoint endpoint,
+                         ResponseSpecification responseSpecification) {
         super(requestSpecification, endpoint, responseSpecification);
     }
 
@@ -70,7 +71,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
 
     @Override
     public ValidatableResponse get(long id) {
-        return StepLogger.log("GET запрос на " + endpoint.getUrl(), ()->{
+        return StepLogger.log("GET запрос на " + endpoint.getUrl(), () -> {
             return given()
                     .spec(requestSpecification)
                     .pathParams("id", id)
@@ -83,7 +84,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
 
     @Override
     public Object update(long id, BaseModel model) {
-        return StepLogger.log("PUT запрос на " + endpoint.getUrl(), ()->{
+        return StepLogger.log("PUT запрос на " + endpoint.getUrl(), () -> {
             return null;
         });
     }

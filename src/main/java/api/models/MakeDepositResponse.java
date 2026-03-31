@@ -1,15 +1,14 @@
 package api.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Getter
+@AllArgsConstructor
+@Data
 public class MakeDepositResponse extends BaseModel {
 
         private Long id;

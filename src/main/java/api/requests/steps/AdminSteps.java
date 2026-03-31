@@ -2,7 +2,12 @@ package api.requests.steps;
 
 import api.common.helpers.StepLogger;
 import api.generators.RandomModelGenerator;
-import api.models.*;
+
+import api.models.NewUserRequest;
+import api.models.User;
+import api.models.CreatedUser;
+import api.models.NewUserResponse;
+import api.models.DeleteByUserIdResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
@@ -16,7 +21,7 @@ import java.util.List;
 public class AdminSteps {
 
 
-    public static List<User> getAllUsers(){
+    public static List<User> getAllUsers() {
         List<User> users = new CrudRequester(
                 RequestSpecs.adminSpec(),
                 Endpoint.GET_ALL_USER,
@@ -103,15 +108,15 @@ public class AdminSteps {
         }
     }
 
-    public static void deleteAllUsers(){
+    public static void deleteAllUsers() {
         List<User> users = getAllUsers();
         List<Integer> ids = new ArrayList<>();
 
-        for(User user : users){
+        for (User user : users) {
             ids.add(user.getId());
         }
 
-        for(Integer id: ids){
+        for (Integer id: ids) {
             String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
                     RequestSpecs.adminSpec(),
                     Endpoint.DELETE_USER_BY_ID,

@@ -1,4 +1,4 @@
-package generators;
+package api.generators;
 
 public enum UserRole {
     USER,

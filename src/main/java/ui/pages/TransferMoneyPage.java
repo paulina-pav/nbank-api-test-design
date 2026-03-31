@@ -1,6 +1,9 @@
 package ui.pages;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.Condition;
 import ui.elements.TransferMoneyForm;
 
 
@@ -21,18 +24,18 @@ public class TransferMoneyPage extends BasePage<TransferMoneyPage> {
         return "/transfer";
     }
 
-    public TransferMoneyForm openTransferMoneyForm(){
+    public TransferMoneyForm openTransferMoneyForm() {
         open();
         transferForm.shouldBe(visible);
         return new TransferMoneyForm(transferForm, this);
     }
 
-    public TransferMoneyPage checkPageName(){
+    public TransferMoneyPage checkPageName() {
         pageName.shouldBe(visible);
         return this;
     }
 
-    public TransferMoneyPage checkIfElementsAreVisible(){
+    public TransferMoneyPage checkIfElementsAreVisible() {
         pageName.shouldBe(visible);
         newTransferButton.shouldBe(visible);
         transferForm.shouldBe(visible);

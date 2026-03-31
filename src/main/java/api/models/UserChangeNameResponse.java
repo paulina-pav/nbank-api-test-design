@@ -1,16 +1,17 @@
 package api.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserChangeNameResponse extends BaseModel{
+public class UserChangeNameResponse extends BaseModel {
     private Customer customer;
     private String message;
 
