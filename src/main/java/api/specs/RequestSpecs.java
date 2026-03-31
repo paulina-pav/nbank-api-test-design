@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class RequestSpecs {
     private static Map<String, String> authHeaders =
-            new HashMap<> (Map.of("admin", "Basic YWRtaW46YWRtaW4=" )); //"Basic YWRtaW46YWRtaW4="
+            new HashMap<>(Map.of("admin", "Basic YWRtaW46YWRtaW4=")); //"Basic YWRtaW46YWRtaW4="
 
     private RequestSpecs() {
 

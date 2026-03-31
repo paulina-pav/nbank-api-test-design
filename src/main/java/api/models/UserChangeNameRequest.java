@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserChangeNameRequest extends BaseModel{
+public class UserChangeNameRequest extends BaseModel {
     @GeneratingRule(regex = "^[A-Z]{3}[ ]{1}[a-z]{4}$")
     private String name;
 

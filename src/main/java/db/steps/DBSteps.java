@@ -45,8 +45,8 @@ public class DBSteps {
     findTransactionByTypeBySumByAccountIdByRelatedAccountId(String type, Double amount,
                                                             Long senderAccount, Long receiverAccount) {
 
-        return StepLogger.log("find transaction by type  " + type + ", by sum " + amount + ", by sender account " + senderAccount + ", by receiver account " +
-                receiverAccount, () -> {
+        return StepLogger.log("find transaction by type  " + type + ", by sum " + amount + ", by sender account "
+                + senderAccount + ", by receiver account " + receiverAccount, () -> {
             TransactionDao transaction = RequestSkeleton.builder()
                     .requestType(RequestType.SELECT)
                     .table("transactions")

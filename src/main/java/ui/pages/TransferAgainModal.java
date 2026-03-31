@@ -16,7 +16,8 @@ public class TransferAgainModal extends BasePage<TransferAgainModal> {
     private SelenideElement confirmTransferToAccountText = $(".modal-body p")
             .shouldHave(text("Confirm transfer to Account ID:"));
     private SelenideElement selectAccountTest = $(Selectors.byText("Select Your Account:"));
-    private ElementsCollection myAccountsFromDropdown = $(Selectors.byText("-- Choose an account --")).parent().findAll("option");
+    private ElementsCollection myAccountsFromDropdown = $(Selectors.byText("-- Choose an account --"))
+            .parent().findAll("option");
     private SelenideElement amountText = $(Selectors.byText("Amount:"));
     private SelenideElement confirmationText = $(Selectors.byText("Confirm details are correct"));
     private SelenideElement checkbox = $(Selectors.byAttribute("id", "confirmCheck"));

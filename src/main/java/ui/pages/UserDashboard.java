@@ -59,7 +59,8 @@ public class UserDashboard extends BasePage<UserDashboard> {
     }
 
     public UserDashboard nameInWelcomeTextIsVisibleAndCorrect(String name) {
-        SelenideElement nameInWelcometext = $(Selectors.byClassName("welcome-text")).shouldBe(Condition.visible).shouldHave(Condition.text("Welcome, " + name + "!"));
+        SelenideElement nameInWelcometext = $(Selectors.byClassName("welcome-text"))
+                .shouldBe(Condition.visible).shouldHave(Condition.text("Welcome, " + name + "!"));
         return this;
     }
 

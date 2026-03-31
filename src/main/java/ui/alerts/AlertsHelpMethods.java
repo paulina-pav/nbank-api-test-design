@@ -29,7 +29,7 @@ public class AlertsHelpMethods {
     public static String formTransferAgainDebetSuccessfulAlert(Double sum, String senderAccNumber) {
         Integer amountInteger = sum.intValue();
 
-        String accountNumberWithoutChars= AlertsHelpMethods.getNumbersFromAccountNumber(senderAccNumber);
+        String accountNumberWithoutChars = AlertsHelpMethods.getNumbersFromAccountNumber(senderAccNumber);
 
         return "✅ Transfer of $" + amountInteger.toString()
                 + " successful from Account " + accountNumberWithoutChars

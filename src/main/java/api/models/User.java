@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Builder
 
-public class User extends BaseModel{
+public class User extends BaseModel {
     Integer id;
     String username;
     String password;

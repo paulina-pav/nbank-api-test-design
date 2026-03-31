@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-public class CreateAnAccountResponse extends BaseModel{
+public class CreateAnAccountResponse extends BaseModel {
     private Long id;
     private String accountNumber;
     private Double balance;

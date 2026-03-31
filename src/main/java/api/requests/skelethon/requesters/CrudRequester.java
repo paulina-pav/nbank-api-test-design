@@ -71,7 +71,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
 
     @Override
     public ValidatableResponse get(long id) {
-        return StepLogger.log("GET запрос на " + endpoint.getUrl(), ()->{
+        return StepLogger.log("GET запрос на " + endpoint.getUrl(), () -> {
             return given()
                     .spec(requestSpecification)
                     .pathParams("id", id)

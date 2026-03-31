@@ -112,11 +112,11 @@ public class AdminSteps {
         List<User> users = getAllUsers();
         List<Integer> ids = new ArrayList<>();
 
-        for(User user : users){
+        for (User user : users) {
             ids.add(user.getId());
         }
 
-        for(Integer id: ids){
+        for (Integer id: ids) {
             String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
                     RequestSpecs.adminSpec(),
                     Endpoint.DELETE_USER_BY_ID,

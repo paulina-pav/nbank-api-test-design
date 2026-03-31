@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-public class Customer extends BaseModel{
+public class Customer extends BaseModel {
 
         private Integer id;
         private String username;
@@ -19,7 +19,4 @@ public class Customer extends BaseModel{
         private String name;
         private String role;
         private List<Account> accounts;
-
-
-
 }

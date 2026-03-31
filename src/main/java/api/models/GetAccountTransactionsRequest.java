@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class GetAccountTransactionsRequest extends BaseModel{
+public class GetAccountTransactionsRequest extends BaseModel {
     private Long id;
 
 }

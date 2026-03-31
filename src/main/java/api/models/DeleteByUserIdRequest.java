@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DeleteByUserIdRequest extends BaseModel{
+public class DeleteByUserIdRequest extends BaseModel {
     private Integer id;
 
 }

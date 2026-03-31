@@ -44,7 +44,7 @@ public class UserSteps {
         });
     }
 
-    public static UserChangeNameResponse сhangesNameReturnsResponse(NewUserRequest user) {
+    public static UserChangeNameResponse changesNameReturnsResponse(NewUserRequest user) {
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
 
         return StepLogger.log("User " + user.getUsername() + "changes name " + changedName, () -> {
@@ -227,8 +227,9 @@ public class UserSteps {
         });
     }
 
-    public static boolean findTransactionBySumByTransactionTypeByAccId(Double sum, String type,
-                                                                       Long currentAcc, Long relatedAcc, NewUserRequest user) {
+    public static boolean
+    findTransactionBySumByTransactionTypeByAccId(Double sum, String type, Long currentAcc,
+                                                 Long relatedAcc, NewUserRequest user) {
 
         return StepLogger.log("User " + user.getUsername() + " finds a transaction by sum "
                 + sum + ",  transaction type " + type + ", accountId " + currentAcc

@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Builder
 
-public class Account extends BaseModel{
+public class Account extends BaseModel {
     Long id;
     String accountNumber;
     Double balance;

@@ -34,8 +34,8 @@ public class FoundTransactionList extends BaseElement {
 
         return transactionList.stream()
                 .filter(t -> t.getSum().equals(sum))
-                .filter(t->t.getFoundUnder().equals(name))
-                .filter(t->t.getTransactionType().equals(transactionType))
+                .filter(t -> t.getFoundUnder().equals(name))
+                .filter(t -> t.getTransactionType().equals(transactionType))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("There's no transaction with the " + name + " name"));
     }
@@ -44,8 +44,8 @@ public class FoundTransactionList extends BaseElement {
 
         return transactionList.stream()
                 .filter(t -> t.getSum().equals(sum))
-                .filter(t->t.getFoundUnder().equals(username))
-                .filter(t->t.getTransactionType().equals(transactionType))
+                .filter(t -> t.getFoundUnder().equals(username))
+                .filter(t -> t.getTransactionType().equals(transactionType))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("There's no transaction with the " + username + " username"));
     }
@@ -56,9 +56,9 @@ public class FoundTransactionList extends BaseElement {
 
         return transactionList.stream()
                 .filter(t -> t.getSum().equals(sum))
-                .filter(t->t.getTransactionType().equals(type))
+                .filter(t -> t.getTransactionType().equals(type))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("There's no transaction with the " + sum + " sum and the " + type + " type"));
+                .orElseThrow(() -> new AssertionError("There's no transaction with the "
+                        + sum + " sum and the " + type + " type"));
     }
-
 }

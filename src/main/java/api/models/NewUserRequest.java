@@ -27,9 +27,12 @@ public class NewUserRequest extends BaseModel {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         NewUserRequest that = (NewUserRequest) o;
-        return Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(role, that.role);
+        return Objects.equals(username, that.username) && Objects.equals(password, that.password)
+                && Objects.equals(role, that.role);
     }
 
     @Override
