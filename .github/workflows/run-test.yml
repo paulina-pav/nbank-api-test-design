@@ -1,0 +1,25 @@
+name: Run tests
+
+on:
+  #push:
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    name: Run API and UI tests in Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests with Docker Compose
+        working-directory: infra
+        run: bash ./run-tests-with-docker-compose-ci.sh
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: infra/test-output
