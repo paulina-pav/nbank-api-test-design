@@ -2,24 +2,51 @@ name: Run tests
 
 on:
   push:
-  #workflow_dispatch:
+  # workflow_dispatch:
 
 jobs:
-  run-tests: #пользовательское имя для джобы. Техническое имя
-    name: Run API and UI tests in Docker Compose #тоже имя
-    runs-on: ubuntu-latest #на какой ОС
+  run-tests:
+    name: Run API and UI tests in Docker Compose
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 #uses для action, run - запуск shell скрипта
+        uses: actions/checkout@v4
 
       - name: Run tests with Docker Compose
-        working-directory: infra #директория для шага
+        working-directory: infra
         run: bash ./run-tests-with-docker-compose-ci.sh
 
+      - name: Read current test output directory
+        id: output_dir
+        working-directory: infra
+        run: echo "dir=$(cat .last-test-output-dir)" >> $GITHUB_OUTPUT
+
+      - name: Download Swagger Coverage CLI
+        if: always()
+        run: |
+          curl -L \
+            -o swagger-coverage-1.5.0.zip \
+            https://github.com/viclovsky/swagger-coverage/releases/download/1.5.0/swagger-coverage-1.5.0.zip
+          unzip swagger-coverage-1.5.0.zip -d swagger-coverage-cli
+
+      - name: Generate Swagger Coverage report
+        if: always()
+        run: |
+          ./swagger-coverage-cli/swagger-coverage-commandline/bin/swagger-coverage-commandline \
+            -s http://localhost:4111/v3/api-docs \
+            -i infra/${{ steps.output_dir.outputs.dir }}/swagger-coverage-output
+
       - name: Upload test artifacts
-        if: always() #условие выполнение шага - выполнять всегда, даже если прошлые шаги упали
-        uses: actions/upload-artifact@v4 #создаем артефакт
-        with: #аргументы для uses: загрузи папку такую-то и покажи под именем таким то
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
           name: test-output
           path: infra/test-output
+
+      - name: Upload Swagger Coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-report
+          path: swagger-coverage-report.html
