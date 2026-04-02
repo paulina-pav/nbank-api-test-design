@@ -22,6 +22,8 @@ jobs:
       - name: Run tests with Docker Compose
         working-directory: infra
         run: bash ./run-tests-with-docker-compose-ci.sh
+        env:
+          SKIP_CLEANUP: true
 
       - name: Read current test output directory
         id: output_dir
@@ -35,7 +37,6 @@ jobs:
             -o swagger-coverage-1.5.0.zip \
             https://github.com/viclovsky/swagger-coverage/releases/download/1.5.0/swagger-coverage-1.5.0.zip
           unzip swagger-coverage-1.5.0.zip -d swagger-coverage-cli
-          find swagger-coverage-cli -maxdepth 5 -type f | sort
 
       - name: Generate Swagger Coverage report
         if: always()
@@ -44,3 +45,22 @@ jobs:
             com.github.viclovsky.swagger.coverage.CommandLine \
             -s http://localhost:4111/v3/api-docs \
             -i infra/${{ steps.output_dir.outputs.dir }}/swagger-coverage-output
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: infra/test-output
+
+      - name: Upload Swagger Coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-report
+          path: swagger-coverage-report.html
+
+      - name: Clean up Docker Compose environment
+        if: always()
+        working-directory: infra
+        run: docker compose down

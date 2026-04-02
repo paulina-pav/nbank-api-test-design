@@ -13,9 +13,16 @@ REPORT_DIR="$BASE_OUTPUT_DIR/report"
 SWAGGER_DIR="$BASE_OUTPUT_DIR/swagger-coverage-output"
 
 cleanup() {
+  if [ "$SKIP_CLEANUP" = "true" ]; then
+    echo ">>> Skipping Docker Compose shutdown"
+    return
+  fi
+
   echo ">>> Stopping Docker Compose environment"
   docker compose down
 }
+
+trap cleanup EXIT
 
 trap cleanup EXIT
 
