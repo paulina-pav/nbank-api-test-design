@@ -1,9 +1,9 @@
 name: Build and push test image
 
 on:
-  push:
-    paths:
-      - 'src/**'
+#  push:
+  #  paths:
+    #  - 'src/**' #только если изменения внутри срц
   workflow_dispatch:
 
 jobs:

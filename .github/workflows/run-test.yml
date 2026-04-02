@@ -1,25 +1,25 @@
 name: Run tests
 
 on:
-  #push:
-  workflow_dispatch:
+  push:
+  #workflow_dispatch:
 
 jobs:
-  run-tests:
-    name: Run API and UI tests in Docker Compose
-    runs-on: ubuntu-latest
+  run-tests: #пользовательское имя для джобы. Техническое имя
+    name: Run API and UI tests in Docker Compose #тоже имя
+    runs-on: ubuntu-latest #на какой ОС
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 #uses для action, run - запуск shell скрипта
 
       - name: Run tests with Docker Compose
-        working-directory: infra
+        working-directory: infra #директория для шага
         run: bash ./run-tests-with-docker-compose-ci.sh
 
       - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
+        if: always() #условие выполнение шага - выполнять всегда, даже если прошлые шаги упали
+        uses: actions/upload-artifact@v4 #создаем артефакт
+        with: #аргументы для uses: загрузи папку такую-то и покажи под именем таким то
           name: test-output
           path: infra/test-output

@@ -3,6 +3,7 @@ package ui.pages;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import org.openqa.selenium.Alert;
 import ui.elements.DepositSection;
 
@@ -25,26 +26,32 @@ public class MakeDeposit extends BasePage<MakeDeposit> {
 
 
     public DepositSection openDepositSection() {
-        open();
-        depositSection.shouldBe(visible);
-        return new DepositSection(depositSection, this);
+            open();
+            depositSection.shouldBe(visible);
+            return new DepositSection(depositSection, this);
     }
 
 
     public MakeDeposit checkIfTitleIsCorrect() {
-        title.shouldBe(visible);
-        return this;
+        return StepLogger.logUi("User checks title", () -> {
+            title.shouldBe(visible);
+            return this;
+        });
     }
 
     public UserDashboard clickHomeButton() {
-        homeButton.click();
-        return Selenide.page(UserDashboard.class);
+        return StepLogger.logUi("User click the Home button", () -> {
+            homeButton.click();
+            return Selenide.page(UserDashboard.class);
+        });
     }
 
     public UserDashboard checkAlertMessageAndAcceptAndGoToUserDashboard(String bankAlert) {
-        Alert alert = switchTo().alert();
-        assertThat(alert.getText()).contains(bankAlert);
-        alert.accept();
-        return Selenide.page(UserDashboard.class);
+        return StepLogger.logUi("User accept alert and goes to the dashboard", () -> {
+            Alert alert = switchTo().alert();
+            assertThat(alert.getText()).contains(bankAlert);
+            alert.accept();
+            return Selenide.page(UserDashboard.class);
+        });
     }
 }

@@ -8,6 +8,7 @@ import api.requests.steps.UserSteps;
 import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uisenior.BaseUiTest;
 import ui.pages.TransferMoneyPage;

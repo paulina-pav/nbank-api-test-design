@@ -5,6 +5,7 @@ import api.requests.steps.UserSteps;
 import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -52,7 +53,6 @@ public class MakeDepositNegativeTest extends BaseUiTest {
 ### Тест: При сумме 0 появляется ошибка
 Результат: ❌ Please enter a valid amount. (Запроса к апи нет, проверка на фронте)
          */
-
 
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
 

@@ -9,6 +9,7 @@ import api.requests.steps.UserSteps;
 import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uisenior.BaseUiTest;
 import ui.pages.TransferAgainPage;
@@ -46,7 +47,7 @@ public class TransferAgainNegativeTest extends BaseUiTest {
                 .getTransactionSection()
                 .findTransactionByTypeAndSum(TransactionType.TRANSFER_OUT.getMessage(), sum)
                 .clickRepeatButton()
-                .findConfirmtionTextTransferToAccount(accountResponse2.getId())
+                .findConfirmationTextTransferToAccount(accountResponse2.getId())
                 .selectYourAccount((accountResponse1.getAccountNumber()))
                 .insertAmount(sum)
                 .confirm()
@@ -97,7 +98,7 @@ public class TransferAgainNegativeTest extends BaseUiTest {
                 .getTransactionSection()
                 .findTransactionByTypeAndSum(TransactionType.TRANSFER_IN.getMessage(), sum)
                 .clickRepeatButton()
-                .findConfirmtionTextTransferToAccount(accountResponse2.getId()) //здесь аккаунт дебета
+                .findConfirmationTextTransferToAccount(accountResponse2.getId())
                 .selectYourAccount((accountResponse1.getAccountNumber())) //аккаунт получателя
                 .insertAmount(sum)
                 .confirm()
@@ -115,6 +116,5 @@ public class TransferAgainNegativeTest extends BaseUiTest {
 
         soflty.assertThat(user1BalanceBefore).isEqualTo(user1BalanceAfter);
         soflty.assertThat(user2BalanceBefore).isEqualTo(user2BalanceAfter);
-
     }
 }

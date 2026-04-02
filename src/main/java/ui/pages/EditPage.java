@@ -3,6 +3,7 @@ package ui.pages;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import lombok.Getter;
 import ui.elements.EditNameSection;
 
@@ -27,20 +28,24 @@ public class EditPage extends BasePage<EditPage> {
 
 
     public EditNameSection openEditNameSection() {
-        open();
-        editPageSection.shouldBe(visible);
-        return new EditNameSection(editPageSection, this);
+            open();
+            editPageSection.shouldBe(visible);
+            return new EditNameSection(editPageSection, this);
     }
 
     public EditPage elementsAreVisible() {
-        headerEditProfile.shouldBe(visible);
-        homeButton.shouldBe(visible);
-        nameInHeader.shouldBe(visible);
-        return this;
+        return StepLogger.logUi("User sees the elements", () -> {
+            headerEditProfile.shouldBe(visible);
+            homeButton.shouldBe(visible);
+            nameInHeader.shouldBe(visible);
+            return this;
+        });
     }
 
     public UserDashboard clickHomeButton() {
-        homeButton.click();
-        return Selenide.page(UserDashboard.class);
+        return StepLogger.logUi("User is clicking the Home button", () -> {
+            homeButton.click();
+            return Selenide.page(UserDashboard.class);
+        });
     }
 }

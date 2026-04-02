@@ -5,8 +5,10 @@ import api.models.NewUserRequest;
 import api.specs.RequestSpecs;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import common.extensions.BrowserMatchExtension;
 import common.extensions.UserSessionExtension;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import apisenior.BaseTest;
@@ -25,6 +27,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.browser = Config.getProperty("browser");
         Configuration.browserSize = Config.getProperty("browser.size");
         Configuration.holdBrowserOpen = Boolean.parseBoolean(Config.getProperty("browser.holdOpen"));
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
 
         String remoteUrl = Config.getProperty("ui.remote");
         if (remoteUrl != null && !remoteUrl.isBlank()) {

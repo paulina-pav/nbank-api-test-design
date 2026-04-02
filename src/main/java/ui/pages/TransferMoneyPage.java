@@ -4,6 +4,7 @@ import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.Condition;
+import common.helpers.StepLogger;
 import ui.elements.TransferMoneyForm;
 
 
@@ -31,40 +32,53 @@ public class TransferMoneyPage extends BasePage<TransferMoneyPage> {
     }
 
     public TransferMoneyPage checkPageName() {
-        pageName.shouldBe(visible);
-        return this;
+        return StepLogger.logUi("User checks name", () -> {
+
+            pageName.shouldBe(visible);
+            return this;
+        });
     }
 
     public TransferMoneyPage checkIfElementsAreVisible() {
-        pageName.shouldBe(visible);
-        newTransferButton.shouldBe(visible);
-        transferForm.shouldBe(visible);
-        homeButton.shouldBe(visible);
-        transferAgainButton.shouldBe(visible);
-        return this;
+        return StepLogger.logUi("User checks elemets", () -> {
+            pageName.shouldBe(visible);
+            newTransferButton.shouldBe(visible);
+            transferForm.shouldBe(visible);
+            homeButton.shouldBe(visible);
+            transferAgainButton.shouldBe(visible);
+            return this;
+        });
     }
 
 
     public UserDashboard clickHomeButtonToGoToDashboard() {
-        homeButton.shouldBe(visible).click();
-        return Selenide.page(UserDashboard.class);
+        return StepLogger.logUi("User clicks home button", () -> {
+            homeButton.shouldBe(visible).click();
+            return Selenide.page(UserDashboard.class);
+        });
     }
 
     public TransferAgainPage openTransferAgain() {
-        transferAgainButton.shouldBe(visible).click();
-        return Selenide.page(TransferAgainPage.class);
+        return StepLogger.logUi("User clicks transfer again", () -> {
+            transferAgainButton.shouldBe(visible).click();
+            return Selenide.page(TransferAgainPage.class);
+        });
     }
 
     public TransferMoneyPage checkBalanceAfterSuccessTransaction(Double sum) {
-        String sumString = sum.toString();
-        SelenideElement dropdownAfter = transferForm
-                .find(Selectors.byText("-- Choose an account --"))
-                .parent();
+        return StepLogger.logUi("User checks balance after transaction", () -> {
 
-        dropdownAfter.findAll("option")
-                .findBy(Condition.text(sumString))
-                .shouldBe(visible);
 
-        return this;
+            String sumString = sum.toString();
+            SelenideElement dropdownAfter = transferForm
+                    .find(Selectors.byText("-- Choose an account --"))
+                    .parent();
+
+            dropdownAfter.findAll("option")
+                    .findBy(Condition.text(sumString))
+                    .shouldBe(visible);
+
+            return this;
+        });
     }
 }
