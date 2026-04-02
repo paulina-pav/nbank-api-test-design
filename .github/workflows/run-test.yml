@@ -40,8 +40,7 @@ jobs:
       - name: Generate Swagger Coverage report
         if: always()
         run: |
-          java -cp \
-            ./swagger-coverage-cli/swagger-coverage-commandline-1.5.0/lib/swagger-coverage-commandline-1.5.0.jar \
+          java -cp "./swagger-coverage-cli/swagger-coverage-commandline-1.5.0/lib/*" \
             com.github.viclovsky.swagger.coverage.CommandLine \
             -s http://localhost:4111/v3/api-docs \
             -i infra/${{ steps.output_dir.outputs.dir }}/swagger-coverage-output
