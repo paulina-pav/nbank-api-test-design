@@ -1,0 +1,69 @@
+<div>Status code 200 </div>
+
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+[
+    {
+        &quot;id&quot;: 66,
+        &quot;accountNumber&quot;: &quot;ACC66&quot;,
+        &quot;balance&quot;: 0.0,
+        &quot;transactions&quot;: [
+            {
+                &quot;id&quot;: 93,
+                &quot;amount&quot;: 5000.0,
+                &quot;type&quot;: &quot;DEPOSIT&quot;,
+                &quot;timestamp&quot;: &quot;Fri Apr 03 08:09:48 UTC 2026&quot;,
+                &quot;relatedAccountId&quot;: 66
+            },
+            {
+                &quot;id&quot;: 92,
+                &quot;amount&quot;: 5000.0,
+                &quot;type&quot;: &quot;DEPOSIT&quot;,
+                &quot;timestamp&quot;: &quot;Fri Apr 03 08:09:48 UTC 2026&quot;,
+                &quot;relatedAccountId&quot;: 66
+            },
+            {
+                &quot;id&quot;: 94,
+                &quot;amount&quot;: 10000.0,
+                &quot;type&quot;: &quot;TRANSFER_OUT&quot;,
+                &quot;timestamp&quot;: &quot;Fri Apr 03 08:09:48 UTC 2026&quot;,
+                &quot;relatedAccountId&quot;: 67
+            }
+        ]
+    },
+    {
+        &quot;id&quot;: 67,
+        &quot;accountNumber&quot;: &quot;ACC67&quot;,
+        &quot;balance&quot;: 10000.0,
+        &quot;transactions&quot;: [
+            {
+                &quot;id&quot;: 95,
+                &quot;amount&quot;: 10000.0,
+                &quot;type&quot;: &quot;TRANSFER_IN&quot;,
+                &quot;timestamp&quot;: &quot;Fri Apr 03 08:09:48 UTC 2026&quot;,
+                &quot;relatedAccountId&quot;: 66
+            }
+        ]
+    }
+]    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>X-Frame-Options: DENY</div>
+        <div>Transfer-Encoding: chunked</div>
+        <div>Keep-Alive: timeout=60</div>
+        <div>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</div>
+        <div>X-Content-Type-Options: nosniff</div>
+        <div>Connection: keep-alive</div>
+        <div>Vary: Access-Control-Request-Headers</div>
+        <div>Pragma: no-cache</div>
+        <div>Expires: 0</div>
+        <div>X-XSS-Protection: 0</div>
+        <div>Date: Fri, 03 Apr 2026 08:09:48 GMT</div>
+        <div>Content-Type: application/json</div>
+</div>
+
+

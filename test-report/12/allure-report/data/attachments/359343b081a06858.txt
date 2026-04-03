@@ -1,0 +1,1 @@
+❌ Error: Invalid transfer: insufficient funds or invalid accounts
