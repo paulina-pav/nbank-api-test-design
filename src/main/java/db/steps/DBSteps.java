@@ -1,6 +1,6 @@
 package db.steps;
 
-import api.common.helpers.StepLogger;
+import common.helpers.StepLogger;
 import db.models.AccountDao;
 import db.models.TransactionDao;
 import db.models.UserDao;

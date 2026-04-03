@@ -6,6 +6,7 @@ import api.requests.steps.UserSteps;
 import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uisenior.BaseUiTest;
 import ui.pages.MakeDeposit;
@@ -51,9 +52,7 @@ public class MakeDepositPositiveTest extends BaseUiTest {
                 .enterAmount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .clickTheDepositButton()
                 .checkAlertMessageAndAcceptAndGoToUserDashboard(AlertsHelpMethods.formDepositSuccessfulAlert(MaxSumsForDepositAndTransactions.DEPOSIT.getMax(),
-                        accountResponse.getAccountNumber()))
-
-        ;
+                        accountResponse.getAccountNumber()));
 
         //баланс на уровне апи ПОСЛЕ
         Double balanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse.getId());

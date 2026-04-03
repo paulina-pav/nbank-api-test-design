@@ -1,6 +1,7 @@
 package api.requests.skelethon.requesters;
 
-import api.common.helpers.StepLogger;
+import api.configs.Config;
+import common.helpers.StepLogger;
 import api.models.BaseModel;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.HttpRequest;
@@ -12,6 +13,9 @@ import io.restassured.specification.ResponseSpecification;
 import static io.restassured.RestAssured.given;
 
 public class CrudRequester extends HttpRequest implements CrudEndpointInterface {
+
+    private final static String API_VERSION = Config.getProperty("apiVersion");
+
 
     public CrudRequester(RequestSpecification requestSpecification, Endpoint endpoint,
                          ResponseSpecification responseSpecification) {
@@ -25,7 +29,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
             return given()
                     .spec(requestSpecification)
                     .body(body)
-                    .post(endpoint.getUrl())
+                    .post(API_VERSION + endpoint.getUrl())
                     .then()
                     .assertThat()
                     .spec(responseSpecification);
@@ -37,7 +41,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
         return StepLogger.log("GET запрос на " + endpoint.getUrl(), () -> {
             return given()
                     .spec(requestSpecification)
-                    .get(endpoint.getUrl())
+                    .get(API_VERSION + endpoint.getUrl())
                     .then()
                     .assertThat()
                     .spec(responseSpecification);
@@ -50,7 +54,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
             return given()
                     .spec(requestSpecification)
                     .body(model)
-                    .put(endpoint.getUrl())
+                    .put(API_VERSION + endpoint.getUrl())
                     .then()
                     .assertThat()
                     .spec(responseSpecification);
@@ -62,7 +66,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
         return StepLogger.log("DELETE запрос на " + endpoint.getUrl(), () -> {
             return given()
                     .spec(requestSpecification)
-                    .delete(endpoint.getUrl() + id)
+                    .delete(API_VERSION + endpoint.getUrl() + id)
                     .then()
                     .assertThat()
                     .spec(responseSpecification);
@@ -75,7 +79,7 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
             return given()
                     .spec(requestSpecification)
                     .pathParams("id", id)
-                    .get(endpoint.getUrl())
+                    .get(API_VERSION + endpoint.getUrl())
                     .then()
                     .assertThat()
                     .spec(responseSpecification);

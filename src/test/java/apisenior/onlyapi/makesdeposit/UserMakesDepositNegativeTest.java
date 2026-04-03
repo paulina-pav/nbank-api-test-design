@@ -14,6 +14,7 @@ import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -126,5 +127,25 @@ public class UserMakesDepositNegativeTest extends BaseTest {
                 TransactionType.DEPOSIT.getMessage(), user2Acc, user2Acc, user2.getRequest()
         );
         soflty.assertThat(isDepositInUser2).isFalse();
+    }
+
+
+    @Test
+    public void unauthUserCantMakeDeposit(){
+        CreatedUser newUser = createUser();
+
+        Long accountId = UserSteps.createsAccount(newUser.getRequest()).getId();
+        Double balanceBefore = UserSteps.getBalance(newUser.getRequest(), accountId);
+
+        MakeDepositRequest deposit = MakeDepositRequest.builder()
+                .id(accountId)
+                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                .build();
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.unauthSpec(),
+                Endpoint.DEPOSIT,
+                ResponseSpecs.requestReturnsUnauthorized()
+        ).post(deposit).extract().asString();
     }
 }

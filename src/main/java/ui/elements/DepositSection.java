@@ -3,6 +3,8 @@ package ui.elements;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.AllureAttachments;
+import common.helpers.StepLogger;
 import ui.pages.MakeDeposit;
 
 
@@ -23,15 +25,19 @@ public class DepositSection extends BaseElement {
     }
 
     public DepositSection selectAccount(String accountNumber) {
+
         SelenideElement dropdown = find(Selectors.byText("-- Choose an account --")).parent().shouldBe(visible);
         dropdown.findAll("option").findBy(Condition.text(accountNumber)).shouldBe(visible).click();
+        AllureAttachments.attachScreenshot("selected acc");
 
         return this;
+
     }
 
     public DepositSection enterAmount(Double amount) {
         String amountString = amount.toString();
         find(Selectors.byAttribute("placeholder", "Enter amount")).shouldBe(visible).sendKeys(amountString);
+        AllureAttachments.attachScreenshot("entered amount");
         return this;
     }
 }

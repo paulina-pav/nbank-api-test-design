@@ -5,6 +5,8 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.Selenide;
+import common.helpers.AllureAttachments;
+import common.helpers.StepLogger;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -29,25 +31,33 @@ public class TransferAgainModal extends BasePage<TransferAgainModal> {
         return "";
     }
 
-    public TransferAgainModal findConfirmtionTextTransferToAccount(Long id) {
-        confirmTransferToAccountText.shouldHave(text(id.toString())).shouldBe(visible);
-        return this;
+    public TransferAgainModal findConfirmationTextTransferToAccount(Long id) {
+            confirmTransferToAccountText.shouldHave(text(id.toString())).shouldBe(visible);
+            return this;
     }
 
     public TransferAgainModal selectYourAccount(String accNumber) {
+
         myAccountsFromDropdown.findBy(Condition.text(accNumber)).shouldBe(visible).click();
+        AllureAttachments.attachScreenshot("selected acc");
         return this;
+
+
     }
 
     public TransferAgainModal insertAmount(Double sum) {
+
         Integer amount = sum.intValue();
         SelenideElement amountPlaceholder = $(Selectors.byAttribute("value", amount.toString()));
+        AllureAttachments.attachScreenshot("inserted amount");
         return this;
+
     }
 
     public TransferAgainModal confirm() {
         checkbox.click();
         return this;
+
     }
 
     public TransferAgainPage sendTransfer() {

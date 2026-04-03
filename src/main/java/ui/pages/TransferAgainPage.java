@@ -4,6 +4,7 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import ui.elements.FoundTransactionList;
 
 import static com.codeborne.selenide.Condition.visible;
@@ -36,41 +37,50 @@ public class TransferAgainPage extends BasePage<TransferAgainPage> {
     }
 
     public TransferAgainPage insertUsername(String username) {
-        enterNameToFindPlaceholder.shouldBe(visible).setValue(username);
-        return this;
+            enterNameToFindPlaceholder.shouldBe(visible).setValue(username);
+            return this;
     }
 
     public TransferAgainPage insertName(String name) {
-        enterNameToFindPlaceholder.shouldBe(visible).setValue(name);
-        return this;
+        return StepLogger.logUi("User inserts name", () -> {
+            enterNameToFindPlaceholder.shouldBe(visible).setValue(name);
+            return this;
+        });
     }
 
 
     //способ попасть в контейнер с транзакциями: напрямую
     public FoundTransactionList getTransactionSection() {
-        foundTransactionsList.shouldBe(visible);
-        return new FoundTransactionList(foundTransactionsList, this);
+            foundTransactionsList.shouldBe(visible);
+            return new FoundTransactionList(foundTransactionsList, this);
     }
 
     //способ попасть в контейнер с транзакциями: сначала найти по юзернейму если нет имени или только по имени.
     public FoundTransactionList clickSearchButton() {
-        for (int i = 0; i < 5; i++) { //нажать несколько раз
-            searchTransactionsButton
-                    .scrollIntoView(true)
-                    .shouldBe(visible, Condition.enabled)
-                    .click();
-        }
-        return new FoundTransactionList(foundTransactionsList, this);
+        return StepLogger.logUi("User is clicking the Search button", () -> {
+            for (int i = 0; i < 5; i++) {
+                searchTransactionsButton
+                        .scrollIntoView(true)
+                        .shouldBe(visible, Condition.enabled)
+                        .click();
+            }
+            return new FoundTransactionList(foundTransactionsList, this);
+        });
     }
 
     public TransferMoneyPage clickNewTransferButton() {
-        SelenideElement newTransferButton = $(Selectors.byText("\uD83C\uDD95 New Transfer"));
-        newTransferButton.click();
-        return Selenide.page(TransferMoneyPage.class);
+        return StepLogger.logUi("User clicks the New transfer button", () -> {
+            SelenideElement newTransferButton = $(Selectors.byText("\uD83C\uDD95 New Transfer"));
+            newTransferButton.click();
+            return Selenide.page(TransferMoneyPage.class);
+        });
     }
 
     public UserDashboard clickHomeButton() {
-        homeButton.click();
-        return Selenide.page(UserDashboard.class);
+        return StepLogger.logUi("User clicks the Home transfer button", () -> {
+
+            homeButton.click();
+            return Selenide.page(UserDashboard.class);
+        });
     }
 }

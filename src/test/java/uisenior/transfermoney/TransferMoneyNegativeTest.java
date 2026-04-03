@@ -10,6 +10,7 @@ import api.models.CreatedUser;
 import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uisenior.BaseUiTest;
 import ui.pages.TransferMoneyPage;
@@ -58,8 +59,6 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
 
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
 
-
-        //select your acc
         new TransferMoneyPage()
                 .openTransferMoneyForm()
                 .selectSenderAccount(accountResponse.getAccountNumber())
@@ -77,7 +76,6 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
         ### Тест: юзер не может отправить перевод без суммы
 Результат: ❌ Please fill all fields and confirm.
 Запрос не уходит, валидация на UI*/
-
 
         CreatedUser user1 = SessionStorage.getUser(1);
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(user1.getRequest());
@@ -326,6 +324,5 @@ public class TransferMoneyNegativeTest extends BaseUiTest {
         Double userBalanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
         //баланс не изменился
         soflty.assertThat(userBalanceAfter).isEqualTo(userBalanceBefore);
-
     }
 }

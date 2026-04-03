@@ -3,6 +3,7 @@ package ui.elements;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import lombok.Getter;
 import ui.pages.TransferAgainModal;
 
@@ -17,10 +18,7 @@ public class FoundTransaction extends BaseElement {
     private String foundUnder;
 
     public FoundTransaction(SelenideElement element) {
-
         super(element);
-
-        //разбили по отступам и пробелам
         String firstLine = find("span").getText().split("\n")[0];
         String[] parts = firstLine.split(" - \\$");
 
@@ -30,11 +28,13 @@ public class FoundTransaction extends BaseElement {
     }
 
     private SelenideElement repeatButton() {
-        return find("button");
+        return StepLogger.logUi("User finds repeat button", () -> {
+            return find("button");
+        });
     }
 
     public TransferAgainModal clickRepeatButton() {
-        repeatButton().shouldBe(visible).shouldBe(enabled).click();
-        return Selenide.page(TransferAgainModal.class);
+            repeatButton().shouldBe(visible).shouldBe(enabled).click();
+            return Selenide.page(TransferAgainModal.class);
     }
 }

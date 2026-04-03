@@ -1,6 +1,6 @@
 package api.requests.steps;
 
-import api.common.helpers.StepLogger;
+import common.helpers.StepLogger;
 import api.generators.MaxSumsForDepositAndTransactions;
 import api.generators.RandomModelGenerator;
 

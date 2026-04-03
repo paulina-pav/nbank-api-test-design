@@ -67,7 +67,7 @@ public enum Endpoint {
             UserChangeNameResponse.class
     ),
     DELETE_USER_BY_ID(
-            "admin/users/",
+            "/admin/users/",
             DeleteByUserIdRequest.class,
             DeleteByUserIdResponse.class
     ),
@@ -82,7 +82,7 @@ public enum Endpoint {
             GetAccountTransactionsResponse.class
     ),
     TRANSFER(
-            "accounts/transfer",
+            "/accounts/transfer",
             TransferMoneyRequest.class,
             TransferMoneyResponse.class
     );

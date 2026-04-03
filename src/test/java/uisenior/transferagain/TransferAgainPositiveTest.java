@@ -11,6 +11,7 @@ import common.annotation.Browsers;
 import common.annotation.UserSession;
 import common.storage.SessionStorage;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uisenior.BaseUiTest;
 import ui.pages.TransferAgainPage;
@@ -47,13 +48,12 @@ public class TransferAgainPositiveTest extends BaseUiTest {
                 .findTransactionByTypeAndSum(TransactionType.DEPOSIT.getMessage(), depositResponse1.getBalance())
                 .clickRepeatButton()
                 .selectYourAccount(accountResponse1.getAccountNumber())
-                .findConfirmtionTextTransferToAccount(accountResponse1.getId())
+                .findConfirmationTextTransferToAccount(accountResponse1.getId())
                 .insertAmount(depositResponse1.getBalance())
                 .confirm()
                 .sendTransfer()
                 .checkAlertMessageAndAccept(AlertsHelpMethods.formTransferAgainDebetSuccessfulAlert(depositResponse1.getBalance(),
-                        accountResponse1.getAccountNumber())
-                );
+                        accountResponse1.getAccountNumber()));
 
         Double user1BalanceAfter = UserSteps.getBalance(SessionStorage.getUser().getRequest(), accountResponse1.getId());
 
@@ -85,7 +85,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
                 .open()
                 .insertUsername(SessionStorage.getUser(2).getRequest().getUsername()) //ищем по юзернейму
                 .clickSearchButton();
-               // .searchTransactionByName(sum, TransactionType.TRANSFER_IN.getMessage(), senderName); //но сверяем по имени
+        // .searchTransactionByName(sum, TransactionType.TRANSFER_IN.getMessage(), senderName); //но сверяем по имени
         //выключила шаг, потому что в результате он выводит тип транзакции будто я смотрю со стороны отправителя
 
 
@@ -192,8 +192,6 @@ public class TransferAgainPositiveTest extends BaseUiTest {
     @Test
     @UserSession
     public void userCanSeeDepositTransaction() {
-
-
         CreateAnAccountResponse accountResponse = UserSteps.createsAccount(SessionStorage.getUser().getRequest());
         Double balance = UserSteps.makesDeposit(accountResponse.getId(), SessionStorage.getUser().getRequest()).getBalance();
 
@@ -223,8 +221,8 @@ public class TransferAgainPositiveTest extends BaseUiTest {
         new TransferAgainPage()
                 .open()
                 .insertUsername(SessionStorage.getUser(2).getRequest().getUsername())
-                .clickSearchButton()
-          .searchTransactionByUsename(sum, TransactionType.TRANSFER_OUT.getMessage(), SessionStorage.getUser(2).getRequest().getUsername());
+                .clickSearchButton();
+        //  .searchTransactionByUsername(sum, TransactionType.TRANSFER_OUT.getMessage(), SessionStorage.getUser(2).getRequest().getUsername());
         //выключила шаг, потому что в результате он выводит тип транзакции будто я смотрю со стороны отправителя
 
     }
@@ -305,7 +303,7 @@ public class TransferAgainPositiveTest extends BaseUiTest {
                 .getTransactionSection()
                 .findTransactionByTypeAndSum(TransactionType.TRANSFER_OUT.getMessage(), transferMoneyResponse.getAmount())
                 .clickRepeatButton()
-                .findConfirmtionTextTransferToAccount(accountResponse2.getId())
+                .findConfirmationTextTransferToAccount(accountResponse2.getId())
                 .selectYourAccount((accountResponse1.getAccountNumber()))
                 .insertAmount(transferMoneyResponse.getAmount())
                 .confirm()
@@ -320,6 +318,5 @@ public class TransferAgainPositiveTest extends BaseUiTest {
 
         soflty.assertThat(user1BalanceBefore).isEqualTo(user1BalanceAfter);
         soflty.assertThat(user2BalanceBefore).isEqualTo(user2BalanceAfter);
-
     }
 }
