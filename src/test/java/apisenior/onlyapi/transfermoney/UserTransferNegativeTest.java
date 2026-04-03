@@ -15,6 +15,7 @@ import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -151,5 +152,59 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(isTransactionTransferIn).isFalse();
 
     }
+
+
+    @Test
+    public void unauthUserCantTransferMoney(){
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
+
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
+
+        UserSteps.makesDepositX3(debetId, userDeb.getRequest());
+
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(debetId)
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .receiverAccountId(creditId)
+                .build();
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.unauthSpec(),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsUnauthorized()
+        ).post(transferMoney).extract().asString();
+    }
+
+    @Test
+    public void adminCantTransferMoney(){
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
+
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
+
+        UserSteps.makesDepositX3(debetId, userDeb.getRequest());
+
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(debetId)
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .receiverAccountId(creditId)
+                .build();
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.adminSpec(),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsForbidden()
+        ).post(transferMoney).extract().asString();
+    }
+
 }
 

@@ -37,9 +37,17 @@ public class ResponseSpecs {
                 .expectStatusCode(HttpStatus.SC_FORBIDDEN)
                 .build();
     }
+    public static ResponseSpecification requestReturnsUnauthorized() {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_UNAUTHORIZED)
+                .build();
+    }
 
-
-
+    public static ResponseSpecification requestReturnsNotFound() {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_NOT_FOUND)
+                .build();
+    }
 
     public static ResponseSpecification requestReturnsBadRequest(String errorKey, String errorValue) {
         return defaultResponseBuilder()
@@ -47,6 +55,5 @@ public class ResponseSpecs {
                 .expectBody(errorKey, Matchers.equalTo(errorValue))
                 .build();
     }
-
 
 }

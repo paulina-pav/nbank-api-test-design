@@ -4,6 +4,9 @@ on:
   push:
   # workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run-tests:
     name: Run API and UI tests in Docker Compose
@@ -46,19 +49,69 @@ jobs:
             -s http://localhost:4111/v3/api-docs \
             -i infra/${{ steps.output_dir.outputs.dir }}/swagger-coverage-output
 
-      - name: Upload test artifacts
+      - name: Upload raw test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-output
           path: infra/test-output
 
-      - name: Upload Swagger Coverage report
+      - name: Upload Swagger Coverage report artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: swagger-coverage-report
-          path: swagger-coverage-report.html
+          path: |
+            swagger-coverage-report.html
+            swagger-coverage-results.json
+
+      - name: Load Allure history store from gh-pages
+        if: always()
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Prepare internal Allure history store
+        if: always()
+        run: mkdir -p gh-pages/.allure-store
+
+      - name: Build Allure report with history
+        if: always()
+        uses: simple-elf/allure-report-action@v1.13
+        with:
+          gh_pages: gh-pages/.allure-store
+          allure_results: infra/${{ steps.output_dir.outputs.dir }}/allure-results
+          allure_report: allure-report
+          allure_history: allure-history
+
+      - name: Prepare GitHub Pages content
+        if: always()
+        run: |
+          RUN_DIR="site/test-report/${{ github.run_number }}"
+          mkdir -p "$RUN_DIR/allure-report"
+          mkdir -p "$RUN_DIR/swagger-coverage"
+          mkdir -p "site/.allure-store"
+
+          cp -R allure-report/. "$RUN_DIR/allure-report/"
+          cp swagger-coverage-report.html "$RUN_DIR/swagger-coverage/index.html"
+          cp swagger-coverage-results.json "$RUN_DIR/swagger-coverage/swagger-coverage-results.json"
+
+          cp -R allure-history/. "site/.allure-store/"
+          touch site/.nojekyll
+
+      - name: API coverage quality gate
+        if: always()
+        run: bash ./.github/scripts/check-swagger-coverage.sh swagger-coverage-report.html 5
+
+      - name: Publish reports to gh-pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site
 
       - name: Clean up Docker Compose environment
         if: always()
