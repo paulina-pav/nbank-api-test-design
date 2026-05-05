@@ -6,7 +6,6 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 HOST_PWD=$(pwd)
 
 BASE_OUTPUT_DIR="./test-output/$TIMESTAMP"
-
 LOGS_DIR="$BASE_OUTPUT_DIR/logs"
 RESULTS_DIR="$BASE_OUTPUT_DIR/results"
 REPORT_DIR="$BASE_OUTPUT_DIR/report"
@@ -26,15 +25,16 @@ docker pull selenoid/firefox:latest
 docker pull selenoid/chrome:latest
 
 echo ">>> Starting Docker Compose environment"
-docker compose up -d backend frontend frontend selenoid selenoid-ui
+# Исправлено: frontend был указан дважды, оставляем один раз
+docker compose up -d backend frontend selenoid selenoid-ui
 
 echo ">>> Waiting for environment to become ready"
 sleep 60
 
 echo ">>> Running UI tests"
+# Передаем только TEST_PROFILE, остальное подтянется из docker-compose.yml
 docker compose run --rm \
-  -e TEST_PROFILE=ui \                           # Явно указываем здесь
-  -e UIBASEURL=http://frontend/ \
+  -e TEST_PROFILE=ui \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
@@ -42,8 +42,7 @@ docker compose run --rm \
 
 echo ">>> Running API tests"
 docker compose run --rm \
-  -e TEST_PROFILE=api \                          # Явно указываем здесь
-  -e APIBASEURL=http://backend:4111/ \
+  -e TEST_PROFILE=api \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
