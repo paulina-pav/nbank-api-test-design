@@ -26,7 +26,7 @@ docker pull selenoid/firefox:latest
 docker pull selenoid/chrome:latest
 
 echo ">>> Starting Docker Compose environment"
-docker compose up -d backend frontend nginx selenoid selenoid-ui
+docker compose up -d backend frontend frontend selenoid selenoid-ui
 
 echo ">>> Waiting for environment to become ready"
 sleep 60
