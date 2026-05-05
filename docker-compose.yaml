@@ -42,7 +42,7 @@ services:
   tests:
     image: tilemp/nbank-tests:latest
     environment:
-      TEST_PROFILE: ${TEST_PROFILE:-api}
+    #  TEST_PROFILE: ${TEST_PROFILE:-api}
       APIBASEURL: http://backend:4111/
       UIBASEURL: http://frontend/
       UI_REMOTE: http://selenoid:4444/wd/hub
