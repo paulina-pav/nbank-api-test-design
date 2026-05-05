@@ -32,9 +32,11 @@ echo ">>> Waiting for environment to become ready"
 sleep 60
 
 echo ">>> Running UI tests"
-# Передаем только TEST_PROFILE, остальное подтянется из docker-compose.yml
+# Хардкод URL для UI тестов
 docker compose run --rm \
   -e TEST_PROFILE=ui \
+  -e UIBASEURL=http://frontend/ \
+  -e UI_REMOTE=http://selenoid:4444/wd/hub \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
