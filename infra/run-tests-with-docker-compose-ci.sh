@@ -32,14 +32,18 @@ echo ">>> Waiting for environment to become ready"
 sleep 60
 
 echo ">>> Running UI tests"
-TEST_PROFILE=ui docker compose run --rm \
+docker compose run --rm \
+  -e TEST_PROFILE=ui \                           # Явно указываем здесь
+  -e UIBASEURL=http://frontend/ \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
   tests
 
 echo ">>> Running API tests"
-TEST_PROFILE=api docker compose run --rm \
+docker compose run --rm \
+  -e TEST_PROFILE=api \                          # Явно указываем здесь
+  -e APIBASEURL=http://backend:4111/ \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \

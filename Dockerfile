@@ -15,6 +15,16 @@ RUN mvn dependency:go-offline
 
 COPY . .
 
-RUN chmod +x /app/run-tests.sh
+# Убедимся, что файл существует и имеет правильные права
+RUN ls -la run-tests.sh && \
+    chmod +x run-tests.sh && \
+    cat run-tests.sh | head -1
 
-CMD ["/app/run-tests.sh"]
+# Используем явный shell для выполнения
+CMD ["sh", "-c", "/app/run-tests.sh"]
+
+
+#RUN chmod +x /app/run-tests.sh
+
+#CMD ["/app/run-tests.sh"]
+
