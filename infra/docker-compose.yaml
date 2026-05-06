@@ -36,7 +36,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/:/etc/selenoid/:ro
-    command: ["-container-network", "nbank-network"]
+    command:
+      - "-container-network"
+      - "nbank-network"
+      - "-limit"
+      - "2"
     depends_on:
       - frontend
     networks:
