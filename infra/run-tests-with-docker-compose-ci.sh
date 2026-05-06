@@ -35,6 +35,9 @@ echo ">>> Pulling browser images"
 docker pull selenoid/firefox:latest
 docker pull selenoid/chrome:latest
 
+echo ">>> Building tests image"
+docker compose build tests
+
 echo ">>> Starting Docker Compose environment"
 docker compose up -d backend frontend nginx selenoid selenoid-ui
 

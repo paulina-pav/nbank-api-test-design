@@ -9,7 +9,7 @@ services:
   frontend:
     image: nobugsme/nbank-ui:latest
     platform: linux/amd64
-    expose: # не открываем порт наружу, а даем доступ контейнерам в сети
+    expose:
       - "80"
     depends_on:
       - backend
@@ -54,7 +54,10 @@ services:
       - nbank-network
 
   tests:
-    image: tilemp/nbank-tests:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: nbank-tests:ci   # локальный тег
     environment:
       TEST_PROFILE: ${TEST_PROFILE:-api}
       APIBASEURL: http://backend:4111/

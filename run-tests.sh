@@ -1,5 +1,4 @@
 #!/bin/bash
-# Выше был #!/bin/sh, но для надежности используем
 
 mkdir -p /app/logs
 
@@ -10,11 +9,14 @@ mkdir -p /app/logs
   echo ">>> Current directory: $(pwd)"
   echo ">>> Files in /app: $(ls -la /app/)"
 
+  echo ">>> Commit in container:"
+  git rev-parse HEAD || echo "no git repo"
+
   mvn test -q -P "${TEST_PROFILE}"
 
   echo ">>> Running surefire-report:report"
   mvn -DskipTests=true surefire-report:report
+
 } > /app/logs/run.log 2>&1
 
-# Выводим лог на экран для отладки
 cat /app/logs/run.log
