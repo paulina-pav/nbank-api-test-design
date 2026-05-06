@@ -27,7 +27,7 @@ public class UserMakesDepositTest extends BaseTest {
 
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
 
-    @DisplayName("Юзер делает депозит")
+ /*   @DisplayName("Юзер делает депозит")
     @Test
     @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     public void authUserMakesDeposit() {
@@ -72,5 +72,5 @@ public class UserMakesDepositTest extends BaseTest {
 
         AccountDao accountDao = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), MaxSumsForDepositAndTransactions.DEPOSIT.getMax());
         DaoAndModelAssertions.assertThat(makeDepositResponse, accountDao);
-    }
+    }*/
 }

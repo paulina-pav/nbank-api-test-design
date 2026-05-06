@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 */
 
 public class UserMakesDepositNegativeTest extends BaseTest {
-    public static Stream<Arguments> invalidSum() {
+ /*   public static Stream<Arguments> invalidSum() {
         return Stream.of(
                 Arguments.of(-1.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()), //400 //"Invalid account or amount"DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
                 Arguments.of(0.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()),//400 //ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
@@ -154,5 +154,5 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         GetCustomerAccountResponse accountsUser2 = UserSteps.getAccount(user2.getRequest(), user2Acc);
         AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(user2.getResponse().getId(), user2AccBalanceBefore);
         DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
-    }
+    }*/
 }

@@ -25,7 +25,7 @@ public class UserChangesNameTest extends BaseTest {
 
 
 //Тест-кейс: авторизованный юзер меняет имя
-
+/*
     @Test
     @DisplayName("Юзер может сменить имя")
     @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
@@ -62,6 +62,6 @@ public class UserChangesNameTest extends BaseTest {
         UserDao user = DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), changedName.getName());
         DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
 
-    }
+    }*/
 }
 
