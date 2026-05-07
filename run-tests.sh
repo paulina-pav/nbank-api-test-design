@@ -4,7 +4,7 @@ mkdir -p /app/logs
 
 if [ "$TEST_PROFILE" = "api" ]; then
   PARALLEL_ARGS="\
-    -Djunit.jupiter.execution.parallel.enabled=true \
+    -Djunit.jupiter.execution.parallel.enabled=false \
     -Djunit.jupiter.execution.parallel.mode.default=concurrent \
     -Djunit.jupiter.execution.parallel.config.strategy=fixed \
     -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4"
