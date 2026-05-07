@@ -7,7 +7,7 @@ if [ "$TEST_PROFILE" = "api" ]; then
     -Djunit.jupiter.execution.parallel.enabled=true \
     -Djunit.jupiter.execution.parallel.mode.default=concurrent \
     -Djunit.jupiter.execution.parallel.config.strategy=fixed \
-    -Djunit.jupiter.execution.parallel.config.fixed.parallelism=5"
+    -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4"
 else
   PARALLEL_ARGS="\
     -Djunit.jupiter.execution.parallel.enabled=false"

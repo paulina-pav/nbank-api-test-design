@@ -38,10 +38,25 @@ docker pull selenoid/chrome:latest
 echo ">>> Building tests image"
 docker compose build tests
 
-echo ">>> Starting Docker Compose environment"
-docker compose up -d backend frontend nginx selenoid selenoid-ui
+echo ">>> Starting backend"
+docker compose up -d backend
 
-echo ">>> Waiting for environment to become ready"
+echo ">>> Waiting for backend"
+sleep 20
+
+echo ">>> Running API tests"
+TEST_PROFILE=api docker compose run --rm \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/swagger-coverage-output:/app/target/swagger-coverage-output" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-results:/app/target/allure-results" \
+  tests
+
+echo ">>> Starting UI environment"
+docker compose up -d frontend nginx selenoid selenoid-ui
+
+echo ">>> Waiting for UI environment"
 sleep 60
 
 echo ">>> Running UI tests"
@@ -53,14 +68,9 @@ TEST_PROFILE=ui docker compose run --rm \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-results:/app/target/allure-results" \
   tests
 
-echo ">>> Running API tests"
-TEST_PROFILE=api docker compose run --rm \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/swagger-coverage-output:/app/target/swagger-coverage-output" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-results:/app/target/allure-results" \
-  tests
+
+echo ">>> Stopping services"
+docker compose down
 
 echo ">>> All tests finished"
 echo "$BASE_OUTPUT_DIR" > .last-test-output-dir
