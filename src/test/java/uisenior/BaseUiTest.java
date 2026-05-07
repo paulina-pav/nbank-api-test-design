@@ -25,7 +25,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.browser = Config.getProperty("browser");
         Configuration.browserSize = Config.getProperty("browser.size");
         //Configuration.holdBrowserOpen = Boolean.parseBoolean(Config.getProperty("browser.holdOpen"));
-        Configuration.headless = true;
+       // Configuration.headless = true;
 
         String remoteUrl = Config.getProperty("ui.remote");
         if (remoteUrl != null && !remoteUrl.isBlank()) {
