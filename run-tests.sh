@@ -3,7 +3,7 @@
 mkdir -p /app/logs
 
 API_PARALLEL=${API_PARALLEL:-2}
-UI_PARALLEL=${UI_PARALLEL:-2}
+UI_PARALLEL=${UI_PARALLEL:-1}
 
 if [ "$TEST_PROFILE" = "api" ]; then
   PARALLEL_ARGS="\
