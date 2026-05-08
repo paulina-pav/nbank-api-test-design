@@ -8,7 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class SessionStorage {
-    private static final SessionStorage INSTANCE = new SessionStorage();
+    //каждому потоку своя копия
+    private static final ThreadLocal<SessionStorage> INSTANCE = ThreadLocal.withInitial(SessionStorage::new);
 
     private final LinkedHashMap<CreatedUser, UserSteps> userStepsMap = new LinkedHashMap<>();
 
@@ -18,7 +19,8 @@ public class SessionStorage {
 
     public static void addUsers(List<CreatedUser> users) {
         for (CreatedUser user: users) {
-            INSTANCE.userStepsMap.put(user, new UserSteps());
+            INSTANCE.get().userStepsMap.put(user, new UserSteps());
+
             //убрала поля и конструктор из UserSteps,
             // оставив методы статическими, потому что это влияет на api тесты
         }
@@ -30,7 +32,7 @@ public class SessionStorage {
      * @return Объект CreateUserRequest, соответствующий указанному порядковому номеру.
      */
     public static CreatedUser getUser(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.keySet()).get(number - 1);
+        return new ArrayList<>(INSTANCE.get().userStepsMap.keySet()).get(number - 1);
     }
 
     public static CreatedUser getUser() {
@@ -38,7 +40,7 @@ public class SessionStorage {
     }
 
     public static UserSteps getSteps(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.values()).get(number - 1);
+        return new ArrayList<>(INSTANCE.get().userStepsMap.values()).get(number - 1);
     }
 
     public static UserSteps getSteps() {
@@ -46,10 +48,10 @@ public class SessionStorage {
     }
 
     public static List<CreatedUser> getAllUsers() {
-        return new ArrayList<>(INSTANCE.userStepsMap.keySet());
+        return new ArrayList<>(INSTANCE.get().userStepsMap.keySet());
     }
 
     public static void clear() {
-        INSTANCE.userStepsMap.clear();
+        INSTANCE.get().userStepsMap.clear();
     }
 }

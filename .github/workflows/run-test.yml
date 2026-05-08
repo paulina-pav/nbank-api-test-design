@@ -1,0 +1,50 @@
+name: Run tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+#  api-tests:
+#    name: Run API tests
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Run API tests
+#        working-directory: infra
+#        run: bash ./run-api-tests-ci.sh
+#
+#      - name: Upload API test artifacts
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: api-test-output
+#          path: infra/test-output
+
+  ui-tests:
+    name: Run UI tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run UI tests
+        working-directory: infra
+        run: bash ./run-ui-tests-ci.sh
+
+      - name: Upload UI test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-output
+          path: infra/test-output

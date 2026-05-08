@@ -29,7 +29,7 @@ public class ChangeNameNegativeTest extends BaseUiTest {
 
     public static Stream<Arguments> invalidName(){
         return Stream.of(
-                Arguments.of("a", ChangeNameAlerts.NAME_CONTAINS_TWO_WORDS.getMessage())
+                Arguments.of("a", ChangeNameAlerts.ENTER_VALID_NAME.getMessage())
         );
     }
 

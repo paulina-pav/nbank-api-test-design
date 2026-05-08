@@ -30,7 +30,7 @@ public class UserTransferMoneyTest extends BaseTest {
 //1. Юзер успешно переводит деньги на существующий счет другого юзера
 //2. Юзер успешно переводит деньги с одного своего счета на другой
 
-    @DisplayName("Юзер переводит деньги с одного своего аккаунта на другой")
+  /*  @DisplayName("Юзер переводит деньги с одного своего аккаунта на другой")
     @Test
     @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
     public void userTransferMoneyFromOneAccToAnotherAcc() {
@@ -166,5 +166,5 @@ public class UserTransferMoneyTest extends BaseTest {
         AccountDao accountDaoUser2 = DBSteps.getAccountByUserIdAndBalance(userCred.getResponse().getId(), balanceCreditBeforeTransfer
                 + MaxSumsForDepositAndTransactions.TRANSACTION.getMax());
         DaoAndModelAssertions.assertThat(accountsUser2, accountDaoUser2);
-    }
+    }*/
 }

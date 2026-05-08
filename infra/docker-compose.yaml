@@ -9,7 +9,7 @@ services:
   frontend:
     image: nobugsme/nbank-ui:latest
     platform: linux/amd64
-    expose: # не открываем порт наружу, а даем доступ контейнерам в сети
+    expose:
       - "80"
     depends_on:
       - backend
@@ -36,7 +36,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/:/etc/selenoid/:ro
-    command: ["-container-network", "nbank-network"]
+    command:
+      - "-container-network"
+      - "nbank-network"
+      - "-limit"
+      - "3"
     depends_on:
       - frontend
     networks:
@@ -54,7 +58,10 @@ services:
       - nbank-network
 
   tests:
-    image: tilemp/nbank-tests:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: nbank-tests:ci   # локальный тег
     environment:
       TEST_PROFILE: ${TEST_PROFILE:-api}
       APIBASEURL: http://backend:4111/

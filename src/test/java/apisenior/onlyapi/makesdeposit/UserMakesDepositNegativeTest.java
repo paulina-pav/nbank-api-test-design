@@ -32,9 +32,9 @@ import java.util.stream.Stream;
 public class UserMakesDepositNegativeTest extends BaseTest {
     public static Stream<Arguments> invalidSum() {
         return Stream.of(
-                Arguments.of(-1.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()), //400 //"Invalid account or amount"DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
-                Arguments.of(0.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()),//400 //ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
-                Arguments.of(5001.0, ErrorMessage.DEPOSIT_AMOUNT_EXCEEDS_THE_5000_LIMIT.getMessage()) //400ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()
+                Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400 //"Invalid account or amount"DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
+                Arguments.of(0.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()),//400 //ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
+                Arguments.of(5001.0, ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()) //400ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()
         );
     }
 

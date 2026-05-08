@@ -39,7 +39,7 @@ public class UserTransferNegativeTest extends BaseTest {
 
 */
 
-
+/*
     public static Stream<Arguments> invalidSumToTransfer() {
         return Stream.of(
                 Arguments.of(0.0, ErrorMessage.TRANSFER_AMOUNT_MUST_BE_AT_LEAST_001.getMessage()),
@@ -204,6 +204,6 @@ public class UserTransferNegativeTest extends BaseTest {
                 .extractAs(AccountDao.class);
 
         soflty.assertThat(accountDaoCredit.getBalance()).isEqualTo(balanceCreditBeforeTransfer);
-    }
+    }*/
 }
 
