@@ -40,7 +40,7 @@ services:
       - "-container-network"
       - "nbank-network"
       - "-limit"
-      - "1"
+      - "2"
     depends_on:
       - frontend
     networks:
