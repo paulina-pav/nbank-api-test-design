@@ -14,10 +14,11 @@ import api.requests.skelethon.Endpoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestSpecs {
     private static Map<String, String> authHeaders =
-            new HashMap<>(Map.of("admin", "Basic YWRtaW46YWRtaW4=")); //"Basic YWRtaW46YWRtaW4="
+            new ConcurrentHashMap<>(Map.of("admin", "Basic YWRtaW46YWRtaW4=")); //"Basic YWRtaW46YWRtaW4="
 
     private RequestSpecs() {
 
