@@ -1,36 +1,23 @@
 package apisenior;
 
-import api.requests.steps.AdminSteps;
-import api.models.CreatedUser;
+import common.extensions.UsersForApiExtension;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.ArrayList;
-import java.util.List;
+
+@ExtendWith(UsersForApiExtension.class)
 
 public abstract class BaseTest {
     protected SoftAssertions soflty;
-    protected List<CreatedUser> users;
 
     @BeforeEach
     public void setupTest() {
         this.soflty = new SoftAssertions();
-        users = new ArrayList<>();
     }
-
-    protected CreatedUser createUser() {
-        CreatedUser user = AdminSteps.createUser();
-        users.add(user);
-        return user;
-    }
-
-   /*@AfterEach
+    @AfterEach
     public void afterTest() {
-
-        for (CreatedUser user : users) {
-            AdminSteps.deletesUser(user.getRequest());
-        }
         soflty.assertAll();
-    }*/
+    }
 }
