@@ -16,6 +16,8 @@ import api.models.GetCustomerAccountResponse;
 import api.models.GetAccountTransactionsResponse;
 import api.models.TransferMoneyResponse;
 import api.models.TransferMoneyRequest;
+import api.models.TransferMoneyWithFraudCheckResponse;
+import api.models.CreatedUser;
 
 
 import api.requests.skelethon.Endpoint;
@@ -24,6 +26,7 @@ import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import io.restassured.common.mapper.TypeRef;
+import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,12 +88,12 @@ public class UserSteps {
     public static MakeDepositResponse makesDeposit(Long accountId, NewUserRequest newUser) {
 
         MakeDepositRequest deposit = MakeDepositRequest.builder()
-                .id(accountId)
-                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                .accountId(accountId)
+                .amount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .build();
 
         return StepLogger.log("User " + newUser.getUsername() + " makes deposit "
-                + deposit.getBalance() + " on " + accountId, () -> {
+                + deposit.getAmount() + " on " + accountId, () -> {
             MakeDepositResponse makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
                     RequestSpecs.authAsUser(newUser.getUsername(), newUser.getPassword()),
                     Endpoint.DEPOSIT,
@@ -112,8 +115,8 @@ public class UserSteps {
 
             for (int i = 0; i <= 1; i++) {
                 MakeDepositRequest deposit = MakeDepositRequest.builder()
-                        .id(accountId)
-                        .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                        .accountId(accountId)
+                        .amount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                         .build();
 
                 makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
@@ -135,8 +138,8 @@ public class UserSteps {
 
             for (int i = 0; i <= 2; i++) {
                 MakeDepositRequest deposit = MakeDepositRequest.builder()
-                        .id(accountId)
-                        .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                        .accountId(accountId)
+                        .amount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                         .build();
 
                 makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
@@ -159,8 +162,8 @@ public class UserSteps {
             MakeDepositResponse makeDepositResponse = null;
 
             MakeDepositRequest deposit = MakeDepositRequest.builder()
-                    .id(accountId)
-                    .balance(sum)
+                    .accountId(accountId)
+                    .amount(sum)
                     .build();
 
             makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
@@ -261,6 +264,42 @@ public class UserSteps {
 
     }
 
+    public static Long
+    getTransactionIdBySumByTransactionTypeByAccId(Double sum, String type, Long currentAcc,
+                                                 Long relatedAcc, NewUserRequest user) {
+
+        return StepLogger.log("User " + user.getUsername() + " finds a transaction by sum "
+                + sum + ",  transaction type " + type + ", accountId " + currentAcc
+                + ", related account " + relatedAcc, () -> {
+
+            //запросили все транзакции по счету
+            List<GetAccountTransactionsResponse> transactionsByAcc = new CrudRequester(
+                    RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                    Endpoint.GET_ACCOUNT_TRANSACTION,
+                    ResponseSpecs.requestReturnsOK()
+            ).get(currentAcc)
+                    .extract().as(new TypeRef<List<GetAccountTransactionsResponse>>() {
+                    });
+
+            //Смотрим, что среди транзакций есть та, которая подходит под требования:
+            // нужный баланс, нужный тип транзакции и нужный id
+            Optional<GetAccountTransactionsResponse> foundTransaction = transactionsByAcc.stream()
+                    .filter(t -> t.getAmount().equals(sum))
+                    .filter(t -> t.getType().equals(type))
+                    .filter(t -> t.getRelatedAccountId().equals(relatedAcc))
+                    .findAny();
+
+            Long transactionId = foundTransaction.get().getId();
+
+
+            return transactionId;
+        });
+
+    }
+
+
+
+
     public static List<CreateAnAccountResponse> createTwoAccounts(NewUserRequest user) {
         return StepLogger.log("User " + user.getUsername() + " creates two accounts ", () -> {
 
@@ -304,8 +343,8 @@ public class UserSteps {
 
             for (int i = 0; i <= 3; i++) {
                 MakeDepositRequest deposit = MakeDepositRequest.builder()
-                        .id(accountId)
-                        .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                        .accountId(accountId)
+                        .amount(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                         .build();
 
                 makeDepositResponse = new ValidatedCrudRequester<MakeDepositResponse>(
@@ -333,4 +372,87 @@ public class UserSteps {
             return currentAccount;
         });
     }
+
+
+    public static Long createAccountAndMakeDepositX2(CreatedUser user) {
+        Long accId = UserSteps.createsAccount(user.getRequest()).getId();
+
+        UserSteps.makesDepositX2(accId, user.getRequest());
+
+        return accId;
+    }
+
+    public static Long createAccountAndMakeDepositX3(CreatedUser user) {
+        Long accId = UserSteps.createsAccount(user.getRequest()).getId();
+
+        UserSteps.makesDepositX3(accId, user.getRequest());
+
+        return accId;
+    }
+
+    public static Long createAccountAndMakeDeposit(CreatedUser user) {
+        Long accId = UserSteps.createsAccount(user.getRequest()).getId();
+
+        UserSteps.makesDeposit(accId, user.getRequest());
+
+        return accId;
+    }
+
+
+    public static TransferMoneyWithFraudCheckResponse transferMoneyWithFraudCheck(CreatedUser userSender, CreatedUser userReceiver) {
+
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(UserSteps.createAccountAndMakeDepositX2(userSender))
+                .receiverAccountId(UserSteps.createsAccount(userReceiver.getRequest()).getId())
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .build();
+
+        TransferMoneyWithFraudCheckResponse response = new ValidatedCrudRequester<TransferMoneyWithFraudCheckResponse>(
+                RequestSpecs.authAsUser(userSender.getRequest().getUsername(), userSender.getRequest().getPassword()),
+                Endpoint.TRANSFER_WITH_FRAUD_CHECK,
+                ResponseSpecs.requestReturnsOK()
+        ).post(transferMoney);
+
+        return response;
+    }
+
+    public static TransferMoneyResponse transferMoneyPrepareAll(CreatedUser userDebet, CreatedUser userCredit) {
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(UserSteps.createAccountAndMakeDepositX2(userDebet))
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .receiverAccountId(UserSteps.createsAccount(userCredit.getRequest()).getId())
+                .build();
+
+        TransferMoneyResponse transferMoneyResponse = new ValidatedCrudRequester<TransferMoneyResponse>(
+                RequestSpecs.authAsUser(userDebet.getRequest().getUsername(), userDebet.getRequest().getPassword()),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsOK()
+        ).post(transferMoney);
+
+        return transferMoneyResponse;
+    }
+
+
+    public static TransferMoneyWithFraudCheckResponse userTransferMoneyToThemself(CreatedUser user) {
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(UserSteps.createAccountAndMakeDepositX2(user))
+                .receiverAccountId(UserSteps.createsAccount(user.getRequest()).getId())
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .build();
+
+        TransferMoneyWithFraudCheckResponse response = new ValidatedCrudRequester<TransferMoneyWithFraudCheckResponse>(
+                RequestSpecs.authAsUser(user.getRequest().getUsername(), user.getRequest().getPassword()),
+                Endpoint.TRANSFER_WITH_FRAUD_CHECK,
+                ResponseSpecs.requestReturnsOK()
+        ).post(transferMoney);
+        return response;
+    }
+
 }
+
+
+
+
+

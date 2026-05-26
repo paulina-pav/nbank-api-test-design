@@ -16,8 +16,7 @@ public final class UserSessionExtension
         implements BeforeEachCallback, AfterEachCallback {
 
     @Override
-    public void beforeEach(final ExtensionContext extensionContext)
-            throws Exception {
+    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         UserSession annotation = extensionContext
                 .getRequiredTestMethod()
                 .getAnnotation(UserSession.class);

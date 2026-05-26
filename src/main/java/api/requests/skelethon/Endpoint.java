@@ -20,6 +20,8 @@ import api.models.GetAccountTransactionsRequest;
 import api.models.GetAccountTransactionsResponse;
 import api.models.TransferMoneyResponse;
 import api.models.TransferMoneyRequest;
+import api.models.TransferMoneyWithFraudCheckResponse;
+import api.models.CheckFraudDetectionStatusResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -51,11 +53,11 @@ public enum Endpoint {
             BaseModel.class,
             CreateAnAccountResponse.class
     ),
- CUSTOMER_PROFILE(
+    CUSTOMER_PROFILE(
          "/customer/profile",
          BaseModel.class,
          GetCustomerProfileResponse.class
- ),
+    ),
     CUSTOMER_ACCOUNTS(
             "/customer/accounts",
             BaseModel.class,
@@ -85,7 +87,20 @@ public enum Endpoint {
             "accounts/transfer",
             TransferMoneyRequest.class,
             TransferMoneyResponse.class
-    );
+    ),
+    TRANSFER_WITH_FRAUD_CHECK(
+            "accounts/transfer-with-fraud-check",
+            TransferMoneyRequest.class,
+            TransferMoneyWithFraudCheckResponse.class
+    ),
+    CHECK_FRAUD_DETECTION_STATUS(
+            "accounts/fraud-check/{id}",
+            BaseModel.class,
+            CheckFraudDetectionStatusResponse.class
+    )
+
+
+    ;
     private final String url;
     private final Class<? extends BaseModel> requestModel;
     private final Class<? extends BaseModel> responseModel;
