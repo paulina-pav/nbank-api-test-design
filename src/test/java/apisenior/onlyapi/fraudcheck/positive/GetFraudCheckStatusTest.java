@@ -1,9 +1,8 @@
-package apisenior.onlyapi;
+package apisenior.onlyapi.fraudcheck.positive;
 
-import api.comparison.ModelAssertions;
 import api.generators.GetTransactionWithFraudStatus;
-import api.generators.MaxSumsForDepositAndTransactions;
-import api.models.*;
+import api.models.CheckFraudDetectionStatusResponse;
+import api.models.TransferMoneyWithFraudCheckResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.requests.steps.UserSteps;
@@ -13,14 +12,13 @@ import apisenior.BaseTest;
 import common.annotation.FraudCheckMock;
 import common.annotation.UsersForApiTests;
 import common.extensions.FraudCheckMockExtension;
-import common.helper.FraudCheckResponseFactory;
 import common.storage.UserForApiStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-public class TransferMoneyWithFraudCheckTest extends BaseTest {
-
+public class GetFraudCheckStatusTest extends BaseTest {
     @Test
+    @UsersForApiTests(2)
     @FraudCheckMock(
             status = "SUCCESS",
             decision = "APPROVED",
@@ -30,23 +28,18 @@ public class TransferMoneyWithFraudCheckTest extends BaseTest {
             additionalVerificationRequired = false
     )
     @ExtendWith(FraudCheckMockExtension.class)
-    @UsersForApiTests(2)
-    public void authUserCanMakeTransactionWithFraudCheck(UserForApiStorage context) {
+    public void authUserTransferredMoneyToAnotherUserAndCheckTransactionFraudStatus(UserForApiStorage context){
+        TransferMoneyWithFraudCheckResponse transfer = UserSteps.transferMoneyWithFraudCheck(context.getFirstUser(), context.getSecondUser());
 
-        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
-                .senderAccountId(UserSteps.createAccountAndMakeDeposit(context.getFirstUser()))
-                .receiverAccountId(UserSteps.createsAccount(context.getSecondUser().getRequest()).getId())
-                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
-                .build();
-
-        TransferMoneyWithFraudCheckResponse response = new ValidatedCrudRequester<TransferMoneyWithFraudCheckResponse>(
+        CheckFraudDetectionStatusResponse checkResponse = new ValidatedCrudRequester<CheckFraudDetectionStatusResponse>(
                 RequestSpecs.authAsUser(context.getFirstUser().getRequest().getUsername(), context.getFirstUser().getRequest().getPassword()),
-                Endpoint.TRANSFER_WITH_FRAUD_CHECK,
+                Endpoint.CHECK_FRAUD_DETECTION_STATUS,
                 ResponseSpecs.requestReturnsOK()
-        ).post(transferMoney);
+        ).get(transfer.getTransactionId());
 
-        soflty.assertThat(response).isNotNull();
-        ModelAssertions.assertThatModels(response, FraudCheckResponseFactory.getExpectedResult());
+        soflty.assertThat(checkResponse.getTransactionId()).isEqualTo(transfer.getTransactionId());
+        soflty.assertThat(checkResponse.getStatus()).isEqualTo(GetTransactionWithFraudStatus.STATUS_NO_FRAUD_CHECK_REQUIRED);
+        soflty.assertThat(checkResponse.getNote()).isEqualTo(GetTransactionWithFraudStatus.NOTE_DOES_NOT_REQUIRE);
     }
 
     @Test
@@ -60,8 +53,8 @@ public class TransferMoneyWithFraudCheckTest extends BaseTest {
             additionalVerificationRequired = false
     )
     @ExtendWith(FraudCheckMockExtension.class)
-    public void authUserCanCheckFraudTransactionStatus(UserForApiStorage context){
-        TransferMoneyWithFraudCheckResponse transfer = UserSteps.transferMoneyWithFraudCheck(context.getFirstUser(), context.getSecondUser());
+    public void authUserTransferredMoneyToThemselfAndCheckTransactionFraudStatus(UserForApiStorage context){
+        TransferMoneyWithFraudCheckResponse transfer = UserSteps.userTransferMoneyToThemself(context.getFirstUser());
 
         CheckFraudDetectionStatusResponse checkResponse = new ValidatedCrudRequester<CheckFraudDetectionStatusResponse>(
                 RequestSpecs.authAsUser(context.getFirstUser().getRequest().getUsername(), context.getFirstUser().getRequest().getPassword()),
