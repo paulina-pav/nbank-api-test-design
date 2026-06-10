@@ -6,6 +6,7 @@ backend:
   port: 4111
   nodePort: 30447
 frontend:
+  enabled: false
   image: nobugsme/nbank-ui:with_nginx
   port: 80
   nodePort: 32538
