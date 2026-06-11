@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests with Docker Compose
         working-directory: infra
-        run: bash ./run-tests-with-docker-compose-ci.sh
+        run: bash ./run-tests-with-docker-compose.sh
 
       - name: Upload test artifacts
         if: always()
