@@ -1,9 +1,9 @@
-name: Build and push test image
+name: Build and push test to docker
 
 on:
   push:
-    paths:
-      - 'src/**'
+#    paths:
+#      - 'src/**'
 
 jobs:
   build-and-push:
@@ -40,5 +40,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nbank-tests:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nbank-tests:latest
           platforms: linux/amd64
