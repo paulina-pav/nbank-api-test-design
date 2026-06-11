@@ -11,4 +11,7 @@ mkdir -p /app/logs
 
   echo ">>> Running surefire-report:report"
   mvn -DskipTests=true surefire-report:report
+
+  echo ">>> Running allure:report"
+  mvn -DskipTests=true allure:report
 } > /app/logs/run.log 2>&1
