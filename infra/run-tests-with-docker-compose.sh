@@ -3,7 +3,7 @@
 set -e
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-HOST_PWD=$(pwd -W)
+HOST_PWD=$(pwd)
 
 BASE_OUTPUT_DIR="./test-output/$TIMESTAMP"
 
