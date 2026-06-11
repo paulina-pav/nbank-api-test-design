@@ -57,9 +57,16 @@ jobs:
         working-directory: infra
         run: bash ./run-tests-with-docker-compose.sh
 
-      - name: Upload test artifacts
+      - name: Upload surefire report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-output
-          path: infra/test-output
+          name: surefire-report
+          path: infra/test-output/**/report
+
+      - name: Upload allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: infra/test-output/**/allure-results
