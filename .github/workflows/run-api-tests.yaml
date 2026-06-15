@@ -79,10 +79,24 @@ jobs:
           path: infra/test-output/**/allure-report
 
 
+      - name: Debug Swagger coverage output
+        if: always()
+        run: |
+          pwd
+          ls -la target || true
+          ls -la target/swagger-coverage-output || true
+          find target/swagger-coverage-output -type f || true
+
+
+
 ##добавили ращрешение на исполнение команды
       - name: Run Swagger coverage
         if: always()
         run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline && .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
+
+
+
+
 #      - name: Load test report history
 #        uses: actions/checkout@v2
 #        if: always()
