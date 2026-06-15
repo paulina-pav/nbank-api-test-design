@@ -113,7 +113,16 @@ jobs:
           echo "FILE=$FIRST_FILE"
           
           cat "$FIRST_FILE" || true
-      
+
+      - name: Upload swagger coverage json
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-json
+          path: |
+            swagger-coverage-results.json
+            target/swagger-coverage-output/**
+          
       
       
 
