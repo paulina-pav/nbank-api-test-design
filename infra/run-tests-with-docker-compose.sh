@@ -46,6 +46,13 @@ sleep 20
 SWAGGER_COVERAGE_DIR="${GITHUB_WORKSPACE}/target/swagger-coverage-output"
 
 mkdir -p "$LOGS_DIR" "$RESULTS_DIR" "$REPORT_DIR" "$ALLURE_RESULTS_DIR" "$ALLURE_REPORT_DIR" "$SWAGGER_COVERAGE_DIR"
+
+
+echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+echo "SWAGGER_COVERAGE_DIR: $SWAGGER_COVERAGE_DIR"
+
+
+
 echo ">>> Running API tests"
 TEST_PROFILE=api docker compose run --rm \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
