@@ -57,6 +57,13 @@ jobs:
         working-directory: infra
         run: GITHUB_WORKSPACE=${{ github.workspace }} bash ./run-tests-with-docker-compose.sh
 
+      - name: Upload run logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-logs
+          path: infra/test-output/**/logs
+
       - name: Upload surefire report
         if: always()
         uses: actions/upload-artifact@v4
