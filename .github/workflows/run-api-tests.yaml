@@ -79,7 +79,7 @@ jobs:
           path: infra/test-output/**/allure-report
 
 
-##добавили ращрешение на исполнение команды 
+##добавили ращрешение на исполнение команды
       - name: Run Swagger coverage
         if: always()
         run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline && .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
@@ -110,6 +110,6 @@ jobs:
 #          publish_branch: gh-pages
 #          publish_dir: allure-history
 #
-#      - name: Clean up services
-#        if: always()
-#        run: cd infra/docker_compose && docker compose down
+      - name: Clean up services
+        if: always()
+        run: cd infra/docker_compose && docker compose down

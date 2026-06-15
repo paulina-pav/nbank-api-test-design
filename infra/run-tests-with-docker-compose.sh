@@ -19,7 +19,7 @@ cleanup() {
   docker compose down
 }
 
-trap cleanup EXIT
+# trap cleanup EXIT
 
 echo ">>> Preparing output folders"
 mkdir -p "$LOGS_DIR" "$RESULTS_DIR" "$REPORT_DIR" "$ALLURE_RESULTS_DIR" "$ALLURE_REPORT_DIR"
