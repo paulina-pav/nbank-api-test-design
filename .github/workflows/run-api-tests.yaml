@@ -101,10 +101,23 @@ jobs:
         if: always()
         run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline && .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
 
+      - name: Debug generated swagger coverage files
+        if: always()
+        run: |
+          echo "=== Coverage files ==="
+          find target/swagger-coverage-output -type f || true
+          
+          echo "=== First coverage file ==="
+          FIRST_FILE=$(find target/swagger-coverage-output -type f | head -1)
+          
+          echo "FILE=$FIRST_FILE"
+          
+          cat "$FIRST_FILE" || true
+      
+      
+      
 
-
-
-#      - name: Load test report history
+      #      - name: Load test report history
 #        uses: actions/checkout@v2
 #        if: always()
 #        with:
