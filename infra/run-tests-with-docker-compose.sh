@@ -42,6 +42,10 @@ sleep 20
 #  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
 #  tests
 
+
+SWAGGER_COVERAGE_DIR="${GITHUB_WORKSPACE}/target/swagger-coverage-output"
+
+mkdir -p "$LOGS_DIR" "$RESULTS_DIR" "$REPORT_DIR" "$ALLURE_RESULTS_DIR" "$ALLURE_REPORT_DIR" "$SWAGGER_COVERAGE_DIR"
 echo ">>> Running API tests"
 TEST_PROFILE=api docker compose run --rm \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
@@ -49,6 +53,7 @@ TEST_PROFILE=api docker compose run --rm \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-results:/app/target/allure-results" \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-report:/app/target/site/allure-maven-plugin" \
+  -v "${SWAGGER_COVERAGE_DIR}:/app/target/swagger-coverage-output" \
   tests
 
 
