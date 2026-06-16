@@ -1,8 +1,8 @@
-name: Build image and run tests
+name: Build image, run tests, create Allure History, create Swagger Coverage report
 
 on:
   push:
-#  workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   build-and-push:
