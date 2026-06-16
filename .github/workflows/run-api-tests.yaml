@@ -128,19 +128,33 @@ jobs:
           allure_history: allure-history
 
       ##временный дебаг
-      - name: Debug allure-history
+#      - name: Debug allure-history
+#        if: always()
+#        run: |
+#          ls -la
+#          ls -la allure-history || true
+
+
+
+
+
+#      - name: Publish Swagger coverage report
+#        if: always()
+#        run: |
+#          cp swagger-coverage-report.html allure-history/${{ github.run_number }}/swagger-coverage-report.html
+
+      - name: Build Swagger coverage report
         if: always()
         run: |
-          ls -la
-          ls -la allure-history || true
+          mkdir -p allure-history/${{ github.run_number }}
 
+          cp swagger-coverage-report.html \
+            allure-history/${{ github.run_number }}/swagger-coverage-report.html
 
+          cp swagger-coverage-report.html \
+            allure-history/swagger-coverage-report.html
+      
 
-
-
-#      - name: Build Swagger coverage report
-#        if: always()
-#        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
 #
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
