@@ -65,7 +65,8 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
         return StepLogger.log("DELETE запрос на " + endpoint.getUrl(), () -> {
             return given()
                     .spec(requestSpecification)
-                    .delete(API_VERSION +endpoint.getUrl() + id)
+                    .pathParams("id", id)
+                    .delete(API_VERSION +endpoint.getUrl())
                     .then()
                     .assertThat()
                     .spec(responseSpecification);

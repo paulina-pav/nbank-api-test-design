@@ -21,6 +21,13 @@ public class ResponseSpecs {
                 .build();
     }
 
+
+    public static ResponseSpecification notFound() {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_NOT_FOUND)
+                .build();
+    }
+
     public static ResponseSpecification requestReturnsOK() {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_OK)

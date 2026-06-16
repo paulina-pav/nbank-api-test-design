@@ -67,7 +67,7 @@ public enum Endpoint {
             UserChangeNameResponse.class
     ),
     DELETE_USER_BY_ID(
-            "admin/users/",
+            "admin/users/{id}",
             DeleteByUserIdRequest.class,
             DeleteByUserIdResponse.class
     ),

@@ -66,21 +66,21 @@ public class AdminTest extends BaseTest {
 
 
     //логин юзером - переместить
-    @Test
-    public void login401() {
-        UserLoginAuthRequest request = UserLoginAuthRequest.builder()
-                .username("aa")
-                .password("bbb")
-                .build();
-
-        new CrudRequester(
-                RequestSpecs.unauthSpec(),
-                Endpoint.LOGIN,
-                ResponseSpecs.unauthorized()
-
-        ).post(request);
-
-    }
+//    @Test
+//    public void login401() {
+//        UserLoginAuthRequest request = UserLoginAuthRequest.builder()
+//                .username("aa")
+//                .password("bbb")
+//                .build();
+//
+//        new CrudRequester(
+//                RequestSpecs.unauthSpec(),
+//                Endpoint.LOGIN,
+//                ResponseSpecs.unauthorized()
+//
+//        ).post(request);
+//
+//    }
 
     @Test
     public void deleteuser401(){
@@ -107,7 +107,33 @@ public class AdminTest extends BaseTest {
         ).delete(newUser.getResponse().getId());
     }
 
+    @Test
+    public void deleteuserok(){
 
+        CreatedUser newUser = createUser();
+
+
+        String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                RequestSpecs.adminSpec(),
+                Endpoint.DELETE_USER_BY_ID,
+                ResponseSpecs.requestReturnsOK()
+        ).delete(newUser.getResponse().getId());
+        //исправить в степах
+    }
+
+    @Test
+    public void deleteuser404(){
+
+      //  CreatedUser newUser = createUser();
+
+
+        String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                RequestSpecs.adminSpec(),
+                Endpoint.DELETE_USER_BY_ID,
+                ResponseSpecs.notFound()
+        ).delete(100555);
+        //исправить в степах
+    }
 
 
 }

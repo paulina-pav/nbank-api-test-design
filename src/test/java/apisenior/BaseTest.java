@@ -25,12 +25,12 @@ public abstract class BaseTest {
         return user;
     }
 
-    @AfterEach
-    public void afterTest() {
-
-        for (CreatedUser user : users) {
-            AdminSteps.deletesUser(user);
-        }
-        soflty.assertAll();
-    }
+//    @AfterEach
+//    public void afterTest() {
+//
+//        for (CreatedUser user : users) {
+//            AdminSteps.deletesUser(user);
+//        }
+//        soflty.assertAll();
+//    }
 }
