@@ -44,7 +44,7 @@ jobs:
           platforms: linux/amd64
 
   run-tests:
-    name: Run API tests in Docker Compose
+    name: Run API tests in Docker Compose and create reports
     needs: build-and-push
     if: ${{ needs.build-and-push.result == 'success' }}
     runs-on: ubuntu-latest
