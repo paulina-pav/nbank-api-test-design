@@ -2,6 +2,7 @@ package apisenior.onlyapi.changename;
 
 
 import api.comparison.ModelAssertions;
+import api.generators.RandomModelGenerator;
 import api.models.CreatedUser;
 import api.models.GetCustomerProfileResponse;
 import api.models.UserChangeNameRequest;
@@ -14,6 +15,7 @@ import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -50,7 +52,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("invalidNames")
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
-    public void userChangeName(String invalidName, String expectedErrorMessage) {
+    public void userCantChangeName(String invalidName, String expectedErrorMessage) {
 
         CreatedUser newUser = createUser();
 
@@ -69,6 +71,49 @@ public class UserChangeNameNegativeTest extends BaseTest {
 
         GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
+    }
+
+
+    //добить ПРОВЕРКУ!!!
+    @DisplayName("админ не может сменить имя другому юзеру")
+    @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+    public void userCantChangeNameOtherUser() {
+
+        CreatedUser newUser = createUser();
+        CreatedUser newUser2 = createUser();
+
+        UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.adminSpec(),
+                Endpoint.UPDATE_CUSTOMER_NAME,
+                ResponseSpecs.requestReturnsForbidden()
+        ).put(changedName).extract().asString();
+
+       // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
+
+        GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
+        ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
+    }
+
+    @DisplayName("discovery 401")
+    @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+    public void test401() {
+        
+        UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.authWithRawHeader("aaaaaFFFFFF"),
+                Endpoint.UPDATE_CUSTOMER_NAME,
+                ResponseSpecs.unauthorized()
+        ).put(changedName).extract().asString();
+
+        // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
+
+       // GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
+       // ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
     }
 }
 

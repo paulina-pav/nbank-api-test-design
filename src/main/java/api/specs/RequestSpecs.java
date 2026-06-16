@@ -97,4 +97,11 @@ public class RequestSpecs {
         return userAuthHeader;
     }
 
+
+    public static RequestSpecification authWithRawHeader(String authHeader) {
+        return defaultRequestBuilder()
+                .addHeader("Authorization", authHeader)
+                .build();
+    }
+
 }

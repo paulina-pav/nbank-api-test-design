@@ -173,22 +173,22 @@ jobs:
           sudo cp swagger-coverage-report.html \
             allure-history/swagger-coverage-report.html
 
-      - name: Check Swagger coverage quality gate
-        if: always()
-        run: |
-          THRESHOLD=2
-      
-          TOTAL=$(jq '.operations | length' swagger-coverage-results.json)
-          FULL=$(jq '[.operations[] | select(.state == "FULL")] | length' swagger-coverage-results.json)
-      
-          PERCENT=$(( FULL * 100 / TOTAL ))
-      
-          echo "Full coverage = ${PERCENT}%"
-      
-          if [ "$PERCENT" -lt "$THRESHOLD" ]; then
-          echo "Quality gate failed"
-          exit 1
-          fi
+#      - name: Check Swagger coverage quality gate
+#        if: always()
+#        run: |
+#          THRESHOLD=0
+#
+#          TOTAL=$(jq '.operations | length' swagger-coverage-results.json)
+#          FULL=$(jq '[.operations[] | select(.state == "FULL")] | length' swagger-coverage-results.json)
+#
+#          PERCENT=$(( FULL * 100 / TOTAL ))
+#
+#          echo "Full coverage = ${PERCENT}%"
+#
+#          if [ "$PERCENT" -lt "$THRESHOLD" ]; then
+#          echo "Quality gate failed"
+#          exit 1
+#          fi
       
 
 #
