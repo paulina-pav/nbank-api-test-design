@@ -143,15 +143,34 @@ jobs:
 #        run: |
 #          cp swagger-coverage-report.html allure-history/${{ github.run_number }}/swagger-coverage-report.html
 
+#      - name: Build Swagger coverage report
+#        if: always()
+#        run: |
+#          mkdir -p allure-history/${{ github.run_number }}
+#
+#          cp swagger-coverage-report.html \
+#            allure-history/${{ github.run_number }}/swagger-coverage-report.html
+#
+#          cp swagger-coverage-report.html \
+#            allure-history/swagger-coverage-report.html
+
+      - name: Debug allure-history
+        if: always()
+        run: |
+          pwd
+          ls -la
+          ls -la allure-history || true
+
+
       - name: Build Swagger coverage report
         if: always()
         run: |
-          mkdir -p allure-history/${{ github.run_number }}
+          sudo mkdir -p allure-history/${{ github.run_number }}
 
-          cp swagger-coverage-report.html \
+          sudo cp swagger-coverage-report.html \
             allure-history/${{ github.run_number }}/swagger-coverage-report.html
 
-          cp swagger-coverage-report.html \
+          sudo cp swagger-coverage-report.html \
             allure-history/swagger-coverage-report.html
       
 
