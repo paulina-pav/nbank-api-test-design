@@ -182,6 +182,27 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
+
+
+
+      - name: Print report links
+        if: always()
+        run: |
+          echo "==============================="
+          echo "ALLURE REPORT:"
+          echo "https://paulina-pav.github.io/nbank-api-test-design/"
+          echo ""
+          echo "SWAGGER COVERAGE:"
+          echo "https://paulina-pav.github.io/nbank-api-test-design/${{ github.run_number }}/swagger-coverage-report.html"
+          echo "==============================="
+
+      - name: Publish links to Summary
+        if: always()
+        run: |
+          echo "## Test Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Allure: https://paulina-pav.github.io/nbank-api-test-design/" >> $GITHUB_STEP_SUMMARY
+          echo "- Swagger Coverage: https://paulina-pav.github.io/nbank-api-test-design/${{ github.run_number }}/swagger-coverage-report.html" >> $GITHUB_STEP_SUMMARY
 #
       - name: Clean up services
         if: always()
