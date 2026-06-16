@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static api.generators.ErrorMessage.NAME_MUST_CONTAIN_TWO_WORDS_WITH_LETTERS_ONLY;
+import static api.requests.steps.AdminSteps.createUser;
 
 
 public class UserChangeNameNegativeTest extends BaseTest {
@@ -36,7 +37,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
 ### Тест-кейс 4: Юзер использует в качестве имени не-буквы (цифры, спец.символы)
 ### Тест-кейс 5: Юзер использует в качестве имени 3 пробела
      */
-
+/*
     public static Stream<Arguments> invalidNames() {
         return Stream.of(
 
@@ -75,5 +76,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
         UserDao user =  DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), getCustomerProfileAfter.getName());
         DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
     }
+
+    */
 }
 

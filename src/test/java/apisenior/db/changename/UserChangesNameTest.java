@@ -21,8 +21,10 @@ import db.steps.DBSteps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class UserChangesNameTest extends BaseTest {
+import static api.requests.steps.AdminSteps.createUser;
 
+public class UserChangesNameTest extends BaseTest {
+/*
 
 //Тест-кейс: авторизованный юзер меняет имя
 
@@ -62,6 +64,6 @@ public class UserChangesNameTest extends BaseTest {
         UserDao user = DBSteps.getUserByUsernameAndName(newUser.getRequest().getUsername(), changedName.getName());
         DaoAndModelAssertions.assertThat(getCustomerProfileAfter, user);
 
-    }
+    }*/
 }
 

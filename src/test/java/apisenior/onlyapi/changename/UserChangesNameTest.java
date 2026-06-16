@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import apisenior.BaseTest;
 
+import static api.requests.steps.AdminSteps.createUser;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class UserChangesNameTest extends BaseTest {

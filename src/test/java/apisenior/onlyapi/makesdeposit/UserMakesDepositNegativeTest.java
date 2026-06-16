@@ -14,6 +14,7 @@ import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,9 +33,9 @@ import java.util.stream.Stream;
 public class UserMakesDepositNegativeTest extends BaseTest {
     public static Stream<Arguments> invalidSum() {
         return Stream.of(
-                Arguments.of(-1.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()), //400 //"Invalid account or amount"DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
-                Arguments.of(0.0, ErrorMessage.INVALID_ACCOUNT_OR_AMOUNT.getMessage()),//400 //ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
-                Arguments.of(5001.0, ErrorMessage.DEPOSIT_AMOUNT_EXCEEDS_THE_5000_LIMIT.getMessage()) //400ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()
+                Arguments.of(-1.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()), //400 //"Invalid account or amount"DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
+                Arguments.of(0.0, ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()),//400 //ErrorMessage.DEPOSIT_MUST_BE_AT_LEAST_001.getMessage()
+                Arguments.of(5001.0, ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()) //400ErrorMessage.DEPOSIT_AMOUNT_CANNOT_EXCEED_5000.getMessage()
         );
     }
 
@@ -127,4 +128,34 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         );
         soflty.assertThat(isDepositInUser2).isFalse();
     }
+
+//    @DisplayName("Юзер не может сделать депозит не авторизовавшись")
+//    @Test
+//    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+//    public void test666688988(){
+//
+//        CreatedUser user1 = createUser();
+//
+//
+//        Long user1Acc = UserSteps.createsAccount(user1.getRequest()).getId();
+//
+//
+//        Double user1AccBalanceBefore = UserSteps.getBalance(user1.getRequest(), user1Acc);
+//
+//
+//        MakeDepositRequest deposit = MakeDepositRequest.builder()
+//                .id(user1Acc) //берем счет юзера 2
+//                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+//                .build();
+//
+//        String actualErrorMessage = new CrudRequester(
+//                RequestSpecs.authAsUser("аа", "ббб"),
+//                Endpoint.DEPOSIT,
+//                ResponseSpecs.unauthorized()
+//        ).post(deposit).extract().asString();
+//
+//    }
+
+
+
 }

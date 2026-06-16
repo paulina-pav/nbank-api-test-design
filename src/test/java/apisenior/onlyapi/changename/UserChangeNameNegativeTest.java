@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static api.generators.ErrorMessage.NAME_MUST_CONTAIN_TWO_WORDS_WITH_LETTERS_ONLY;
+import static api.requests.steps.AdminSteps.createUser;
 
 
 public class UserChangeNameNegativeTest extends BaseTest {

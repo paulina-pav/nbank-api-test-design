@@ -1,7 +1,7 @@
 package apisenior;
 
-import api.requests.steps.AdminSteps;
 import api.models.CreatedUser;
+import api.requests.steps.AdminSteps;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,12 +25,12 @@ public abstract class BaseTest {
         return user;
     }
 
-   /*@AfterEach
+    @AfterEach
     public void afterTest() {
 
         for (CreatedUser user : users) {
-            AdminSteps.deletesUser(user.getRequest());
+            AdminSteps.deletesUser(user);
         }
         soflty.assertAll();
-    }*/
+    }
 }
