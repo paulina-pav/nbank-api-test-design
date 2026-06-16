@@ -1,4 +1,4 @@
-package apisenior.onlyapi.transfermoney;
+package apisenior.onlyapi.user.transfermoney;
 
 
 import api.comparison.ModelAssertions;

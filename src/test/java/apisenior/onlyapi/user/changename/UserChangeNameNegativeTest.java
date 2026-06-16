@@ -1,4 +1,4 @@
-package apisenior.onlyapi.changename;
+package apisenior.onlyapi.user.changename;
 
 
 import api.comparison.ModelAssertions;

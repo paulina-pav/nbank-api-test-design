@@ -1,9 +1,12 @@
 package apisenior.onlyapi.admin;
 
 import api.models.CreatedUser;
+import api.models.DeleteByUserIdResponse;
 import api.models.NewUserRequest;
+import api.models.UserLoginAuthRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
+import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
@@ -12,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class AdminTest extends BaseTest {
 
     @Test
-    public void adminCantCreateUser400(){
+    public void adminCantCreateUser400() {
 
         NewUserRequest user = NewUserRequest.builder()
                 .role("USER")
@@ -28,7 +31,7 @@ public class AdminTest extends BaseTest {
     }
 
     @Test
-    public void adminCantCreateUser403(){
+    public void adminCantCreateUser403() {
         CreatedUser newUser = createUser();
 
 
@@ -46,7 +49,7 @@ public class AdminTest extends BaseTest {
     }
 
     @Test
-    public void adminCantCreateUser401(){
+    public void adminCantCreateUser401() {
 
         NewUserRequest user = NewUserRequest.builder()
                 .role("USER")
@@ -60,4 +63,51 @@ public class AdminTest extends BaseTest {
                 ResponseSpecs.unauthorized()
         ).post(user).extract().asString();
     }
+
+
+    //логин юзером - переместить
+    @Test
+    public void login401() {
+        UserLoginAuthRequest request = UserLoginAuthRequest.builder()
+                .username("aa")
+                .password("bbb")
+                .build();
+
+        new CrudRequester(
+                RequestSpecs.unauthSpec(),
+                Endpoint.LOGIN,
+                ResponseSpecs.unauthorized()
+
+        ).post(request);
+
+    }
+
+    @Test
+    public void deleteuser401(){
+
+        CreatedUser newUser = createUser();
+
+
+        String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                RequestSpecs.authWithRawHeader("aaaa"),
+                Endpoint.DELETE_USER_BY_ID,
+                ResponseSpecs.unauthorized()
+        ).delete(newUser.getResponse().getId());
+    }
+    @Test
+    public void deleteuser403(){
+
+        CreatedUser newUser = createUser();
+
+
+        String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                RequestSpecs.authAsUser(newUser.getRequest().getUsername(), newUser.getRequest().getPassword()),
+                Endpoint.DELETE_USER_BY_ID,
+                ResponseSpecs.requestReturnsForbidden()
+        ).delete(newUser.getResponse().getId());
+    }
+
+
+
+
 }

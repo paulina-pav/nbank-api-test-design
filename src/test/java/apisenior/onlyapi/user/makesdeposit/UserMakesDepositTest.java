@@ -1,4 +1,4 @@
-package apisenior.onlyapi.makesdeposit;
+package apisenior.onlyapi.user.makesdeposit;
 
 
 import api.comparison.ModelAssertions;
