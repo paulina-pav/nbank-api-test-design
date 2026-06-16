@@ -14,6 +14,7 @@ REPORT_DIR="$BASE_OUTPUT_DIR/report"
 ALLURE_RESULTS_DIR="$BASE_OUTPUT_DIR/allure-results"
 ALLURE_REPORT_DIR="$BASE_OUTPUT_DIR/allure-report"
 
+
 cleanup() {
   echo ">>> Stopping Docker Compose environment"
   docker compose down

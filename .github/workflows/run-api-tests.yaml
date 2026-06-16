@@ -86,33 +86,11 @@ jobs:
           path: infra/test-output/**/allure-report
 
 
-      - name: Debug Swagger coverage output
-        if: always()
-        run: |
-          pwd
-          ls -la target || true
-          ls -la target/swagger-coverage-output || true
-          find target/swagger-coverage-output -type f || true
-
-
 
 ##добавили ращрешение на исполнение команды
       - name: Run Swagger coverage
         if: always()
         run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline && .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
-
-      - name: Debug generated swagger coverage files
-        if: always()
-        run: |
-          echo "=== Coverage files ==="
-          find target/swagger-coverage-output -type f || true
-          
-          echo "=== First coverage file ==="
-          FIRST_FILE=$(find target/swagger-coverage-output -type f | head -1)
-          
-          echo "FILE=$FIRST_FILE"
-          
-          cat "$FIRST_FILE" || true
 
       - name: Upload swagger coverage json
         if: always()
@@ -120,6 +98,16 @@ jobs:
         with:
           name: swagger-coverage-json
           path: |
+            swagger-coverage-results.json
+            target/swagger-coverage-output/**
+
+      - name: Upload swagger coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-report
+          path: |
+            swagger-coverage-report.html
             swagger-coverage-results.json
             target/swagger-coverage-output/**
           

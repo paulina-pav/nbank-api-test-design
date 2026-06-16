@@ -6,6 +6,7 @@ mkdir -p /app/logs
   echo ">>> Running tests with profile: ${TEST_PROFILE}"
   echo ">>> APIBASEURL: ${APIBASEURL}"
   echo ">>> UIBASEURL: ${UIBASEURL}"
+  echo ">>> APIVERSION: ${APIVERSION}"
   echo ">>> Current dir before tests:"
   pwd
 
