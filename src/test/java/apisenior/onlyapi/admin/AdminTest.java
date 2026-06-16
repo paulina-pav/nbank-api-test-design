@@ -135,5 +135,39 @@ public class AdminTest extends BaseTest {
         //исправить в степах
     }
 
+    @Test
+    public void adminGetsUsers(){
+
+        new CrudRequester(
+                RequestSpecs.adminSpec(),
+                Endpoint.GET_ALL_USER,
+                ResponseSpecs.requestReturnsOK()
+        ).get();
+    }
+
+
+    @Test
+    public void adminGetsUsers403(){
+        CreatedUser newUser = createUser();
+
+        new CrudRequester(
+                RequestSpecs.authAsUser(newUser.getRequest().getUsername(), newUser.getRequest().getPassword()),
+                Endpoint.GET_ALL_USER,
+                ResponseSpecs.requestReturnsForbidden()
+        ).get();
+    }
+
+
+    @Test
+    public void adminGetsUsers401(){
+        CreatedUser newUser = createUser();
+
+        new CrudRequester(
+                RequestSpecs.authWithRawHeader("aaaa"),
+                Endpoint.GET_ALL_USER,
+                ResponseSpecs.unauthorized()
+        ).get();
+    }
+
 
 }

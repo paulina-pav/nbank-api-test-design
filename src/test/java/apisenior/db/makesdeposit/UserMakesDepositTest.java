@@ -29,10 +29,10 @@ public class UserMakesDepositTest extends BaseTest {
 
     //Тест-кейс : Авторизованный юзер делает депозит на свой счет
 
-    @DisplayName("Юзер делает депозит")
-    @Test
-    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
-    public void authUserMakesDeposit() {
+//    @DisplayName("Юзер делает депозит")
+//    @Test
+//    @EnabledForBackend(BackendProfile.WITH_DATABASE_WITH_FIX)
+//    public void authUserMakesDeposit() {
 //
 //        CreatedUser newUser = createUser();
 //
@@ -73,6 +73,6 @@ public class UserMakesDepositTest extends BaseTest {
 //        DaoAndModelAssertions.assertThat(makeDepositResponse, transactionDao);
 //
 //        AccountDao accountDao = DBSteps.getAccountByUserIdAndBalance(newUser.getResponse().getId(), MaxSumsForDepositAndTransactions.DEPOSIT.getMax());
-//        DaoAndModelAssertions.assertThat(makeDepositResponse, accountDao);
-    }
+////        DaoAndModelAssertions.assertThat(makeDepositResponse, accountDao);
+//    }
 }
