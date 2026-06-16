@@ -112,7 +112,7 @@ jobs:
             target/swagger-coverage-output/**
 
       - name: Load test report history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         if: always()
         with:
           ref: gh-pages
