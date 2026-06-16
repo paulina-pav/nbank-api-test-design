@@ -101,7 +101,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void test401() {
-        
+
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
 
         String actualErrorMessage = new CrudRequester(

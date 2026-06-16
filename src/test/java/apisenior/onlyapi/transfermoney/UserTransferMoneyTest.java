@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static api.requests.steps.AdminSteps.createUser;
+
 
 public class UserTransferMoneyTest extends BaseTest {
 

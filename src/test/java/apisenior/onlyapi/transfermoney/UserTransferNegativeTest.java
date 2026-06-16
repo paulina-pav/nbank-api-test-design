@@ -15,11 +15,14 @@ import apisenior.BaseTest;
 import common.annotation.EnabledForBackend;
 import common.backendprofiles.BackendProfile;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
+
+import static api.requests.steps.AdminSteps.createUser;
 
 public class UserTransferNegativeTest extends BaseTest {
  /*
@@ -151,5 +154,82 @@ public class UserTransferNegativeTest extends BaseTest {
         soflty.assertThat(isTransactionTransferIn).isFalse();
 
     }
+
+    @DisplayName("discovery 403 transfer")
+    @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+    public void user403() {
+
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
+
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
+
+        UserSteps.makesDepositX3(debetId, userDeb.getRequest());
+
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(creditId)
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .receiverAccountId(debetId)
+                .build();
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.authAsUser(userDeb.getRequest().getUsername(), userDeb.getRequest().getPassword()),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsForbidden()
+        ).post(transferMoney).extract().asString();
+
+       // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
+
+
+//        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
+//        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
+//
+//        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
+//        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
+//
+//        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+//                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
+//        soflty.assertThat(isTransactionTransferOut).isFalse();
+//
+//
+//        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+//                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
+//        soflty.assertThat(isTransactionTransferIn).isFalse();
+
+    } //через админа тоже сделать 403 еще один кейс
+
+    @DisplayName("discovery 401 transfer")
+    @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+    public void test401Transfer(){
+        CreatedUser userDeb = createUser();
+        CreatedUser userCred = createUser();
+
+        Long debetId = UserSteps.createsAccount(userDeb.getRequest()).getId();
+        Long creditId = UserSteps.createsAccount(userCred.getRequest()).getId();
+
+        UserSteps.makesDepositX3(debetId, userDeb.getRequest());
+
+        Double balanceDebetBeforeTransfer = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double balanceCreditBeforeTransfer = UserSteps.getBalance(userCred.getRequest(), creditId);
+
+        TransferMoneyRequest transferMoney = TransferMoneyRequest.builder()
+                .senderAccountId(creditId)
+                .amount(MaxSumsForDepositAndTransactions.TRANSACTION.getMax())
+                .receiverAccountId(debetId)
+                .build();
+
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.authWithRawHeader("lol"),
+                Endpoint.TRANSFER,
+                ResponseSpecs.unauthorized()
+        ).post(transferMoney).extract().asString();
+    }
+
 }
 

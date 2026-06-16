@@ -2,11 +2,15 @@ package apisenior.onlyapi.makesdeposit;
 
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
+import api.generators.RandomModelGenerator;
 import api.generators.TransactionType;
 import api.models.CreatedUser;
 import api.models.MakeDepositRequest;
+import api.models.MakeDepositResponse;
+import api.models.UserChangeNameRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
+import api.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.requests.steps.UserSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
@@ -156,6 +160,35 @@ public class UserMakesDepositNegativeTest extends BaseTest {
 //
 //    }
 
+
+    @DisplayName("discovery 401 deposit")
+    @Test
+    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
+    public void test401() {
+
+        CreatedUser newUser = createUser();
+
+        Long accountId = UserSteps.createsAccount(newUser.getRequest()).getId();
+        Double balanceBefore = UserSteps.getBalance(newUser.getRequest(), accountId);
+
+        //Юзер делает депозит. Пополним этот счет на максимальное значение для депозита
+        MakeDepositRequest deposit = MakeDepositRequest.builder()
+                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
+                .id(accountId)
+                .build();
+
+        new CrudRequester(
+                RequestSpecs.authWithRawHeader("fffff"),
+                Endpoint.DEPOSIT,
+                ResponseSpecs.unauthorized()
+        ).post(deposit);
+
+
+        // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
+
+        // GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
+        // ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
+    }
 
 
 }
