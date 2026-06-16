@@ -8,12 +8,6 @@ HOST_PWD=$(pwd)
 
 BASE_OUTPUT_DIR="./test-output/$TIMESTAMP"
 
-LOGS_DIR="$BASE_OUTPUT_DIR/logs"
-RESULTS_DIR="$BASE_OUTPUT_DIR/results"
-REPORT_DIR="$BASE_OUTPUT_DIR/report"
-ALLURE_RESULTS_DIR="$BASE_OUTPUT_DIR/allure-results"
-ALLURE_REPORT_DIR="$BASE_OUTPUT_DIR/allure-report"
-
 
 cleanup() {
   echo ">>> Stopping Docker Compose environment"
@@ -44,24 +38,29 @@ sleep 20
 #  tests
 
 
-SWAGGER_COVERAGE_DIR="${GITHUB_WORKSPACE}/target/swagger-coverage-output"
+TARGET_DIR="${GITHUB_WORKSPACE}/target"
 
-mkdir -p "$LOGS_DIR" "$RESULTS_DIR" "$REPORT_DIR" "$ALLURE_RESULTS_DIR" "$ALLURE_REPORT_DIR" "$SWAGGER_COVERAGE_DIR"
-
+mkdir -p \
+  "$TARGET_DIR/surefire-reports" \
+  "$TARGET_DIR/surefire-report" \
+  "$TARGET_DIR/allure-results" \
+  "$TARGET_DIR/allure-report" \
+  "$TARGET_DIR/swagger-coverage-output" \
+  "$LOGS_DIR"
 
 echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-echo "SWAGGER_COVERAGE_DIR: $SWAGGER_COVERAGE_DIR"
+
 
 
 
 echo ">>> Running API tests"
 TEST_PROFILE=api docker compose run --rm \
   -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-results:/app/target/allure-results" \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/allure-report:/app/target/site/allure-maven-plugin" \
-  -v "${SWAGGER_COVERAGE_DIR}:/app/target/swagger-coverage-output" \
+  -v "${TARGET_DIR}/surefire-reports:/app/target/surefire-reports" \
+  -v "${TARGET_DIR}/surefire-report:/app/target/site" \
+  -v "${TARGET_DIR}/allure-results:/app/target/allure-results" \
+  -v "${TARGET_DIR}/allure-report:/app/target/site/allure-maven-plugin" \
+  -v "${TARGET_DIR}/swagger-coverage-output:/app/target/swagger-coverage-output" \
   tests
 
 
