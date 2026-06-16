@@ -127,26 +127,12 @@ jobs:
           allure_results: target/allure-results
           allure_history: allure-history
 
-
-
-
-
-#если simple-elf/allure-report-action@v1.14 не заведется, то....
-#      - name: Restore Allure history
-#        if: always()
-#        run: |
-#          mkdir -p target/allure-results/history
-#          cp -r gh-pages/history/* target/allure-results/history/ || true
-#
-#      - name: Build Allure report with history
-#        if: always()
-#        run: mvn -B allure:report -DskipTests=true
-#
-#      - name: Prepare Allure pages
-#        if: always()
-#        run: |
-#          mkdir -p allure-history
-#          cp -r target/site/allure-maven-plugin/* allure-history/
+      ##временный дебаг
+      - name: Debug allure-history
+        if: always()
+        run: |
+          ls -la
+          ls -la allure-history || true
 
 
 
@@ -156,13 +142,13 @@ jobs:
 #        if: always()
 #        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
 #
-#      - name: Publish test report
-#        uses: peaceiris/actions-gh-pages@v3
-#        if: always()
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          publish_branch: gh-pages
-#          publish_dir: allure-history
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
 #
       - name: Clean up services
         if: always()
