@@ -29,40 +29,40 @@ import lombok.Getter;
 public enum Endpoint {
 
    ADMIN_USER(
-            "/admin/users",
+            "admin/users",
             NewUserRequest.class,
             NewUserResponse.class
     ),
 
     GET_ALL_USER(
-            "/admin/users",
+            "admin/users",
             GetAllUsersRequest.class,
             GetAllUsersResponse.class
     ),
 
     LOGIN(
-            "/auth/login",
+            "auth/login",
             UserLoginAuthRequest.class,
             UserLoginAuthResponse.class
     ),
 
     ACCOUNTS(
-            "/accounts",
+            "accounts",
             BaseModel.class,
             CreateAnAccountResponse.class
     ),
  CUSTOMER_PROFILE(
-         "/customer/profile",
+         "customer/profile",
          BaseModel.class,
          GetCustomerProfileResponse.class
  ),
     CUSTOMER_ACCOUNTS(
-            "/customer/accounts",
+            "customer/accounts",
             BaseModel.class,
             GetCustomerAccountResponse.class
     ),
     UPDATE_CUSTOMER_NAME(
-            "/customer/profile",
+            "customer/profile",
             UserChangeNameRequest.class,
             UserChangeNameResponse.class
     ),
@@ -72,12 +72,12 @@ public enum Endpoint {
             DeleteByUserIdResponse.class
     ),
     DEPOSIT(
-            "/accounts/deposit",
+            "accounts/deposit",
             MakeDepositRequest.class,
             MakeDepositResponse.class
     ),
     GET_ACCOUNT_TRANSACTION(
-            "/accounts/{id}/transactions",
+            "accounts/{id}/transactions",
             GetAccountTransactionsRequest.class,
             GetAccountTransactionsResponse.class
     ),
