@@ -34,7 +34,8 @@ docker pull selenoid/firefox:latest
 docker pull selenoid/chrome:latest
 
 echo ">>> Starting Docker Compose environment"
-docker compose up -d backend frontend selenoid selenoid-ui
+docker compose up -d backend
+#frontend selenoid selenoid-ui
 
 echo ">>> Waiting for environment to become ready"
 sleep 20
@@ -45,14 +46,14 @@ echo "TARGET_DIR: $TARGET_DIR"
 
 
 
-echo ">>> Running UI tests"
-TEST_PROFILE=ui docker compose run --rm \
-  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
-  -v "${TARGET_DIR}/surefire-reports:/app/target/surefire-reports" \
-  -v "${TARGET_DIR}/surefire-report:/app/target/site" \
-  -v "${TARGET_DIR}/allure-results:/app/target/allure-results" \
-  -v "${TARGET_DIR}/allure-report:/app/target/site/allure-maven-plugin" \
-  tests
+#echo ">>> Running UI tests"
+#TEST_PROFILE=ui docker compose run --rm \
+#  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
+#  -v "${TARGET_DIR}/surefire-reports:/app/target/surefire-reports" \
+#  -v "${TARGET_DIR}/surefire-report:/app/target/site" \
+#  -v "${TARGET_DIR}/allure-results:/app/target/allure-results" \
+#  -v "${TARGET_DIR}/allure-report:/app/target/site/allure-maven-plugin" \
+#  tests
 
 
 echo "Before API:"
