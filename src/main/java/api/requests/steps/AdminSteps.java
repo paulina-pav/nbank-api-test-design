@@ -120,7 +120,7 @@ public class AdminSteps {
             String successMessage = new ValidatedCrudRequester<DeleteByUserIdSuccessfulResponse>(
                     RequestSpecs.adminSpec(),
                     Endpoint.DELETE_USER_BY_ID,
-                    ResponseSpecs.requestReturnsOK()
+                    ResponseSpecs.requestReturnsOKOrNotFound()
             ).delete(id);
             System.out.println("successMessage");
         }

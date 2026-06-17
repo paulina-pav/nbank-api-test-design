@@ -4,6 +4,11 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.specification.ResponseSpecification;
+
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 
 
 public class ResponseSpecs {
@@ -47,6 +52,12 @@ public class ResponseSpecs {
     public static ResponseSpecification unauthorized() {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_UNAUTHORIZED)
+                .build();
+    }
+
+    public static ResponseSpecification requestReturnsOKOrNotFound() {
+        return new ResponseSpecBuilder()
+                .expectStatusCode(anyOf(is(200), is(404)))
                 .build();
     }
 
