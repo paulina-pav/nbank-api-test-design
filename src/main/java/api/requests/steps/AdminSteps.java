@@ -7,7 +7,7 @@ import api.models.NewUserRequest;
 import api.models.User;
 import api.models.CreatedUser;
 import api.models.NewUserResponse;
-import api.models.DeleteByUserIdResponse;
+import api.models.DeleteByUserIdSuccessfulResponse;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
@@ -56,7 +56,7 @@ public class AdminSteps {
 
             return StepLogger.log("Admin deletes user " + user.getRequest().getUsername(), () -> {
 
-                String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                String successMessage = new ValidatedCrudRequester<DeleteByUserIdSuccessfulResponse>(
                         RequestSpecs.adminSpec(),
                         Endpoint.DELETE_USER_BY_ID,
                         ResponseSpecs.requestReturnsOK()
@@ -99,7 +99,7 @@ public class AdminSteps {
 
             StepLogger.log("Admin deletes users by IDs ", () -> {
 
-                String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+                String successMessage = new ValidatedCrudRequester<DeleteByUserIdSuccessfulResponse>(
                         RequestSpecs.adminSpec(),
                         Endpoint.DELETE_USER_BY_ID,
                         ResponseSpecs.requestReturnsOK()
@@ -117,12 +117,43 @@ public class AdminSteps {
         }
 
         for (Integer id: ids) {
-            String successMessage = new ValidatedCrudRequester<DeleteByUserIdResponse>(
+            String successMessage = new ValidatedCrudRequester<DeleteByUserIdSuccessfulResponse>(
                     RequestSpecs.adminSpec(),
                     Endpoint.DELETE_USER_BY_ID,
                     ResponseSpecs.requestReturnsOK()
             ).delete(id);
             System.out.println("successMessage");
         }
+    }
+
+    public static boolean checkIfUserAlreadyDeleted(CreatedUser user){
+        List<User> users = getAllUsers();
+
+       boolean result =  users.stream()
+                .anyMatch(x->x.getId().equals(user.getResponse().getId()));
+       return result;
+    }
+
+    public static CreatedUser createAndDeleteUser(){
+        CreatedUser user = createUser();
+        deletesUser(user);
+
+        return user;
+    }
+
+    public static boolean checkIfUserExistedByUsername(NewUserRequest user){
+        List<User> users = getAllUsers();
+
+       return users.stream()
+                .anyMatch(x -> x.getUsername().equals(user.getUsername()));
+
+    }
+
+    public static boolean checkIfUserExistedByName(String name){
+        List<User> users = getAllUsers();
+
+        return users.stream()
+                .anyMatch(x -> x.getName().equals(name));
+
     }
 }

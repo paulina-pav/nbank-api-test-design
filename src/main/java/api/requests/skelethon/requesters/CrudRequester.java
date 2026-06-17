@@ -15,6 +15,11 @@ import static io.restassured.RestAssured.given;
 public class CrudRequester extends HttpRequest implements CrudEndpointInterface {
     private final static String API_VERSION = Config.getProperty("apiVersion");
 
+    private static String apiVersionForTest = API_VERSION;
+
+    public static String getApiVersionForTest() {
+        return apiVersionForTest;
+    }
 
     public CrudRequester(RequestSpecification requestSpecification, Endpoint endpoint,
                          ResponseSpecification responseSpecification) {
@@ -72,6 +77,25 @@ public class CrudRequester extends HttpRequest implements CrudEndpointInterface 
                     .spec(responseSpecification);
         });
     }
+
+
+    @Override
+    public ValidatableResponse deleteAndGetResponseModel(long id) {
+        return StepLogger.log("DELETE запрос на " + endpoint.getUrl(), () -> {
+            return given()
+                    .spec(requestSpecification)
+                    .pathParams("id", id)
+                    .delete(API_VERSION +endpoint.getUrl())
+                    .then()
+                    .assertThat()
+                    .spec(responseSpecification);
+        });
+    }
+
+
+
+
+
 
     @Override
     public ValidatableResponse get(long id) {

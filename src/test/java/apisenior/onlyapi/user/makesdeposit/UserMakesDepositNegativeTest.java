@@ -1,9 +1,6 @@
 package apisenior.onlyapi.user.makesdeposit;
 
-import api.generators.ErrorMessage;
-import api.generators.MaxSumsForDepositAndTransactions;
-import api.generators.RandomModelGenerator;
-import api.generators.TransactionType;
+import api.generators.*;
 import api.models.CreatedUser;
 import api.models.MakeDepositRequest;
 import api.models.MakeDepositResponse;
@@ -133,35 +130,8 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         soflty.assertThat(isDepositInUser2).isFalse();
     }
 
-//    @DisplayName("Юзер не может сделать депозит не авторизовавшись")
-//    @Test
-//    @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
-//    public void test666688988(){
-//
-//        CreatedUser user1 = createUser();
-//
-//
-//        Long user1Acc = UserSteps.createsAccount(user1.getRequest()).getId();
-//
-//
-//        Double user1AccBalanceBefore = UserSteps.getBalance(user1.getRequest(), user1Acc);
-//
-//
-//        MakeDepositRequest deposit = MakeDepositRequest.builder()
-//                .id(user1Acc) //берем счет юзера 2
-//                .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
-//                .build();
-//
-//        String actualErrorMessage = new CrudRequester(
-//                RequestSpecs.authAsUser("аа", "ббб"),
-//                Endpoint.DEPOSIT,
-//                ResponseSpecs.unauthorized()
-//        ).post(deposit).extract().asString();
-//
-//    }
 
-
-    @DisplayName("discovery 401 deposit")
+    @DisplayName("Юзер не может сделать депозит не авторизовавшись")
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
     public void test401() {
@@ -171,23 +141,21 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         Long accountId = UserSteps.createsAccount(newUser.getRequest()).getId();
         Double balanceBefore = UserSteps.getBalance(newUser.getRequest(), accountId);
 
-        //Юзер делает депозит. Пополним этот счет на максимальное значение для депозита
         MakeDepositRequest deposit = MakeDepositRequest.builder()
                 .balance(MaxSumsForDepositAndTransactions.DEPOSIT.getMax())
                 .id(accountId)
                 .build();
 
-        new CrudRequester(
-                RequestSpecs.authWithRawHeader("fffff"),
+        String actualErrorMessage = new CrudRequester(
+                RequestSpecs.authWithRawHeader(RandomHeaderGenerator.generateHeader()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.unauthorized()
-        ).post(deposit);
+        ).post(deposit).extract().asString();
+        soflty.assertThat(actualErrorMessage).isEmpty();
 
-
-        // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
-
-        // GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
-        // ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
+        //убедиться, что депозит не совершен и баланс такой же
+        Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);
+        soflty.assertThat(balanceBefore).isEqualTo(balanceAfter);
     }
 
 

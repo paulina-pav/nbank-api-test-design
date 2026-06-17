@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DeleteByUserIdResponse extends BaseModel {
+public class DeleteByUserIdSuccessfulResponse extends BaseModel {
     private String successMessage;
 
 

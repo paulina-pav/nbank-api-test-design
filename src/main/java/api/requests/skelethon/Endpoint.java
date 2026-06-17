@@ -1,25 +1,6 @@
 package api.requests.skelethon;
 
-import api.models.NewUserRequest;
-import api.models.NewUserResponse;
-import api.models.GetAllUsersRequest;
-import api.models.GetAllUsersResponse;
-import api.models.UserLoginAuthRequest;
-import api.models.UserLoginAuthResponse;
-import api.models.BaseModel;
-import api.models.CreateAnAccountResponse;
-import api.models.GetCustomerProfileResponse;
-import api.models.GetCustomerAccountResponse;
-import api.models.UserChangeNameRequest;
-import api.models.UserChangeNameResponse;
-import api.models.DeleteByUserIdRequest;
-import api.models.DeleteByUserIdResponse;
-import api.models.MakeDepositRequest;
-import api.models.MakeDepositResponse;
-import api.models.GetAccountTransactionsRequest;
-import api.models.GetAccountTransactionsResponse;
-import api.models.TransferMoneyResponse;
-import api.models.TransferMoneyRequest;
+import api.models.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -33,11 +14,27 @@ public enum Endpoint {
             NewUserRequest.class,
             NewUserResponse.class
     ),
+    ADMIN_USER_NEGATIVE(
+            "admin/users",
+            NewUserRequest.class,
+            CreateUserNegativeResponse.class
+    ),
+    ADMIN_USER_FORBIDDEN(
+            "admin/users",
+            NewUserRequest.class,
+            ForbiddenResponse.class
+    ),
 
     GET_ALL_USER(
             "admin/users",
+            BaseModel.class,
+            BaseModel.class
+    ),
+
+    GET_ALL_USER_FORBIDDEN(
+            "admin/users",
             GetAllUsersRequest.class,
-            GetAllUsersResponse.class
+            ForbiddenResponse.class
     ),
 
     LOGIN(
@@ -69,8 +66,15 @@ public enum Endpoint {
     DELETE_USER_BY_ID(
             "admin/users/{id}",
             DeleteByUserIdRequest.class,
-            DeleteByUserIdResponse.class
+            DeleteByUserIdSuccessfulResponse.class
     ),
+
+    DELETE_USER_BY_ID_FORBIDDEN(
+            "admin/users/{id}",
+            DeleteByUserIdRequest.class,
+            ForbiddenResponse.class
+    ),
+
     DEPOSIT(
             "accounts/deposit",
             MakeDepositRequest.class,

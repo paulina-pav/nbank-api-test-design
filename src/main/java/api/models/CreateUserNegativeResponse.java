@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-
-public class GetAllUsersResponse extends BaseModel {
-    List<User> users;
+public class CreateUserNegativeResponse extends BaseModel {
+    private List<String> role;
 }

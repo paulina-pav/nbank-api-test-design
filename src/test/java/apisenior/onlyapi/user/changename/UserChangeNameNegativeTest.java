@@ -2,12 +2,14 @@ package apisenior.onlyapi.user.changename;
 
 
 import api.comparison.ModelAssertions;
+import api.generators.RandomHeaderGenerator;
 import api.generators.RandomModelGenerator;
 import api.models.CreatedUser;
 import api.models.GetCustomerProfileResponse;
 import api.models.UserChangeNameRequest;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
+import api.requests.steps.AdminSteps;
 import api.requests.steps.UserSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
@@ -97,23 +99,25 @@ public class UserChangeNameNegativeTest extends BaseTest {
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
     }
 
-    @DisplayName("discovery 401")
+    @DisplayName("Неизвестный юзер не может сменить себе имя")
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
-    public void test401() {
+    public void unknownUserCantChangeNameThemself() {
 
         UserChangeNameRequest changedName = RandomModelGenerator.generate(UserChangeNameRequest.class);
 
-        String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authWithRawHeader("aaaaaFFFFFF"),
+        String message = new CrudRequester(
+                RequestSpecs.authWithRawHeader(RandomHeaderGenerator.generateHeader()),
                 Endpoint.UPDATE_CUSTOMER_NAME,
                 ResponseSpecs.unauthorized()
         ).put(changedName).extract().asString();
 
-        // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage); //сверим что сообщение об ошибке правильное
+         soflty.assertThat(message).isEmpty();
 
-       // GetCustomerProfileResponse getCustomerProfileAfter = UserSteps.getsProfile(newUser.getRequest());
-       // ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
+         //тк юзера не создавали, проверим, что имя никому случайно не встало
+        boolean isNameInSystem = AdminSteps.checkIfUserExistedByName(changedName.getName());
+        soflty.assertThat(isNameInSystem).isFalse();
+
     }
 }
 
