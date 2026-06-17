@@ -37,8 +37,7 @@ mkdir -p \
 #docker pull selenoid/chrome:latest
 
 echo ">>> Starting Docker Compose environment"
-docker compose up -d backend
-#frontend selenoid selenoid-ui
+docker compose up -d backend frontend selenoid selenoid-ui
 
 echo ">>> Waiting for environment to become ready"
 sleep 20
@@ -46,12 +45,12 @@ sleep 20
 echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
 echo "TARGET_DIR: $TARGET_DIR"
 
-#echo ">>> Running UI tests"
-#TEST_PROFILE=ui docker compose run --rm \
-#  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
-#  -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
-#  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
-#  tests
+echo ">>> Running UI tests"
+TEST_PROFILE=ui docker compose run --rm \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/logs:/app/logs" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/results:/app/target/surefire-reports" \
+  -v "${HOST_PWD}/test-output/$TIMESTAMP/report:/app/target/site" \
+  tests
 
 
 echo ">>> Running API tests"
