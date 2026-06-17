@@ -29,7 +29,8 @@ public class AdminPositiveTest extends BaseTest {
                 ResponseSpecs.requestReturnsOK()
         ).delete(newUser.getResponse().getId());
 
-        soflty.assertThat(successMessage).isEqualTo(ServiceMessageHelpMethods.createDeleteUserSuccessfulMessage(newUser.getResponse().getId()));
+        soflty.assertThat(successMessage)
+                .isEqualTo(ServiceMessageHelpMethods.createDeleteUserSuccessfulMessage(newUser.getResponse().getId()));
 
         boolean result = AdminSteps.checkIfUserAlreadyDeleted(newUser);
         soflty.assertThat(result).isFalse();
@@ -37,9 +38,6 @@ public class AdminPositiveTest extends BaseTest {
         boolean isUserExisted = AdminSteps.checkIfUserExistedByUsername(newUser.getRequest());
         soflty.assertThat(isUserExisted).isFalse();
 
-
-        //УБРАТЬ ПОТОМ
-        CreatedUser newUser2 = createUser();
     }
 
 

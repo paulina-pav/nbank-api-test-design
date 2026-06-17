@@ -114,7 +114,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
 
          //тк юзера не создавали, проверим, что имя никому случайно не встало
         boolean isNameInSystem = AdminSteps.checkIfUserExistedByName(changedName.getName());
-        soflty.assertThat(isNameInSystem).isNull();
+        soflty.assertThat(isNameInSystem).isFalse();
 
     }
 }
