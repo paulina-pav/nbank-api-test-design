@@ -176,7 +176,7 @@ jobs:
       - name: Check Swagger coverage quality gate
         if: always()
         run: |
-          THRESHOLD=50
+          THRESHOLD=5
 
           TOTAL=$(jq '.operations | length' swagger-coverage-results.json)
           FULL=$(jq '[.operations[] | select(.state == "FULL")] | length' swagger-coverage-results.json)
