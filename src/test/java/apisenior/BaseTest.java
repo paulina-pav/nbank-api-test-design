@@ -28,9 +28,7 @@ public abstract class BaseTest {
     @AfterEach
     public void afterTest() {
 
-        for (CreatedUser user : users) {
-            AdminSteps.deletesUser(user);
-        }
+        AdminSteps.deleteAllUsers();
         soflty.assertAll();
     }
 }

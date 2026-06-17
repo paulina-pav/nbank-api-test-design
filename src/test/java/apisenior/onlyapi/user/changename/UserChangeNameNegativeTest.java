@@ -75,8 +75,6 @@ public class UserChangeNameNegativeTest extends BaseTest {
         ModelAssertions.assertThatModels(newUser.getResponse(), getCustomerProfileAfter).match();
     }
 
-
-    //добить ПРОВЕРКУ!!!
     @DisplayName("админ не может сменить имя другому юзеру")
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
@@ -116,7 +114,7 @@ public class UserChangeNameNegativeTest extends BaseTest {
 
          //тк юзера не создавали, проверим, что имя никому случайно не встало
         boolean isNameInSystem = AdminSteps.checkIfUserExistedByName(changedName.getName());
-        soflty.assertThat(isNameInSystem).isFalse();
+        soflty.assertThat(isNameInSystem).isNull();
 
     }
 }

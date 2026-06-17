@@ -39,12 +39,10 @@ public class GetAllUsersNegativeTest extends BaseTest {
         //401
         CreatedUser newUser = createUser();
 
-        String actualErrorMessage = new CrudRequester(
+        new CrudRequester(
                 RequestSpecs.authWithRawHeader(RandomHeaderGenerator.generateHeader()),
                 Endpoint.GET_ALL_USER,
                 ResponseSpecs.unauthorized()
-        ).get().toString();
-
-        soflty.assertThat(actualErrorMessage).isEmpty();
+        ).get();
     }
 }

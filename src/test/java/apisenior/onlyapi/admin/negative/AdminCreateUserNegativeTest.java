@@ -81,7 +81,7 @@ public class AdminCreateUserNegativeTest extends BaseTest {//готово
 
 
             boolean isUserCreated = AdminSteps.checkIfUserExistedByUsername(userRequest);
-            soflty.assertThat(isUserCreated).isTrue();
+            soflty.assertThat(isUserCreated).isFalse();
 
 
             //AdminSteps.deleteAllUsers();
