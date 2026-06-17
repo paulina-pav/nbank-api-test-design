@@ -1,19 +1,24 @@
 package api.specs;
 
 import api.configs.Config;
+import api.models.UserLoginAuthRequest;
+import api.requests.skelethon.Endpoint;
+import api.requests.skelethon.requesters.CrudRequester;
+import com.github.viclovsky.swagger.coverage.FileSystemOutputWriter;
+import com.github.viclovsky.swagger.coverage.SwaggerCoverageRestAssured;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import api.models.UserLoginAuthRequest;
-import api.requests.skelethon.requesters.CrudRequester;
-import api.requests.skelethon.Endpoint;
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.github.viclovsky.swagger.coverage.SwaggerCoverageConstants.OUTPUT_DIRECTORY;
 
 public class RequestSpecs {
     private static Map<String, String> authHeaders =
@@ -24,12 +29,19 @@ public class RequestSpecs {
     }
 
     private static RequestSpecBuilder defaultRequestBuilder() {
+
+        System.out.println(">>> SwaggerCoverage RequestSpec created");
+
         return new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
-                .addFilters(List.of(new RequestLoggingFilter(),
-                        new ResponseLoggingFilter(), new AllureRestAssured()))
-                .setBaseUri(Config.getProperty("server") + Config.getProperty("apiVersion"));
+                .addFilters(List.of(
+                        new RequestLoggingFilter(),
+                        new ResponseLoggingFilter(),
+                        new AllureRestAssured(),
+                        new SwaggerCoverageRestAssured(
+                                new FileSystemOutputWriter(Paths.get("target/" + OUTPUT_DIRECTORY)))))
+                .setBaseUri(Config.getProperty("server"));
     }
 
     public static RequestSpecification unauthSpec() {
@@ -64,6 +76,7 @@ public class RequestSpecs {
                 .addHeader("Authorization", userAuthHeader)
                 .build();
     }
+
     public static String getUserAuthHeader(String username, String password) {
 
         String userAuthHeader;
@@ -82,6 +95,13 @@ public class RequestSpecs {
         }
 
         return userAuthHeader;
+    }
+
+
+    public static RequestSpecification authWithRawHeader(String authHeader) {
+        return defaultRequestBuilder()
+                .addHeader("Authorization", authHeader)
+                .build();
     }
 
 }

@@ -1,0 +1,226 @@
+name: Build image, run tests, create Allure History, create Swagger Coverage report
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and push test image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build project
+        run: mvn -B clean package -DskipTests=true
+
+      - name: Run Checkstyle
+        run: mvn -B verify -DskipTests=true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nbank-tests:latest
+          platforms: linux/amd64
+
+  run-tests:
+    name: Run API tests in Docker Compose and create reports
+    needs: build-and-push
+    if: ${{ needs.build-and-push.result == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests with Docker Compose
+        working-directory: infra
+        run: GITHUB_WORKSPACE=${{ github.workspace }} bash ./run-tests-with-docker-compose.sh
+
+      - name: Upload run logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-logs
+          path: infra/test-output/**/logs
+
+      - name: Upload surefire report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: target/surefire-report
+
+      - name: Upload allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results
+
+      - name: Upload allure html report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: target/allure-report
+
+
+##добавили ращрешение на исполнение команды
+      - name: Run Swagger coverage
+        if: always()
+        run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline && .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
+
+      - name: Upload swagger coverage json
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-json
+          path: |
+            swagger-coverage-results.json
+            target/swagger-coverage-output/**
+
+#создание истории запуском
+      - name: Upload swagger coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-coverage-report
+          path: |
+            swagger-coverage-report.html
+            swagger-coverage-results.json
+            target/swagger-coverage-output/**
+
+      - name: Load test report history
+        uses: actions/checkout@v4
+        if: always()
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+
+      - name: Build test report
+        uses: simple-elf/allure-report-action@v1.14
+        if: always()
+        with:
+          gh_pages: gh-pages
+          allure_results: target/allure-results
+          allure_history: allure-history
+
+      ##временный дебаг
+#      - name: Debug allure-history
+#        if: always()
+#        run: |
+#          ls -la
+#          ls -la allure-history || true
+
+
+
+
+
+#      - name: Publish Swagger coverage report
+#        if: always()
+#        run: |
+#          cp swagger-coverage-report.html allure-history/${{ github.run_number }}/swagger-coverage-report.html
+
+#      - name: Build Swagger coverage report
+#        if: always()
+#        run: |
+#          mkdir -p allure-history/${{ github.run_number }}
+#
+#          cp swagger-coverage-report.html \
+#            allure-history/${{ github.run_number }}/swagger-coverage-report.html
+#
+#          cp swagger-coverage-report.html \
+#            allure-history/swagger-coverage-report.html
+
+      - name: Debug allure-history
+        if: always()
+        run: |
+          pwd
+          ls -la
+          ls -la allure-history || true
+
+
+      - name: Build Swagger coverage report
+        if: always()
+        run: |
+          sudo mkdir -p allure-history/${{ github.run_number }}
+
+          sudo cp swagger-coverage-report.html \
+            allure-history/${{ github.run_number }}/swagger-coverage-report.html
+
+          sudo cp swagger-coverage-report.html \
+            allure-history/swagger-coverage-report.html
+
+      - name: Check Swagger coverage quality gate
+        if: always()
+        run: |
+          THRESHOLD=5
+
+          TOTAL=$(jq '.operations | length' swagger-coverage-results.json)
+          FULL=$(jq '[.operations[] | select(.state == "FULL")] | length' swagger-coverage-results.json)
+
+          PERCENT=$(( FULL * 100 / TOTAL ))
+
+          echo "Full coverage = ${PERCENT}%"
+
+          if [ "$PERCENT" -lt "$THRESHOLD" ]; then
+          echo "Quality gate failed"
+          exit 1
+          fi
+      
+
+#
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+
+
+
+      - name: Print report links
+        if: always()
+        run: |
+          echo "==============================="
+          echo "ALLURE REPORT:"
+          echo "https://paulina-pav.github.io/nbank-api-test-design/"
+          echo ""
+          echo "SWAGGER COVERAGE:"
+          echo "https://paulina-pav.github.io/nbank-api-test-design/${{ github.run_number }}/swagger-coverage-report.html"
+          echo "==============================="
+
+      - name: Publish links to Summary
+        if: always()
+        run: |
+          echo "## Test Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Allure: https://paulina-pav.github.io/nbank-api-test-design/" >> $GITHUB_STEP_SUMMARY
+          echo "- Swagger Coverage: https://paulina-pav.github.io/nbank-api-test-design/${{ github.run_number }}/swagger-coverage-report.html" >> $GITHUB_STEP_SUMMARY
+#
+      - name: Clean up services
+        if: always()
+        run: cd infra && docker compose down

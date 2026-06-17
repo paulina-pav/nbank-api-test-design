@@ -1,31 +1,17 @@
 services:
   backend:
-    image: nobugsme/nbank:with_validation_fix
+    image: nobugsme/nbank:with_validation_fix_with_swagger
     ports:
       - "4111:4111"
     networks:
       - nbank-network
 
   frontend:
-    image: nobugsme/nbank-ui:latest
-    platform: linux/amd64
-    expose: # не открываем порт наружу, а даем доступ контейнерам в сети
-      - "80"
-    depends_on:
-      - backend
-    networks:
-      - nbank-network
-
-  nginx:
-    image: nginx:1.27.5
-    platform: linux/amd64
+    image: nobugsme/nbank-ui:with_nginx
     ports:
-      - "80:80"
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - "3000:80"
     depends_on:
       - backend
-      - frontend
     networks:
       - nbank-network
 
@@ -36,7 +22,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/:/etc/selenoid/:ro
-    command: ["-container-network", "nbank-network"]
+    command: [ "-container-network", "nbank-network" ]
     depends_on:
       - frontend
     networks:
@@ -44,10 +30,9 @@ services:
 
   selenoid-ui:
     image: aerokube/selenoid-ui:latest
-    platform: linux/amd64
     ports:
-      - "6567:8080"
-    command: ["--selenoid-uri", "http://selenoid:4444"]
+      - "8080:8080"
+    command: [ "--selenoid-uri", "http://selenoid:4444" ]
     depends_on:
       - selenoid
     networks:
@@ -58,7 +43,7 @@ services:
     environment:
       TEST_PROFILE: ${TEST_PROFILE:-api}
       APIBASEURL: http://backend:4111/
-      UIBASEURL: http://nginx
+      UIBASEURL: http://frontend
       UI_REMOTE: http://selenoid:4444/wd/hub
     networks:
       - nbank-network

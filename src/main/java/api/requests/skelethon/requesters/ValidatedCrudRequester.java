@@ -37,6 +37,14 @@ public class ValidatedCrudRequester<T extends BaseModel> extends HttpRequest imp
         return crudRequester.delete(id).extract().asString();
     }
 
+
+    @Override
+    public T deleteAndGetResponseModel(long id) {
+        return (T) crudRequester.delete(id).extract().as(endpoint.getResponseModel());
+    }
+
+
+
     @Override
     public Object get(long id) {
         return (T) crudRequester.get(id).extract().as(endpoint.getResponseModel());

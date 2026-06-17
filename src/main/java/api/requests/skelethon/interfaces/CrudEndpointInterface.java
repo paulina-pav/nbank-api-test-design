@@ -13,5 +13,7 @@ public interface CrudEndpointInterface {
 
     Object delete(long id);
 
+    Object deleteAndGetResponseModel(long id);
+
     Object get();
 }
