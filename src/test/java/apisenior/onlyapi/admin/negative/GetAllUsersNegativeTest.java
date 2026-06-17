@@ -4,20 +4,16 @@ import api.generators.ErrorMessage;
 import api.generators.RandomHeaderGenerator;
 import api.models.CreatedUser;
 import api.models.ForbiddenResponse;
-import api.models.User;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
-import api.requests.steps.AdminSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import apisenior.BaseTest;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-public class GetAllUsersNegative extends BaseTest {
+public class GetAllUsersNegativeTest extends BaseTest {
 
     @Test
     public void userIsForbiddenToGetAllUsers() {

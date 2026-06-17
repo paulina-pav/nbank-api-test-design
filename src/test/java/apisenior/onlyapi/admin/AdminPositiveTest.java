@@ -36,6 +36,10 @@ public class AdminPositiveTest extends BaseTest {
 
         boolean isUserExisted = AdminSteps.checkIfUserExistedByUsername(newUser.getRequest());
         soflty.assertThat(isUserExisted).isFalse();
+
+
+        //УБРАТЬ ПОТОМ
+        CreatedUser newUser2 = createUser();
     }
 
 

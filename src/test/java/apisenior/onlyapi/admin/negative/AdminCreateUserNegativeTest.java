@@ -3,7 +3,6 @@ package apisenior.onlyapi.admin.negative;
 import api.generators.ErrorMessage;
 import api.generators.RandomHeaderGenerator;
 import api.generators.RandomModelGenerator;
-import api.generators.UserRole;
 import api.models.*;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
@@ -15,9 +14,7 @@ import apisenior.BaseTest;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-public class AdminCreateUserNegative extends BaseTest {//готово
+public class AdminCreateUserNegativeTest extends BaseTest {//готово
     @Test
     public void adminCantCreateUserWithUnappropriatedUsername() { //done
         NewUserRequest userRequest =

@@ -6,7 +6,6 @@ import api.generators.ServiceMessageHelpMethods;
 import api.models.CreatedUser;
 import api.models.DeleteByUserIdSuccessfulResponse;
 import api.models.ForbiddenResponse;
-import api.models.User;
 import api.requests.skelethon.Endpoint;
 import api.requests.skelethon.requesters.CrudRequester;
 import api.requests.skelethon.requesters.ValidatedCrudRequester;
@@ -17,9 +16,7 @@ import apisenior.BaseTest;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-public class DeleteUserNegative extends BaseTest {
+public class DeleteUserNegativeTest extends BaseTest {
     @Test
     public void adminCantDeleteAlreadyDeletedUser() {//done
 
