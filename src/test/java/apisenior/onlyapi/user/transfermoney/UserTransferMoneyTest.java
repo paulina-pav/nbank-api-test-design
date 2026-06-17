@@ -127,6 +127,5 @@ public class UserTransferMoneyTest extends BaseTest {
         boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
                 TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
         soflty.assertThat(isTransactionTransferIn).isTrue();
-
     }
 }

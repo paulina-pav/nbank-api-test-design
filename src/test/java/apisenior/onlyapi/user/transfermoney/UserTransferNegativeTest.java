@@ -3,6 +3,7 @@ package apisenior.onlyapi.user.transfermoney;
 
 import api.generators.ErrorMessage;
 import api.generators.MaxSumsForDepositAndTransactions;
+import api.generators.RandomHeaderGenerator;
 import api.generators.TransactionType;
 import api.models.TransferMoneyRequest;
 import api.requests.skelethon.Endpoint;
@@ -22,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static api.generators.ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT;
 import static api.requests.steps.AdminSteps.createUser;
 
 public class UserTransferNegativeTest extends BaseTest {
@@ -155,10 +157,11 @@ public class UserTransferNegativeTest extends BaseTest {
 
     }
 
-    @DisplayName("discovery 403 transfer")
+
+    @DisplayName("Юзер не может делать перевод от лица другого юзера")
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
-    public void user403() {
+    public void userCantTransferMoneyUsingOtherUserCredentials() {
 
         CreatedUser userDeb = createUser();
         CreatedUser userCred = createUser();
@@ -177,36 +180,36 @@ public class UserTransferNegativeTest extends BaseTest {
                 .receiverAccountId(debetId)
                 .build();
 
-        String actualErrorMessage = new CrudRequester(
+        String message = new CrudRequester(
                 RequestSpecs.authAsUser(userDeb.getRequest().getUsername(), userDeb.getRequest().getPassword()),
                 Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsForbidden()
         ).post(transferMoney).extract().asString();
 
-       // soflty.assertThat(actualErrorMessage).isEqualTo(expectedErrorMessage);
+        soflty.assertThat(message).isEqualTo(ErrorMessage.UNAUTHORIZED_ACCESS_TO_ACCOUNT.getMessage());
 
 
-//        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
-//        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
-//
-//        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
-//        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
-//
-//        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
-//                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
-//        soflty.assertThat(isTransactionTransferOut).isFalse();
-//
-//
-//        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
-//                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
-//        soflty.assertThat(isTransactionTransferIn).isFalse();
+        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
 
-    } //через админа тоже сделать 403 еще один кейс
+        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
+        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
 
-    @DisplayName("discovery 401 transfer")
+        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
+        soflty.assertThat(isTransactionTransferOut).isFalse();
+
+
+        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
+        soflty.assertThat(isTransactionTransferIn).isFalse();
+
+    }
+
+    @DisplayName("Неизвестный юзер не может отправлять трансфер от лица созданного юзера")
     @Test
     @EnabledForBackend(BackendProfile.WITH_VALIDATION_FIX)
-    public void test401Transfer(){
+    public void unknownUserCantMakeTransferUsingOtherUserCredentials() {
         CreatedUser userDeb = createUser();
         CreatedUser userCred = createUser();
 
@@ -224,11 +227,28 @@ public class UserTransferNegativeTest extends BaseTest {
                 .receiverAccountId(debetId)
                 .build();
 
-        String actualErrorMessage = new CrudRequester(
-                RequestSpecs.authWithRawHeader("lol"),
+        String message = new CrudRequester(
+                RequestSpecs.authWithRawHeader(RandomHeaderGenerator.generateHeader()),
                 Endpoint.TRANSFER,
                 ResponseSpecs.unauthorized()
         ).post(transferMoney).extract().asString();
+
+        soflty.assertThat(message).isEmpty();
+
+        Double debetAccBalanceAfter = UserSteps.getBalance(userDeb.getRequest(), debetId);
+        Double creditAccBalanceAfter = UserSteps.getBalance(userCred.getRequest(), creditId);
+
+        soflty.assertThat(debetAccBalanceAfter).isEqualTo(balanceDebetBeforeTransfer);
+        soflty.assertThat(creditAccBalanceAfter).isEqualTo(balanceCreditBeforeTransfer);
+
+        boolean isTransactionTransferOut = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_OUT.getMessage(), debetId, creditId, userDeb.getRequest());
+        soflty.assertThat(isTransactionTransferOut).isFalse();
+
+
+        boolean isTransactionTransferIn = UserSteps.findTransactionBySumByTransactionTypeByAccId(MaxSumsForDepositAndTransactions.TRANSACTION.getMax(),
+                TransactionType.TRANSFER_IN.getMessage(), creditId, debetId, userCred.getRequest());
+        soflty.assertThat(isTransactionTransferIn).isFalse();
     }
 
 }

@@ -12,7 +12,8 @@ public enum ErrorMessage {
     DEPOSIT_AMOUNT_EXCEEDS_THE_5000_LIMIT("Deposit amount exceeds the 5000 limit"),
 
     ROLE_MUST_BE_EATHER_ADMIN_OR_USER("Role must be either 'ADMIN' or 'USER'"),
-    FORBIDDEN("Forbidden")
+    FORBIDDEN("Forbidden"),
+
 ;
     private final String message;
 

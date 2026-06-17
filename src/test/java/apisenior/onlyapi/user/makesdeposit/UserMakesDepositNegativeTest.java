@@ -157,6 +157,4 @@ public class UserMakesDepositNegativeTest extends BaseTest {
         Double balanceAfter = UserSteps.getBalance(newUser.getRequest(), accountId);
         soflty.assertThat(balanceBefore).isEqualTo(balanceAfter);
     }
-
-
 }
