@@ -43,7 +43,7 @@ services:
     environment:
       TEST_PROFILE: ${TEST_PROFILE:-api}
       APIBASEURL: http://backend:4111/
-      UIBASEURL: http://nginx
+      UIBASEURL: http://frontend
       UI_REMOTE: http://selenoid:4444/wd/hub
     networks:
       - nbank-network
